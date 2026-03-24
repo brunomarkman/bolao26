@@ -116,6 +116,12 @@ const Admin = () => {
     fetchAll();
   };
 
+  const revertResult = async (matchId: string) => {
+    await supabase.rpc('revert_match_result', { p_match_id: matchId });
+    toast.success('Resultado revertido e pontuação recalculada!');
+    fetchAll();
+  };
+
   const addMessage = async () => {
     if (!newMessage.trim() || !user) return;
     await supabase.from('messages').insert({ content: newMessage, created_by: user.id });
