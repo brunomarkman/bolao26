@@ -82,7 +82,6 @@ const MatchPredictions = () => {
                 </span>
                 {m.match_date && ` - ${format(new Date(m.match_date), 'dd/MM HH:mm')}`}
               </SelectItem>
-              </SelectItem>
             ))}
           </SelectContent>
         </Select>
