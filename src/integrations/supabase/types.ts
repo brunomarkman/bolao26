@@ -201,6 +201,7 @@ export type Database = {
         Returns: number
       }
       process_match_result: { Args: { p_match_id: string }; Returns: undefined }
+      revert_match_result: { Args: { p_match_id: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
