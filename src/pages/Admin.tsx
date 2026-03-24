@@ -231,7 +231,7 @@ const Admin = () => {
           </TabsContent>
 
           {/* Results Tab */}
-          <TabsContent value="results">
+          <TabsContent value="results" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="font-display text-sm tracking-wider">LANÇAR RESULTADOS</CardTitle>
@@ -246,7 +246,7 @@ const Admin = () => {
                   </SelectContent>
                 </Select>
 
-                <ScrollArea className="max-h-[60vh]">
+                <ScrollArea className="max-h-[40vh]">
                   <div className="space-y-3">
                     {phaseMatches.filter(m => !m.is_finished).map(m => (
                       <div key={m.id} className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
@@ -277,6 +277,41 @@ const Admin = () => {
                     ))}
                     {phaseMatches.filter(m => !m.is_finished).length === 0 && (
                       <p className="text-center text-muted-foreground py-8">Todos os jogos desta fase já foram finalizados</p>
+                    )}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+
+            {/* Finished matches */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="font-display text-sm tracking-wider">RESULTADOS LANÇADOS</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="max-h-[40vh]">
+                  <div className="space-y-2">
+                    {phaseMatches.filter(m => m.is_finished).map(m => (
+                      <div key={m.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
+                        <div>
+                          <p className="text-sm font-medium">
+                            {m.team_a} <span className="font-display font-bold text-primary">{m.score_a}</span>
+                            {' × '}
+                            <span className="font-display font-bold text-primary">{m.score_b}</span> {m.team_b}
+                          </p>
+                          {m.match_date && (
+                            <p className="text-xs text-muted-foreground">
+                              {format(new Date(m.match_date), "dd MMM HH:mm", { locale: ptBR })}
+                            </p>
+                          )}
+                        </div>
+                        <Button variant="outline" size="sm" className="gap-1 text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => revertResult(m.id)}>
+                          <Trash2 className="w-3 h-3" /> Reverter
+                        </Button>
+                      </div>
+                    ))}
+                    {phaseMatches.filter(m => m.is_finished).length === 0 && (
+                      <p className="text-center text-muted-foreground py-8">Nenhum resultado lançado nesta fase</p>
                     )}
                   </div>
                 </ScrollArea>
