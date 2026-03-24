@@ -217,7 +217,7 @@ const Admin = () => {
                           )}
                         </div>
                         <div className="flex items-center gap-2">
-                          {m.is_finished && <CheckCircle className="w-4 h-4 text-green-500" />}
+                          {m.is_finished && <CheckCircle className="w-4 h-4 text-primary" />}
                           <Button variant="ghost" size="icon" onClick={() => deleteMatch(m.id)}>
                             <Trash2 className="w-4 h-4 text-destructive" />
                           </Button>
