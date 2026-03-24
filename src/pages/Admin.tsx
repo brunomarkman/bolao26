@@ -154,10 +154,11 @@ const Admin = () => {
 
       <main className="container mx-auto px-4 py-6">
         <Tabs defaultValue="phases" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="phases" className="font-display text-xs tracking-wider">FASES</TabsTrigger>
             <TabsTrigger value="results" className="font-display text-xs tracking-wider">RESULTADOS</TabsTrigger>
             <TabsTrigger value="messages" className="font-display text-xs tracking-wider">MENSAGENS</TabsTrigger>
+            <TabsTrigger value="payments" className="font-display text-xs tracking-wider">PAGAMENTOS</TabsTrigger>
           </TabsList>
 
           {/* Phases & Matches Tab */}
@@ -363,6 +364,11 @@ const Admin = () => {
                 </ScrollArea>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Payments Tab */}
+          <TabsContent value="payments">
+            <PaymentsTab />
           </TabsContent>
         </Tabs>
       </main>
