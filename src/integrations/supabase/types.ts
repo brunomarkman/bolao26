@@ -88,6 +88,27 @@ export type Database = {
         }
         Relationships: []
       }
+      payments: {
+        Row: {
+          created_at: string
+          id: string
+          received_by: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          received_by: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          received_by?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       phases: {
         Row: {
           created_at: string
@@ -183,6 +204,27 @@ export type Database = {
           total_score?: number
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: string
         }
         Relationships: []
       }
