@@ -15,6 +15,7 @@ import { ArrowLeft, Plus, Trash2, Trophy, Save, CheckCircle } from 'lucide-react
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { Tables } from '@/integrations/supabase/types';
+import TeamName from '@/components/TeamName';
 
 type Phase = Tables<'phases'>;
 type Match = Tables<'matches'>;
@@ -212,7 +213,7 @@ const Admin = () => {
                       <div key={m.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
                         <div>
                           <p className="text-sm font-medium">
-                            {m.team_a} vs {m.team_b}
+                            <TeamName name={m.team_a} side="left" /> vs <TeamName name={m.team_b} side="right" />
                             {m.group_name && <span className="text-muted-foreground"> (Grupo {m.group_name})</span>}
                           </p>
                           {m.match_date && (
@@ -256,10 +257,10 @@ const Admin = () => {
                   <div className="space-y-3">
                     {phaseMatches.filter(m => !m.is_finished).map(m => (
                       <div key={m.id} className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
-                        <p className="text-sm font-medium text-center">{m.team_a} vs {m.team_b}</p>
+                        <p className="text-sm font-medium text-center"><TeamName name={m.team_a} side="left" /> vs <TeamName name={m.team_b} side="right" /></p>
                         <div className="flex items-center justify-center gap-3">
                           <div className="text-center">
-                            <p className="text-xs text-muted-foreground mb-1">{m.team_a}</p>
+                            <p className="text-xs text-muted-foreground mb-1"><TeamName name={m.team_a} side="left" /></p>
                             <Input
                               type="number" min="0" className="w-16 text-center font-display font-bold"
                               value={resultScoreA[m.id] ?? ''}
@@ -268,7 +269,7 @@ const Admin = () => {
                           </div>
                           <span className="font-display text-lg text-muted-foreground pt-4">×</span>
                           <div className="text-center">
-                            <p className="text-xs text-muted-foreground mb-1">{m.team_b}</p>
+                            <p className="text-xs text-muted-foreground mb-1"><TeamName name={m.team_b} side="right" /></p>
                             <Input
                               type="number" min="0" className="w-16 text-center font-display font-bold"
                               value={resultScoreB[m.id] ?? ''}
@@ -301,9 +302,10 @@ const Admin = () => {
                       <div key={m.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
                         <div>
                           <p className="text-sm font-medium">
-                            {m.team_a} <span className="font-display font-bold text-primary">{m.score_a}</span>
+                            <TeamName name={m.team_a} side="left" /> <span className="font-display font-bold text-primary">{m.score_a}</span>
                             {' × '}
-                            <span className="font-display font-bold text-primary">{m.score_b}</span> {m.team_b}
+                            <span className="font-display font-bold text-primary">{m.score_b}</span> <TeamName name={m.team_b} side="right" />
+                          </p>
                           </p>
                           {m.match_date && (
                             <p className="text-xs text-muted-foreground">
