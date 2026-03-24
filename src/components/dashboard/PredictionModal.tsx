@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { Tables } from '@/integrations/supabase/types';
+import TeamName from '@/components/TeamName';
 
 type Match = Tables<'matches'>;
 type Prediction = Tables<'predictions'>;
@@ -150,7 +151,7 @@ const PredictionModal = ({ open, onOpenChange }: PredictionModalProps) => {
                     <div key={match.id} className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
                       <div className="text-center">
                         <p className="font-medium text-sm">
-                          {match.team_a || '???'} vs {match.team_b || '???'}
+                          <TeamName name={match.team_a || '???'} side="left" /> vs <TeamName name={match.team_b || '???'} side="right" />
                         </p>
                         {match.match_date && (
                           <p className="text-xs text-muted-foreground">
@@ -160,7 +161,7 @@ const PredictionModal = ({ open, onOpenChange }: PredictionModalProps) => {
                       </div>
                       <div className="flex items-center justify-center gap-3">
                         <div className="text-center">
-                          <p className="text-xs text-muted-foreground mb-1">{match.team_a || 'Time A'}</p>
+                          <p className="text-xs text-muted-foreground mb-1"><TeamName name={match.team_a || 'Time A'} side="left" /></p>
                           <Input
                             type="number"
                             min="0"
@@ -171,7 +172,7 @@ const PredictionModal = ({ open, onOpenChange }: PredictionModalProps) => {
                         </div>
                         <span className="font-display text-lg text-muted-foreground pt-4">×</span>
                         <div className="text-center">
-                          <p className="text-xs text-muted-foreground mb-1">{match.team_b || 'Time B'}</p>
+                          <p className="text-xs text-muted-foreground mb-1"><TeamName name={match.team_b || 'Time B'} side="right" /></p>
                           <Input
                             type="number"
                             min="0"
