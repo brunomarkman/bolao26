@@ -42,10 +42,10 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-secondary p-4"
+    <div className="min-h-screen flex items-center justify-center p-4"
       style={{
         backgroundImage: `
-          radial-gradient(ellipse at 20% 50%, hsl(350 80% 45% / 0.15) 0%, transparent 50%),
+          radial-gradient(ellipse at 20% 50%, hsl(150 60% 25% / 0.15) 0%, transparent 50%),
           radial-gradient(ellipse at 80% 20%, hsl(45 100% 50% / 0.1) 0%, transparent 50%),
           radial-gradient(ellipse at 50% 80%, hsl(220 60% 20% / 0.3) 0%, transparent 50%)
         `,

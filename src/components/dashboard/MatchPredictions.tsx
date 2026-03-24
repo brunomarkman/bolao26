@@ -7,6 +7,7 @@ import { Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { Tables } from '@/integrations/supabase/types';
+import TeamName from '@/components/TeamName';
 
 type Match = Tables<'matches'>;
 type Prediction = Tables<'predictions'>;
@@ -76,8 +77,11 @@ const MatchPredictions = () => {
           <SelectContent>
             {matches.map(m => (
               <SelectItem key={m.id} value={m.id}>
-                {m.team_a || '???'} vs {m.team_b || '???'}
+                <span className="inline-flex items-center gap-1">
+                  <TeamName name={m.team_a || '???'} side="left" /> vs <TeamName name={m.team_b || '???'} side="right" />
+                </span>
                 {m.match_date && ` - ${format(new Date(m.match_date), 'dd/MM HH:mm')}`}
+              </SelectItem>
               </SelectItem>
             ))}
           </SelectContent>
@@ -90,7 +94,7 @@ const MatchPredictions = () => {
         {currentMatch && (
           <div className="text-center py-2">
             <p className="font-display text-lg font-bold">
-              {currentMatch.team_a || '???'} vs {currentMatch.team_b || '???'}
+              <TeamName name={currentMatch.team_a || '???'} side="left" /> vs <TeamName name={currentMatch.team_b || '???'} side="right" />
             </p>
             {currentMatch.match_date && (
               <p className="text-xs text-muted-foreground mt-1">
