@@ -14,13 +14,193 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      matches: {
+        Row: {
+          created_at: string
+          group_name: string | null
+          id: string
+          is_finished: boolean
+          location: string | null
+          match_date: string | null
+          phase_id: string
+          score_a: number | null
+          score_b: number | null
+          team_a: string
+          team_b: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          group_name?: string | null
+          id?: string
+          is_finished?: boolean
+          location?: string | null
+          match_date?: string | null
+          phase_id: string
+          score_a?: number | null
+          score_b?: number | null
+          team_a?: string
+          team_b?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          group_name?: string | null
+          id?: string
+          is_finished?: boolean
+          location?: string | null
+          match_date?: string | null
+          phase_id?: string
+          score_a?: number | null
+          score_b?: number | null
+          team_a?: string
+          team_b?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matches_phase_id_fkey"
+            columns: ["phase_id"]
+            isOneToOne: false
+            referencedRelation: "phases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string
+          id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by: string
+          id?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      phases: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          number: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          number: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          number?: number
+        }
+        Relationships: []
+      }
+      predictions: {
+        Row: {
+          created_at: string
+          id: string
+          match_id: string
+          points: number | null
+          score_a: number
+          score_b: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          match_id: string
+          points?: number | null
+          score_a: number
+          score_b: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          match_id?: string
+          points?: number | null
+          score_a?: number
+          score_b?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "predictions_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_admin: boolean
+          name: string
+          total_score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_admin?: boolean
+          name: string
+          total_score?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_admin?: boolean
+          name?: string
+          total_score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_prediction_points: {
+        Args: {
+          actual_a: number
+          actual_b: number
+          pred_a: number
+          pred_b: number
+        }
+        Returns: number
+      }
+      process_match_result: { Args: { p_match_id: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
