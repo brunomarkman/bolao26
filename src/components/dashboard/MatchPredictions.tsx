@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CalendarDays } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { Tables } from '@/integrations/supabase/types';
@@ -19,16 +19,9 @@ const MatchPredictions = () => {
 
   useEffect(() => {
     const fetchMatches = async () => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-
       const { data } = await supabase
         .from('matches')
         .select('*')
-        .gte('match_date', today.toISOString())
-        .lt('match_date', tomorrow.toISOString())
         .eq('is_finished', false)
         .order('match_date', { ascending: true });
       
@@ -71,8 +64,8 @@ const MatchPredictions = () => {
     <Card className="h-full border-primary/10">
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-display tracking-wider flex items-center gap-2 text-primary">
-          <CalendarDays className="w-4 h-4" />
-          JOGOS DO DIA
+          <Eye className="w-4 h-4" />
+          CONFIRA PALPITES
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -84,14 +77,14 @@ const MatchPredictions = () => {
             {matches.map(m => (
               <SelectItem key={m.id} value={m.id}>
                 {m.team_a || '???'} vs {m.team_b || '???'}
-                {m.match_date && ` - ${format(new Date(m.match_date), 'HH:mm')}`}
+                {m.match_date && ` - ${format(new Date(m.match_date), 'dd/MM HH:mm')}`}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
 
         {matches.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-8">Nenhum jogo hoje</p>
+          <p className="text-sm text-muted-foreground text-center py-8">Nenhum jogo pendente</p>
         )}
 
         {currentMatch && (
