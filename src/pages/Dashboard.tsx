@@ -14,7 +14,7 @@ const Dashboard = () => {
   const [predictionOpen, setPredictionOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       {/* Header */}
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="container mx-auto px-4 h-14 flex items-center justify-between">
