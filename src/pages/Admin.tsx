@@ -306,7 +306,6 @@ const Admin = () => {
                             {' × '}
                             <span className="font-display font-bold text-primary">{m.score_b}</span> <TeamName name={m.team_b} side="right" />
                           </p>
-                          </p>
                           {m.match_date && (
                             <p className="text-xs text-muted-foreground">
                               {format(new Date(m.match_date), "dd MMM HH:mm", { locale: ptBR })}
