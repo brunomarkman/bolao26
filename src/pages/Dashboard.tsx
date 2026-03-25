@@ -9,11 +9,13 @@ import OrganizerMessages from '@/components/dashboard/OrganizerMessages';
 import Leaderboard from '@/components/dashboard/Leaderboard';
 import MatchPredictions from '@/components/dashboard/MatchPredictions';
 import PredictionModal from '@/components/dashboard/PredictionModal';
+import MatchBracket from '@/components/dashboard/MatchBracket';
 
 const Dashboard = () => {
   const { profile, signOut, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [predictionOpen, setPredictionOpen] = useState(false);
+  const [bracketOpen, setBracketOpen] = useState(false);
   const [paidCount, setPaidCount] = useState(0);
   const [totalProfiles, setTotalProfiles] = useState(0);
   const [betValue, setBetValue] = useState(0);
@@ -36,7 +38,6 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Header */}
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="container mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -59,12 +60,7 @@ const Dashboard = () => {
               Olá, <span className="font-medium text-foreground">{profile?.name}</span>
             </span>
             {isAdmin && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate('/admin')}
-                className="gap-1"
-              >
+              <Button variant="outline" size="sm" onClick={() => navigate('/admin')} className="gap-1">
                 <Shield className="w-4 h-4" />
                 <span className="hidden sm:inline">Admin</span>
               </Button>
@@ -76,16 +72,16 @@ const Dashboard = () => {
         </div>
       </header>
 
-      {/* Dashboard Grid */}
       <main className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-7rem)]">
           <OrganizerMessages />
-          <Leaderboard onOpenPredictions={() => setPredictionOpen(true)} />
+          <Leaderboard onOpenPredictions={() => setPredictionOpen(true)} onOpenBracket={() => setBracketOpen(true)} />
           <MatchPredictions />
         </div>
       </main>
 
       <PredictionModal open={predictionOpen} onOpenChange={setPredictionOpen} />
+      <MatchBracket open={bracketOpen} onOpenChange={setBracketOpen} />
     </div>
   );
 };
