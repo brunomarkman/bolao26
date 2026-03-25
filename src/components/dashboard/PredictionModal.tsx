@@ -149,16 +149,11 @@ const PredictionModal = ({ open, onOpenChange }: PredictionModalProps) => {
                   const pred = predictions.find(p => p.matchId === match.id);
                   return (
                     <div key={match.id} className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
-                      <div className="text-center">
-                        <p className="font-medium text-sm">
-                          <TeamName name={match.team_a || '???'} side="left" /> vs <TeamName name={match.team_b || '???'} side="right" />
+                      {match.match_date && (
+                        <p className="text-xs text-muted-foreground text-center">
+                          {format(new Date(match.match_date), "dd MMM, HH:mm", { locale: ptBR })}
                         </p>
-                        {match.match_date && (
-                          <p className="text-xs text-muted-foreground">
-                            {format(new Date(match.match_date), "dd MMM, HH:mm", { locale: ptBR })}
-                          </p>
-                        )}
-                      </div>
+                      )}
                       <div className="flex items-center justify-center gap-3">
                         <div className="text-center">
                           <p className="text-xs text-muted-foreground mb-1"><TeamName name={match.team_a || 'Time A'} side="left" /></p>
