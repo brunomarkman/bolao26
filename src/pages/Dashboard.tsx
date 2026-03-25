@@ -40,7 +40,7 @@ const Dashboard = () => {
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="container mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Trophy className="w-6 h-6 text-primary" />
+            <img src={trophyImg} alt="Troféu" className="w-7 h-7 object-contain" />
             <h1 className="font-display text-lg tracking-wider text-primary font-bold">
               BOLÃO COPA 2026
             </h1>
