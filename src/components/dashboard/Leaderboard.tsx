@@ -10,9 +10,10 @@ type Profile = Tables<'profiles'>;
 
 interface LeaderboardProps {
   onOpenPredictions: () => void;
+  onOpenBracket: () => void;
 }
 
-const Leaderboard = ({ onOpenPredictions }: LeaderboardProps) => {
+const Leaderboard = ({ onOpenPredictions, onOpenBracket }: LeaderboardProps) => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
 
   useEffect(() => {
@@ -49,7 +50,7 @@ const Leaderboard = ({ onOpenPredictions }: LeaderboardProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0 flex flex-col">
-        <ScrollArea className="h-[calc(100vh-20rem)] px-4">
+        <ScrollArea className="h-[calc(100vh-22rem)] px-4">
           {profiles.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">Nenhum competidor</p>
           ) : (
@@ -79,9 +80,12 @@ const Leaderboard = ({ onOpenPredictions }: LeaderboardProps) => {
             </div>
           )}
         </ScrollArea>
-        <div className="p-4 border-t border-border">
+        <div className="p-4 border-t border-border space-y-2">
           <Button onClick={onOpenPredictions} className="w-full font-display tracking-wider">
             ⚽ LANÇAR PALPITES
+          </Button>
+          <Button onClick={onOpenBracket} variant="outline" className="w-full font-display tracking-wider">
+            📋 TABELA DE JOGOS
           </Button>
         </div>
       </CardContent>

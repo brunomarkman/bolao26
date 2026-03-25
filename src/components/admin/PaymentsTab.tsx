@@ -157,10 +157,22 @@ const PaymentsTab = () => {
 
       {/* Payments List */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="font-display text-sm tracking-wider">
             PAGAMENTOS REGISTRADOS ({payments.length}/{profiles.length})
           </CardTitle>
+          {payments.length > 0 && (
+            <Button variant="destructive" size="sm" className="gap-1" onClick={async () => {
+              if (!confirm('Deletar TODOS os pagamentos?')) return;
+              for (const p of payments) {
+                await supabase.from('payments').delete().eq('id', p.id);
+              }
+              toast.success('Todos os pagamentos removidos');
+              fetchAll();
+            }}>
+              <Trash2 className="w-3 h-3" /> Deletar Todos
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           <ScrollArea className="max-h-[40vh]">
