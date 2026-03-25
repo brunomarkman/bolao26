@@ -11,12 +11,13 @@ import { Switch } from '@/components/ui/switch';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { ArrowLeft, Plus, Trash2, Trophy, Save, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, CheckCircle, AlertTriangle } from 'lucide-react';
 import PaymentsTab from '@/components/admin/PaymentsTab';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { Tables } from '@/integrations/supabase/types';
 import TeamName from '@/components/TeamName';
+import trophyImg from '@/assets/trophy.png';
 
 type Phase = Tables<'phases'>;
 type Match = Tables<'matches'>;
@@ -31,7 +32,6 @@ const Admin = () => {
   const [selectedPhase, setSelectedPhase] = useState<string>('');
   const [newMessage, setNewMessage] = useState('');
 
-  // New match fields
   const [newTeamA, setNewTeamA] = useState('');
   const [newTeamB, setNewTeamB] = useState('');
   const [newMatchDate, setNewMatchDate] = useState('');
@@ -40,10 +40,7 @@ const Admin = () => {
   const [newGroup, setNewGroup] = useState('');
 
   useEffect(() => {
-    if (!isAdmin) {
-      navigate('/');
-      return;
-    }
+    if (!isAdmin) { navigate('/'); return; }
     fetchAll();
   }, [isAdmin]);
 
@@ -77,12 +74,8 @@ const Admin = () => {
       matchDate = new Date(`${newMatchDate}T${newMatchTime}:00`).toISOString();
     }
     await supabase.from('matches').insert({
-      phase_id: selectedPhase,
-      team_a: newTeamA,
-      team_b: newTeamB,
-      match_date: matchDate,
-      location: newLocation,
-      group_name: newGroup || null,
+      phase_id: selectedPhase, team_a: newTeamA, team_b: newTeamB,
+      match_date: matchDate, location: newLocation, group_name: newGroup || null,
     });
     setNewTeamA(''); setNewTeamB(''); setNewMatchDate(''); setNewMatchTime(''); setNewLocation(''); setNewGroup('');
     toast.success('Jogo adicionado');
@@ -95,25 +88,26 @@ const Admin = () => {
     fetchAll();
   };
 
+  const deleteAllMatches = async () => {
+    if (!confirm('⚠️ ATENÇÃO: Isso irá deletar TODOS os jogos, palpites e resultados de TODAS as fases. Deseja continuar?')) return;
+    // Delete predictions first, then matches
+    await supabase.from('predictions').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase.from('matches').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    // Reset all scores
+    await supabase.from('profiles').update({ total_score: 0 }).neq('id', '00000000-0000-0000-0000-000000000000');
+    toast.success('Todos os jogos foram removidos');
+    fetchAll();
+  };
+
   const [resultScoreA, setResultScoreA] = useState<Record<string, string>>({});
   const [resultScoreB, setResultScoreB] = useState<Record<string, string>>({});
 
   const submitResult = async (matchId: string) => {
     const sA = parseInt(resultScoreA[matchId] ?? '');
     const sB = parseInt(resultScoreB[matchId] ?? '');
-    if (isNaN(sA) || isNaN(sB)) {
-      toast.error('Informe o placar corretamente');
-      return;
-    }
-    await supabase.from('matches').update({
-      score_a: sA,
-      score_b: sB,
-      is_finished: true,
-    }).eq('id', matchId);
-
-    // Process results
+    if (isNaN(sA) || isNaN(sB)) { toast.error('Informe o placar corretamente'); return; }
+    await supabase.from('matches').update({ score_a: sA, score_b: sB, is_finished: true }).eq('id', matchId);
     await supabase.rpc('process_match_result', { p_match_id: matchId });
-
     toast.success('Resultado lançado e pontuação calculada!');
     fetchAll();
   };
@@ -121,6 +115,16 @@ const Admin = () => {
   const revertResult = async (matchId: string) => {
     await supabase.rpc('revert_match_result', { p_match_id: matchId });
     toast.success('Resultado revertido e pontuação recalculada!');
+    fetchAll();
+  };
+
+  const revertAllResults = async () => {
+    if (!confirm('⚠️ Reverter TODOS os resultados desta fase? As pontuações serão recalculadas.')) return;
+    const finished = phaseMatches.filter(m => m.is_finished);
+    for (const m of finished) {
+      await supabase.rpc('revert_match_result', { p_match_id: m.id });
+    }
+    toast.success('Todos os resultados da fase foram revertidos');
     fetchAll();
   };
 
@@ -147,7 +151,7 @@ const Admin = () => {
           <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
             <ArrowLeft className="w-4 h-4" />
           </Button>
-          <Trophy className="w-5 h-5 text-primary" />
+          <img src={trophyImg} alt="Troféu" className="w-6 h-6 object-contain" />
           <h1 className="font-display text-lg tracking-wider text-primary font-bold">PAINEL ADMIN</h1>
         </div>
       </header>
@@ -163,7 +167,6 @@ const Admin = () => {
 
           {/* Phases & Matches Tab */}
           <TabsContent value="phases" className="space-y-6">
-            {/* Phase activation */}
             <Card>
               <CardHeader>
                 <CardTitle className="font-display text-sm tracking-wider">ATIVAR/DESATIVAR FASES</CardTitle>
@@ -180,18 +183,18 @@ const Admin = () => {
               </CardContent>
             </Card>
 
-            {/* Add match */}
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="font-display text-sm tracking-wider">CONFIGURAR JOGOS</CardTitle>
+                <Button variant="destructive" size="sm" className="gap-1" onClick={deleteAllMatches}>
+                  <AlertTriangle className="w-3 h-3" /> Reset Todos Jogos
+                </Button>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Select value={selectedPhase} onValueChange={setSelectedPhase}>
                   <SelectTrigger><SelectValue placeholder="Selecione a fase" /></SelectTrigger>
                   <SelectContent>
-                    {phases.map(p => (
-                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                    ))}
+                    {phases.map(p => (<SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>))}
                   </SelectContent>
                 </Select>
 
@@ -208,7 +211,6 @@ const Admin = () => {
                   <Plus className="w-4 h-4" /> Adicionar Jogo
                 </Button>
 
-                {/* List matches */}
                 <ScrollArea className="max-h-80">
                   <div className="space-y-2">
                     {phaseMatches.map(m => (
@@ -249,12 +251,9 @@ const Admin = () => {
                 <Select value={selectedPhase} onValueChange={setSelectedPhase}>
                   <SelectTrigger className="mb-4"><SelectValue placeholder="Selecione a fase" /></SelectTrigger>
                   <SelectContent>
-                    {phases.map(p => (
-                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                    ))}
+                    {phases.map(p => (<SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>))}
                   </SelectContent>
                 </Select>
-
                 <ScrollArea className="max-h-[40vh]">
                   <div className="space-y-3">
                     {phaseMatches.filter(m => !m.is_finished).map(m => (
@@ -263,20 +262,14 @@ const Admin = () => {
                         <div className="flex items-center justify-center gap-3">
                           <div className="text-center">
                             <p className="text-xs text-muted-foreground mb-1"><TeamName name={m.team_a} side="left" /></p>
-                            <Input
-                              type="number" min="0" className="w-16 text-center font-display font-bold"
-                              value={resultScoreA[m.id] ?? ''}
-                              onChange={e => setResultScoreA(p => ({ ...p, [m.id]: e.target.value }))}
-                            />
+                            <Input type="number" min="0" className="w-16 text-center font-display font-bold"
+                              value={resultScoreA[m.id] ?? ''} onChange={e => setResultScoreA(p => ({ ...p, [m.id]: e.target.value }))} />
                           </div>
                           <span className="font-display text-lg text-muted-foreground pt-4">×</span>
                           <div className="text-center">
                             <p className="text-xs text-muted-foreground mb-1"><TeamName name={m.team_b} side="right" /></p>
-                            <Input
-                              type="number" min="0" className="w-16 text-center font-display font-bold"
-                              value={resultScoreB[m.id] ?? ''}
-                              onChange={e => setResultScoreB(p => ({ ...p, [m.id]: e.target.value }))}
-                            />
+                            <Input type="number" min="0" className="w-16 text-center font-display font-bold"
+                              value={resultScoreB[m.id] ?? ''} onChange={e => setResultScoreB(p => ({ ...p, [m.id]: e.target.value }))} />
                           </div>
                         </div>
                         <Button onClick={() => submitResult(m.id)} className="w-full gap-2" size="sm">
@@ -292,10 +285,14 @@ const Admin = () => {
               </CardContent>
             </Card>
 
-            {/* Finished matches */}
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="font-display text-sm tracking-wider">RESULTADOS LANÇADOS</CardTitle>
+                {phaseMatches.filter(m => m.is_finished).length > 0 && (
+                  <Button variant="destructive" size="sm" className="gap-1" onClick={revertAllResults}>
+                    <Trash2 className="w-3 h-3" /> Reverter Todos
+                  </Button>
+                )}
               </CardHeader>
               <CardContent>
                 <ScrollArea className="max-h-[40vh]">
@@ -336,15 +333,9 @@ const Admin = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex gap-3">
-                  <Textarea
-                    placeholder="Escreva uma mensagem para os competidores..."
-                    value={newMessage}
-                    onChange={e => setNewMessage(e.target.value)}
-                    className="flex-1"
-                  />
+                  <Textarea placeholder="Escreva uma mensagem para os competidores..." value={newMessage} onChange={e => setNewMessage(e.target.value)} className="flex-1" />
                   <Button onClick={addMessage} className="self-end">Enviar</Button>
                 </div>
-
                 <ScrollArea className="max-h-96">
                   <div className="space-y-2">
                     {messages.map(msg => (
