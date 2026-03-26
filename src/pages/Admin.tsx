@@ -259,15 +259,18 @@ const Admin = () => {
                     {phaseMatches.filter(m => !m.is_finished).map(m => (
                       <div key={m.id} className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
                         <p className="text-sm font-medium text-center"><TeamName name={m.team_a} side="left" /> vs <TeamName name={m.team_b} side="right" /></p>
+                        {m.match_date && (
+                          <p className="text-xs text-muted-foreground text-center">
+                            {format(new Date(m.match_date), "dd MMM, HH:mm", { locale: ptBR })}
+                          </p>
+                        )}
                         <div className="flex items-center justify-center gap-3">
                           <div className="text-center">
-                            <p className="text-xs text-muted-foreground mb-1"><TeamName name={m.team_a} side="left" /></p>
                             <Input type="number" min="0" className="w-16 text-center font-display font-bold"
                               value={resultScoreA[m.id] ?? ''} onChange={e => setResultScoreA(p => ({ ...p, [m.id]: e.target.value }))} />
                           </div>
-                          <span className="font-display text-lg text-muted-foreground pt-4">×</span>
+                          <span className="font-display text-lg text-muted-foreground">×</span>
                           <div className="text-center">
-                            <p className="text-xs text-muted-foreground mb-1"><TeamName name={m.team_b} side="right" /></p>
                             <Input type="number" min="0" className="w-16 text-center font-display font-bold"
                               value={resultScoreB[m.id] ?? ''} onChange={e => setResultScoreB(p => ({ ...p, [m.id]: e.target.value }))} />
                           </div>
