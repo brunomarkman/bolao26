@@ -11,9 +11,10 @@ type Profile = Tables<'profiles'>;
 interface LeaderboardProps {
   onOpenPredictions: () => void;
   onOpenBracket: () => void;
+  onOpenRules: () => void;
 }
 
-const Leaderboard = ({ onOpenPredictions, onOpenBracket }: LeaderboardProps) => {
+const Leaderboard = ({ onOpenPredictions, onOpenBracket, onOpenRules }: LeaderboardProps) => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
 
   useEffect(() => {
@@ -86,6 +87,9 @@ const Leaderboard = ({ onOpenPredictions, onOpenBracket }: LeaderboardProps) => 
           </Button>
           <Button onClick={onOpenBracket} variant="outline" className="w-full font-display tracking-wider">
             📋 TABELA DE JOGOS
+          </Button>
+          <Button onClick={onOpenRules} variant="outline" className="w-full font-display tracking-wider">
+            📖 REGRAS DO BOLÃO
           </Button>
         </div>
       </CardContent>
