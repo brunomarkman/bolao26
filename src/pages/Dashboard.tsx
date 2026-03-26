@@ -10,12 +10,14 @@ import Leaderboard from '@/components/dashboard/Leaderboard';
 import MatchPredictions from '@/components/dashboard/MatchPredictions';
 import PredictionModal from '@/components/dashboard/PredictionModal';
 import MatchBracket from '@/components/dashboard/MatchBracket';
+import RulesModal from '@/components/dashboard/RulesModal';
 
 const Dashboard = () => {
   const { profile, signOut, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [predictionOpen, setPredictionOpen] = useState(false);
   const [bracketOpen, setBracketOpen] = useState(false);
+  const [rulesOpen, setRulesOpen] = useState(false);
   const [paidCount, setPaidCount] = useState(0);
   const [totalProfiles, setTotalProfiles] = useState(0);
   const [betValue, setBetValue] = useState(0);
@@ -75,13 +77,14 @@ const Dashboard = () => {
       <main className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-7rem)]">
           <OrganizerMessages />
-          <Leaderboard onOpenPredictions={() => setPredictionOpen(true)} onOpenBracket={() => setBracketOpen(true)} />
+          <Leaderboard onOpenPredictions={() => setPredictionOpen(true)} onOpenBracket={() => setBracketOpen(true)} onOpenRules={() => setRulesOpen(true)} />
           <MatchPredictions />
         </div>
       </main>
 
       <PredictionModal open={predictionOpen} onOpenChange={setPredictionOpen} />
       <MatchBracket open={bracketOpen} onOpenChange={setBracketOpen} />
+      <RulesModal open={rulesOpen} onOpenChange={setRulesOpen} />
     </div>
   );
 };

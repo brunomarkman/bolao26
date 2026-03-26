@@ -11,8 +11,9 @@ import { Switch } from '@/components/ui/switch';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { ArrowLeft, Plus, Trash2, Save, CheckCircle, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, CheckCircle, AlertTriangle, Pencil } from 'lucide-react';
 import PaymentsTab from '@/components/admin/PaymentsTab';
+import EditMatchModal from '@/components/admin/EditMatchModal';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { Tables } from '@/integrations/supabase/types';
@@ -38,6 +39,8 @@ const Admin = () => {
   const [newMatchTime, setNewMatchTime] = useState('');
   const [newLocation, setNewLocation] = useState('');
   const [newGroup, setNewGroup] = useState('');
+  const [editMatch, setEditMatch] = useState<Match | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
     if (!isAdmin) { navigate('/'); return; }
@@ -227,8 +230,11 @@ const Admin = () => {
                             </p>
                           )}
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
                           {m.is_finished && <CheckCircle className="w-4 h-4 text-primary" />}
+                          <Button variant="ghost" size="icon" onClick={() => { setEditMatch(m); setEditOpen(true); }}>
+                            <Pencil className="w-4 h-4 text-muted-foreground" />
+                          </Button>
                           <Button variant="ghost" size="icon" onClick={() => deleteMatch(m.id)}>
                             <Trash2 className="w-4 h-4 text-destructive" />
                           </Button>
@@ -259,15 +265,18 @@ const Admin = () => {
                     {phaseMatches.filter(m => !m.is_finished).map(m => (
                       <div key={m.id} className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
                         <p className="text-sm font-medium text-center"><TeamName name={m.team_a} side="left" /> vs <TeamName name={m.team_b} side="right" /></p>
+                        {m.match_date && (
+                          <p className="text-xs text-muted-foreground text-center">
+                            {format(new Date(m.match_date), "dd MMM, HH:mm", { locale: ptBR })}
+                          </p>
+                        )}
                         <div className="flex items-center justify-center gap-3">
                           <div className="text-center">
-                            <p className="text-xs text-muted-foreground mb-1"><TeamName name={m.team_a} side="left" /></p>
                             <Input type="number" min="0" className="w-16 text-center font-display font-bold"
                               value={resultScoreA[m.id] ?? ''} onChange={e => setResultScoreA(p => ({ ...p, [m.id]: e.target.value }))} />
                           </div>
-                          <span className="font-display text-lg text-muted-foreground pt-4">×</span>
+                          <span className="font-display text-lg text-muted-foreground">×</span>
                           <div className="text-center">
-                            <p className="text-xs text-muted-foreground mb-1"><TeamName name={m.team_b} side="right" /></p>
                             <Input type="number" min="0" className="w-16 text-center font-display font-bold"
                               value={resultScoreB[m.id] ?? ''} onChange={e => setResultScoreB(p => ({ ...p, [m.id]: e.target.value }))} />
                           </div>
@@ -363,6 +372,13 @@ const Admin = () => {
           </TabsContent>
         </Tabs>
       </main>
+
+      <EditMatchModal
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        match={editMatch}
+        onSaved={fetchAll}
+      />
     </div>
   );
 };
