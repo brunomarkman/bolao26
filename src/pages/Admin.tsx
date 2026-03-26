@@ -372,6 +372,13 @@ const Admin = () => {
           </TabsContent>
         </Tabs>
       </main>
+
+      <EditMatchModal
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        match={editMatch}
+        onSaved={fetchAll}
+      />
     </div>
   );
 };
