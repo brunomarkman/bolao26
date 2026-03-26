@@ -8,7 +8,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { ArrowLeft, Plus, Trash2, Save, CheckCircle, AlertTriangle, Pencil } from 'lucide-react';
@@ -214,7 +213,7 @@ const Admin = () => {
                   <Plus className="w-4 h-4" /> Adicionar Jogo
                 </Button>
 
-                <ScrollArea className="max-h-80">
+                <div className="h-80 overflow-y-auto pr-2">
                   <div className="space-y-2">
                     {phaseMatches.map(m => (
                       <div key={m.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
@@ -242,7 +241,7 @@ const Admin = () => {
                       </div>
                     ))}
                   </div>
-                </ScrollArea>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -260,7 +259,7 @@ const Admin = () => {
                     {phases.map(p => (<SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>))}
                   </SelectContent>
                 </Select>
-                <ScrollArea className="max-h-[40vh]">
+                <div className="h-[40vh] min-h-[18rem] overflow-y-auto pr-2">
                   <div className="space-y-3">
                     {phaseMatches.filter(m => !m.is_finished).map(m => (
                       <div key={m.id} className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
@@ -290,7 +289,7 @@ const Admin = () => {
                       <p className="text-center text-muted-foreground py-8">Todos os jogos desta fase já foram finalizados</p>
                     )}
                   </div>
-                </ScrollArea>
+                </div>
               </CardContent>
             </Card>
 
@@ -304,7 +303,7 @@ const Admin = () => {
                 )}
               </CardHeader>
               <CardContent>
-                <ScrollArea className="max-h-[40vh]">
+                <div className="h-[40vh] min-h-[18rem] overflow-y-auto pr-2">
                   <div className="space-y-2">
                     {phaseMatches.filter(m => m.is_finished).map(m => (
                       <div key={m.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
@@ -329,7 +328,7 @@ const Admin = () => {
                       <p className="text-center text-muted-foreground py-8">Nenhum resultado lançado nesta fase</p>
                     )}
                   </div>
-                </ScrollArea>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -345,7 +344,7 @@ const Admin = () => {
                   <Textarea placeholder="Escreva uma mensagem para os competidores..." value={newMessage} onChange={e => setNewMessage(e.target.value)} className="flex-1" />
                   <Button onClick={addMessage} className="self-end">Enviar</Button>
                 </div>
-                <ScrollArea className="max-h-96">
+                <div className="h-96 overflow-y-auto pr-2">
                   <div className="space-y-2">
                     {messages.map(msg => (
                       <div key={msg.id} className="flex items-start justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
@@ -361,7 +360,7 @@ const Admin = () => {
                       </div>
                     ))}
                   </div>
-                </ScrollArea>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

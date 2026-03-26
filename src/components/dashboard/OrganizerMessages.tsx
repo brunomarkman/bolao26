@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -38,8 +37,8 @@ const OrganizerMessages = () => {
           MENSAGENS
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-0">
-        <ScrollArea className="h-[calc(100vh-16rem)] px-4">
+      <CardContent className="p-4 pt-0">
+        <div className="h-[calc(100vh-16rem)] overflow-y-auto pr-2">
           {messages.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">Nenhuma mensagem</p>
           ) : (
@@ -54,7 +53,7 @@ const OrganizerMessages = () => {
               ))}
             </div>
           )}
-        </ScrollArea>
+        </div>
       </CardContent>
     </Card>
   );
