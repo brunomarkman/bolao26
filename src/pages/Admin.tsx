@@ -11,8 +11,9 @@ import { Switch } from '@/components/ui/switch';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { ArrowLeft, Plus, Trash2, Save, CheckCircle, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, CheckCircle, AlertTriangle, Pencil } from 'lucide-react';
 import PaymentsTab from '@/components/admin/PaymentsTab';
+import EditMatchModal from '@/components/admin/EditMatchModal';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { Tables } from '@/integrations/supabase/types';
@@ -38,6 +39,8 @@ const Admin = () => {
   const [newMatchTime, setNewMatchTime] = useState('');
   const [newLocation, setNewLocation] = useState('');
   const [newGroup, setNewGroup] = useState('');
+  const [editMatch, setEditMatch] = useState<Match | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
     if (!isAdmin) { navigate('/'); return; }
@@ -227,8 +230,11 @@ const Admin = () => {
                             </p>
                           )}
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
                           {m.is_finished && <CheckCircle className="w-4 h-4 text-primary" />}
+                          <Button variant="ghost" size="icon" onClick={() => { setEditMatch(m); setEditOpen(true); }}>
+                            <Pencil className="w-4 h-4 text-muted-foreground" />
+                          </Button>
                           <Button variant="ghost" size="icon" onClick={() => deleteMatch(m.id)}>
                             <Trash2 className="w-4 h-4 text-destructive" />
                           </Button>
