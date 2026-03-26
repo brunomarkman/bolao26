@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Trash2, DollarSign, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -175,7 +174,7 @@ const PaymentsTab = () => {
           )}
         </CardHeader>
         <CardContent>
-          <ScrollArea className="max-h-[40vh]">
+          <div className="h-[40vh] min-h-[18rem] overflow-y-auto pr-2">
             <div className="space-y-2">
               {payments.length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">Nenhum pagamento registrado</p>
@@ -197,7 +196,7 @@ const PaymentsTab = () => {
                 ))
               )}
             </div>
-          </ScrollArea>
+          </div>
         </CardContent>
       </Card>
     </div>
