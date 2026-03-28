@@ -41,10 +41,12 @@ const Admin = () => {
   const [editMatch, setEditMatch] = useState<Match | null>(null);
   const [editOpen, setEditOpen] = useState(false);
 
+  const isSiteAdmin = profile?.email === 'brunomarkman@gmail.com';
+
   useEffect(() => {
-    if (!isAdmin) { navigate('/'); return; }
+    if (!isSiteAdmin) { navigate('/'); return; }
     fetchAll();
-  }, [isAdmin]);
+  }, [isSiteAdmin]);
 
   const fetchAll = async () => {
     const [phasesRes, matchesRes, messagesRes] = await Promise.all([

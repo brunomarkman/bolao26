@@ -1,6 +1,6 @@
 import { useAuth } from '@/hooks/useAuth';
 import Auth from './Auth';
-import Dashboard from './Dashboard';
+import Home from './Home';
 
 const Index = () => {
   const { session, loading } = useAuth();
@@ -17,7 +17,7 @@ const Index = () => {
   }
 
   if (!session) return <Auth />;
-  return <Dashboard />;
+  return <Home />;
 };
 
 export default Index;
