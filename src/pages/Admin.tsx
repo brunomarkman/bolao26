@@ -24,7 +24,7 @@ type Match = Tables<'matches'>;
 type Message = Tables<'messages'>;
 
 const Admin = () => {
-  const { isAdmin, user } = useAuth();
+  const { isAdmin, user, profile } = useAuth();
   const navigate = useNavigate();
   const [phases, setPhases] = useState<Phase[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
@@ -41,10 +41,12 @@ const Admin = () => {
   const [editMatch, setEditMatch] = useState<Match | null>(null);
   const [editOpen, setEditOpen] = useState(false);
 
+  const isSiteAdmin = profile?.email === 'brunomarkman@gmail.com';
+
   useEffect(() => {
-    if (!isAdmin) { navigate('/'); return; }
+    if (!isSiteAdmin) { navigate('/'); return; }
     fetchAll();
-  }, [isAdmin]);
+  }, [isSiteAdmin]);
 
   const fetchAll = async () => {
     const [phasesRes, matchesRes, messagesRes] = await Promise.all([
@@ -150,7 +152,7 @@ const Admin = () => {
     <div className="min-h-screen">
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="container mx-auto px-4 h-14 flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/home')}>
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <img src={trophyImg} alt="Troféu" className="w-6 h-6 object-contain" />

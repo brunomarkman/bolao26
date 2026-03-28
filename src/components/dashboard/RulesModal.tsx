@@ -1,13 +1,15 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Trophy, Target, DollarSign, Award } from 'lucide-react';
+import type { Bolao } from '@/types/bolao';
 
 interface RulesModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  bolao?: Bolao | null;
 }
 
-const RulesModal = ({ open, onOpenChange }: RulesModalProps) => {
+const RulesModal = ({ open, onOpenChange, bolao }: RulesModalProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[85vh]">
@@ -20,7 +22,6 @@ const RulesModal = ({ open, onOpenChange }: RulesModalProps) => {
 
         <ScrollArea className="max-h-[65vh] pr-4">
           <div className="space-y-6 text-sm leading-relaxed">
-            {/* About the World Cup */}
             <section className="space-y-2">
               <h3 className="font-display text-xs tracking-wider text-primary flex items-center gap-2">
                 <Trophy className="w-4 h-4" /> COPA DO MUNDO FIFA 2026
@@ -39,7 +40,6 @@ const RulesModal = ({ open, onOpenChange }: RulesModalProps) => {
               </ul>
             </section>
 
-            {/* Scoring */}
             <section className="space-y-2">
               <h3 className="font-display text-xs tracking-wider text-primary flex items-center gap-2">
                 <Target className="w-4 h-4" /> SISTEMA DE PONTUAÇÃO
@@ -48,40 +48,21 @@ const RulesModal = ({ open, onOpenChange }: RulesModalProps) => {
                 Para cada jogo, o competidor recebe pontos com base na precisão do seu palpite:
               </p>
               <div className="space-y-1 ml-2">
-                <div className="flex items-center gap-2">
-                  <span className="font-display font-bold text-primary w-6 text-right">5</span>
-                  <span className="text-muted-foreground">— Acertou o placar exato do jogo</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-display font-bold text-primary w-6 text-right">4</span>
-                  <span className="text-muted-foreground">— Acertou o placar do vencedor, errou o do perdedor</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-display font-bold text-primary w-6 text-right">3</span>
-                  <span className="text-muted-foreground">— Acertou o placar do perdedor ou acertou o empate com placar diferente</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-display font-bold text-primary w-6 text-right">2</span>
-                  <span className="text-muted-foreground">— Acertou o vencedor mas errou ambos os placares</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-display font-bold text-primary w-6 text-right">1</span>
-                  <span className="text-muted-foreground">— Errou tudo mas acertou o total de gols da partida</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-display font-bold text-muted-foreground w-6 text-right">0</span>
-                  <span className="text-muted-foreground">— Não acertou nenhum critério</span>
-                </div>
+                <div className="flex items-center gap-2"><span className="font-display font-bold text-primary w-6 text-right">5</span><span className="text-muted-foreground">— Acertou o placar exato do jogo</span></div>
+                <div className="flex items-center gap-2"><span className="font-display font-bold text-primary w-6 text-right">4</span><span className="text-muted-foreground">— Acertou o placar do vencedor, errou o do perdedor</span></div>
+                <div className="flex items-center gap-2"><span className="font-display font-bold text-primary w-6 text-right">3</span><span className="text-muted-foreground">— Acertou o placar do perdedor ou acertou o empate com placar diferente</span></div>
+                <div className="flex items-center gap-2"><span className="font-display font-bold text-primary w-6 text-right">2</span><span className="text-muted-foreground">— Acertou o vencedor mas errou ambos os placares</span></div>
+                <div className="flex items-center gap-2"><span className="font-display font-bold text-primary w-6 text-right">1</span><span className="text-muted-foreground">— Errou tudo mas acertou o total de gols da partida</span></div>
+                <div className="flex items-center gap-2"><span className="font-display font-bold text-muted-foreground w-6 text-right">0</span><span className="text-muted-foreground">— Não acertou nenhum critério</span></div>
               </div>
             </section>
 
-            {/* Multiplier */}
             <section className="space-y-2">
               <h3 className="font-display text-xs tracking-wider text-primary flex items-center gap-2">
                 ✖️ MULTIPLICADOR POR FASE
               </h3>
               <p className="text-muted-foreground">
-                A pontuação de cada jogo é multiplicada pelo número da fase, aumentando a importância das fases finais:
+                A pontuação de cada jogo é multiplicada pelo número da fase:
               </p>
               <div className="grid grid-cols-2 gap-1 ml-2">
                 <span className="text-muted-foreground">Fase de Grupos:</span><span className="font-semibold">×1</span>
@@ -93,13 +74,15 @@ const RulesModal = ({ open, onOpenChange }: RulesModalProps) => {
               </div>
             </section>
 
-            {/* Bet & Prize */}
             <section className="space-y-2">
               <h3 className="font-display text-xs tracking-wider text-primary flex items-center gap-2">
                 <DollarSign className="w-4 h-4" /> VALOR DA APOSTA
               </h3>
               <p className="text-muted-foreground">
-                Cada participante deve pagar o valor da aposta definido pelo organizador para participar do bolão. O valor total do prêmio dependerá do número total de participantes inscritos.
+                {bolao ? (
+                  <>O valor da aposta deste bolão é de <span className="font-semibold text-foreground">R$ {Number(bolao.bet_value).toFixed(2)}</span>. </>
+                ) : null}
+                O valor total do prêmio dependerá do número total de participantes inscritos.
               </p>
             </section>
 
@@ -108,20 +91,17 @@ const RulesModal = ({ open, onOpenChange }: RulesModalProps) => {
                 <Award className="w-4 h-4" /> DIVISÃO DO PRÊMIO
               </h3>
               <p className="text-muted-foreground">
-                Ao final da Copa do Mundo, o prêmio será distribuído entre os três primeiros colocados:
+                Ao final da Copa, o prêmio será distribuído:
               </p>
               <div className="space-y-2 ml-2">
                 <div className="flex items-center gap-3 p-2 rounded-lg bg-accent/10 border border-accent/30">
-                  <span className="text-lg">🥇</span>
-                  <span className="font-semibold">1º Lugar — 70% do prêmio</span>
+                  <span className="text-lg">🥇</span><span className="font-semibold">1º Lugar — 70% do prêmio</span>
                 </div>
                 <div className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 border border-border/50">
-                  <span className="text-lg">🥈</span>
-                  <span className="font-semibold">2º Lugar — 20% do prêmio</span>
+                  <span className="text-lg">🥈</span><span className="font-semibold">2º Lugar — 20% do prêmio</span>
                 </div>
                 <div className="flex items-center gap-3 p-2 rounded-lg bg-muted/30 border border-border/50">
-                  <span className="text-lg">🥉</span>
-                  <span className="font-semibold">3º Lugar — 10% do prêmio</span>
+                  <span className="text-lg">🥉</span><span className="font-semibold">3º Lugar — 10% do prêmio</span>
                 </div>
               </div>
             </section>

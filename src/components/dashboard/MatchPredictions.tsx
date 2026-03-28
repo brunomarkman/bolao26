@@ -13,19 +13,35 @@ type Match = Tables<'matches'>;
 type Prediction = Tables<'predictions'>;
 type Profile = Tables<'profiles'>;
 
-const MatchPredictions = () => {
+interface MatchPredictionsProps {
+  bolaoId?: string;
+  competitionId?: string;
+}
+
+const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => {
   const [matches, setMatches] = useState<Match[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<string>('');
   const [predictions, setPredictions] = useState<(Prediction & { profile?: Profile })[]>([]);
 
   useEffect(() => {
+    if (!competitionId) return;
     const fetchMatches = async () => {
+      // Get phases for this competition
+      const { data: phases } = await (supabase as any)
+        .from('phases')
+        .select('id')
+        .eq('competition_id', competitionId);
+
+      if (!phases || phases.length === 0) return;
+      const phaseIds = phases.map((p: any) => p.id);
+
       const { data } = await supabase
         .from('matches')
         .select('*')
+        .in('phase_id', phaseIds)
         .eq('is_finished', false)
         .order('match_date', { ascending: true });
-      
+
       if (data) {
         setMatches(data);
         if (data.length > 0 && !selectedMatch) {
@@ -34,30 +50,30 @@ const MatchPredictions = () => {
       }
     };
     fetchMatches();
-  }, []);
+  }, [competitionId]);
 
   useEffect(() => {
-    if (!selectedMatch) return;
+    if (!selectedMatch || !bolaoId) return;
     const fetchPredictions = async () => {
-      const { data: preds } = await supabase
+      // Get predictions for this match AND this bolão
+      const { data: preds } = await (supabase as any)
         .from('predictions')
         .select('*')
-        .eq('match_id', selectedMatch);
-      
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('*');
+        .eq('match_id', selectedMatch)
+        .eq('bolao_id', bolaoId);
+
+      const { data: profiles } = await supabase.from('profiles').select('*');
 
       if (preds && profiles) {
-        const merged = preds.map(p => ({
+        const merged = preds.map((p: Prediction) => ({
           ...p,
-          profile: profiles.find(pr => pr.user_id === p.user_id),
+          profile: profiles.find((pr: Profile) => pr.user_id === p.user_id),
         }));
         setPredictions(merged);
       }
     };
     fetchPredictions();
-  }, [selectedMatch]);
+  }, [selectedMatch, bolaoId]);
 
   const currentMatch = matches.find(m => m.id === selectedMatch);
 

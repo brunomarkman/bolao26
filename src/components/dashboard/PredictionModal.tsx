@@ -17,6 +17,8 @@ type Prediction = Tables<'predictions'>;
 interface PredictionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  bolaoId?: string;
+  competitionId?: string;
 }
 
 interface PredictionInput {
@@ -25,7 +27,7 @@ interface PredictionInput {
   scoreB: string;
 }
 
-const PredictionModal = ({ open, onOpenChange }: PredictionModalProps) => {
+const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: PredictionModalProps) => {
   const { user } = useAuth();
   const [matches, setMatches] = useState<Match[]>([]);
   const [predictions, setPredictions] = useState<PredictionInput[]>([]);
@@ -33,23 +35,23 @@ const PredictionModal = ({ open, onOpenChange }: PredictionModalProps) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!open || !user) return;
+    if (!open || !user || !competitionId) return;
 
     const fetchData = async () => {
-      // Get active phases
-      const { data: phases } = await supabase
+      // Get active phases for this competition
+      const { data: phases } = await (supabase as any)
         .from('phases')
         .select('id')
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .eq('competition_id', competitionId);
 
       if (!phases || phases.length === 0) {
         toast.info('Nenhuma fase ativa no momento');
         return;
       }
 
-      const phaseIds = phases.map(p => p.id);
+      const phaseIds = phases.map((p: any) => p.id);
 
-      // Get unfinished matches from active phases
       const { data: matchesData } = await supabase
         .from('matches')
         .select('*')
@@ -60,17 +62,18 @@ const PredictionModal = ({ open, onOpenChange }: PredictionModalProps) => {
       if (matchesData) {
         setMatches(matchesData);
 
-        // Get existing predictions
-        const { data: existingPreds } = await supabase
+        // Get existing predictions for this bolão
+        const { data: existingPreds } = await (supabase as any)
           .from('predictions')
           .select('*')
           .eq('user_id', user.id)
+          .eq('bolao_id', bolaoId)
           .in('match_id', matchesData.map(m => m.id));
 
         if (existingPreds) setExistingPredictions(existingPreds);
 
         setPredictions(matchesData.map(m => {
-          const existing = existingPreds?.find(p => p.match_id === m.id);
+          const existing = existingPreds?.find((p: Prediction) => p.match_id === m.id);
           return {
             matchId: m.id,
             scoreA: existing ? String(existing.score_a) : '',
@@ -80,16 +83,16 @@ const PredictionModal = ({ open, onOpenChange }: PredictionModalProps) => {
       }
     };
     fetchData();
-  }, [open, user]);
+  }, [open, user, competitionId, bolaoId]);
 
   const handleSave = async () => {
-    if (!user) return;
+    if (!user || !bolaoId) return;
     setLoading(true);
 
     try {
       for (const pred of predictions) {
         if (pred.scoreA === '' || pred.scoreB === '') continue;
-        
+
         const scoreA = parseInt(pred.scoreA);
         const scoreB = parseInt(pred.scoreB);
         if (isNaN(scoreA) || isNaN(scoreB) || scoreA < 0 || scoreB < 0) continue;
@@ -102,13 +105,14 @@ const PredictionModal = ({ open, onOpenChange }: PredictionModalProps) => {
             .update({ score_a: scoreA, score_b: scoreB })
             .eq('id', existing.id);
         } else {
-          await supabase
+          await (supabase as any)
             .from('predictions')
             .insert({
               user_id: user.id,
               match_id: pred.matchId,
               score_a: scoreA,
               score_b: scoreB,
+              bolao_id: bolaoId,
             });
         }
       }

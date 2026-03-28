@@ -12,28 +12,41 @@ type Match = Tables<'matches'>;
 interface MatchBracketProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  competitionId?: string;
 }
 
-const MatchBracket = ({ open, onOpenChange }: MatchBracketProps) => {
+const MatchBracket = ({ open, onOpenChange, competitionId }: MatchBracketProps) => {
   const [phases, setPhases] = useState<Phase[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
   const [selectedPhase, setSelectedPhase] = useState('');
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || !competitionId) return;
     const fetch = async () => {
-      const [pRes, mRes] = await Promise.all([
-        supabase.from('phases').select('*').order('number'),
-        supabase.from('matches').select('*').order('match_date', { ascending: true }),
-      ]);
-      if (pRes.data) {
-        setPhases(pRes.data);
-        if (!selectedPhase && pRes.data.length > 0) setSelectedPhase(pRes.data[0].id);
+      const { data: phasesData } = await (supabase as any)
+        .from('phases')
+        .select('*')
+        .eq('competition_id', competitionId)
+        .order('number');
+
+      if (phasesData) {
+        setPhases(phasesData);
+        if (!selectedPhase && phasesData.length > 0) setSelectedPhase(phasesData[0].id);
       }
-      if (mRes.data) setMatches(mRes.data);
+
+      // Get all matches for phases of this competition
+      if (phasesData && phasesData.length > 0) {
+        const phaseIds = phasesData.map((p: Phase) => p.id);
+        const { data: matchesData } = await supabase
+          .from('matches')
+          .select('*')
+          .in('phase_id', phaseIds)
+          .order('match_date', { ascending: true });
+        if (matchesData) setMatches(matchesData);
+      }
     };
     fetch();
-  }, [open]);
+  }, [open, competitionId]);
 
   const currentPhase = phases.find(p => p.id === selectedPhase);
   const phaseMatches = matches.filter(m => m.phase_id === selectedPhase);
