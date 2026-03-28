@@ -8,26 +8,32 @@ import type { Tables } from '@/integrations/supabase/types';
 
 type Message = Tables<'messages'>;
 
-const OrganizerMessages = () => {
+interface OrganizerMessagesProps {
+  bolaoId?: string;
+}
+
+const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase
+    if (!bolaoId) return;
+    const fetchMessages = async () => {
+      const { data } = await (supabase as any)
         .from('messages')
         .select('*')
+        .eq('bolao_id', bolaoId)
         .order('created_at', { ascending: false });
       if (data) setMessages(data);
     };
-    fetch();
+    fetchMessages();
 
     const channel = supabase
       .channel('messages-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => fetch())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => fetchMessages())
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, []);
+  }, [bolaoId]);
 
   return (
     <Card className="h-full border-primary/10">

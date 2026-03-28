@@ -5,35 +5,62 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Trophy, Medal, Award } from 'lucide-react';
 import type { Tables } from '@/integrations/supabase/types';
+import type { BolaoParticipant } from '@/types/bolao';
 
 type Profile = Tables<'profiles'>;
 
 interface LeaderboardProps {
+  bolaoId?: string;
   onOpenPredictions: () => void;
   onOpenBracket: () => void;
   onOpenRules: () => void;
 }
 
-const Leaderboard = ({ onOpenPredictions, onOpenBracket, onOpenRules }: LeaderboardProps) => {
-  const [profiles, setProfiles] = useState<Profile[]>([]);
+interface RankedUser {
+  name: string;
+  total_score: number;
+  user_id: string;
+}
+
+const Leaderboard = ({ bolaoId, onOpenPredictions, onOpenBracket, onOpenRules }: LeaderboardProps) => {
+  const [rankings, setRankings] = useState<RankedUser[]>([]);
 
   useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('total_score', { ascending: false });
-      if (data) setProfiles(data);
-    };
-    fetch();
+    const fetchRankings = async () => {
+      if (!bolaoId) return;
 
+      // Get participants for this bolão
+      const { data: participants } = await (supabase as any)
+        .from('bolao_participants')
+        .select('*')
+        .eq('bolao_id', bolaoId)
+        .order('total_score', { ascending: false });
+
+      // Get profiles for names
+      const { data: profiles } = await supabase.from('profiles').select('*');
+
+      if (participants && profiles) {
+        const ranked = participants.map((p: BolaoParticipant) => {
+          const profile = profiles.find((pr: Profile) => pr.user_id === p.user_id);
+          return {
+            name: profile?.name || 'Desconhecido',
+            total_score: p.total_score,
+            user_id: p.user_id,
+          };
+        });
+        setRankings(ranked);
+      }
+    };
+    fetchRankings();
+
+    // Listen for changes
     const channel = supabase
-      .channel('profiles-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => fetch())
+      .channel('bolao-participants-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'bolao_participants' }, () => fetchRankings())
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, []);
+  }, [bolaoId]);
 
   const getRankIcon = (index: number) => {
     if (index === 0) return <Trophy className="w-5 h-5 text-gold" />;
@@ -52,13 +79,13 @@ const Leaderboard = ({ onOpenPredictions, onOpenBracket, onOpenRules }: Leaderbo
       </CardHeader>
       <CardContent className="p-0 flex flex-col">
         <ScrollArea className="h-[calc(100vh-22rem)] px-4">
-          {profiles.length === 0 ? (
+          {rankings.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">Nenhum competidor</p>
           ) : (
             <div className="space-y-2 pb-4">
-              {profiles.map((p, i) => (
+              {rankings.map((p, i) => (
                 <div
-                  key={p.id}
+                  key={p.user_id}
                   className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
                     i === 0 ? 'bg-accent/10 border border-accent/30' :
                     i < 3 ? 'bg-muted/60 border border-border/50' :
