@@ -1,9 +1,21 @@
+export const COMPETITION_FORMATS = [
+  'Mata-mata',
+  'Mata-mata ida/volta',
+  'Grupo + Mata-mata',
+  'Grupo ida/volta + Mata-mata',
+  'Pontos corridos ida/volta',
+] as const;
+
+export type CompetitionFormat = typeof COMPETITION_FORMATS[number];
+
 export interface Competition {
   id: string;
   name: string;
   year: number;
   start_date: string | null;
   end_date: string | null;
+  total_clubs: number | null;
+  format: string | null;
   created_at: string;
 }
 
