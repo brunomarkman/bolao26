@@ -97,25 +97,31 @@ export type Database = {
         Row: {
           created_at: string
           end_date: string | null
+          format: string | null
           id: string
           name: string
           start_date: string | null
+          total_clubs: number | null
           year: number
         }
         Insert: {
           created_at?: string
           end_date?: string | null
+          format?: string | null
           id?: string
           name: string
           start_date?: string | null
+          total_clubs?: number | null
           year: number
         }
         Update: {
           created_at?: string
           end_date?: string | null
+          format?: string | null
           id?: string
           name?: string
           start_date?: string | null
+          total_clubs?: number | null
           year?: number
         }
         Relationships: []
