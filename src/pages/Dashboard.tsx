@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { LogOut, Settings, Users, DollarSign, ArrowLeft, Copy } from 'lucide-react';
+import { Settings, Users, DollarSign, ArrowLeft, Copy } from 'lucide-react';
 import { toast } from 'sonner';
 import trophyImg from '@/assets/trophy.png';
 import OrganizerMessages from '@/components/dashboard/OrganizerMessages';
@@ -16,7 +16,7 @@ import type { Bolao, Competition } from '@/types/bolao';
 
 const Dashboard = () => {
   const { bolaoId } = useParams();
-  const { profile, signOut, user } = useAuth();
+  const { profile, user } = useAuth();
   const navigate = useNavigate();
   const [predictionOpen, setPredictionOpen] = useState(false);
   const [bracketOpen, setBracketOpen] = useState(false);
@@ -92,9 +92,6 @@ const Dashboard = () => {
                 <span className="hidden sm:inline">Gerenciar</span>
               </Button>
             )}
-            <Button variant="ghost" size="icon" onClick={signOut}>
-              <LogOut className="w-4 h-4" />
-            </Button>
           </div>
         </div>
       </header>

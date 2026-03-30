@@ -55,6 +55,8 @@ const Admin = () => {
   // Messages state
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [messageBolaoId, setMessageBolaoId] = useState<string>('all');
+  const [messageBoloes, setMessageBoloes] = useState<{ id: string; nickname: string }[]>([]);
 
   // Results state
   const [resultScoreA, setResultScoreA] = useState<Record<string, string>>({});
@@ -66,6 +68,7 @@ const Admin = () => {
     if (!isSiteAdmin) { navigate('/'); return; }
     fetchCompetitions();
     fetchMessages();
+    fetchMessageBoloes();
   }, [isSiteAdmin]);
 
   // When competition changes, fetch phases & matches for it
@@ -98,8 +101,13 @@ const Admin = () => {
   };
 
   const fetchMessages = async () => {
-    const { data } = await supabase.from('messages').select('*').is('bolao_id', null).order('created_at', { ascending: false });
+    const { data } = await supabase.from('messages').select('*').order('created_at', { ascending: false });
     if (data) setMessages(data);
+  };
+
+  const fetchMessageBoloes = async () => {
+    const { data } = await (supabase as any).from('boloes').select('id, nickname').order('nickname');
+    if (data) setMessageBoloes(data);
   };
 
   // --- Competition CRUD ---
@@ -211,7 +219,9 @@ const Admin = () => {
 
   const addMessage = async () => {
     if (!newMessage.trim() || !user) return;
-    await supabase.from('messages').insert({ content: newMessage, created_by: user.id });
+    const insertData: any = { content: newMessage, created_by: user.id };
+    if (messageBolaoId !== 'all') insertData.bolao_id = messageBolaoId;
+    await supabase.from('messages').insert(insertData);
     setNewMessage('');
     toast.success('Mensagem enviada');
     fetchMessages();
@@ -550,11 +560,20 @@ const Admin = () => {
           <TabsContent value="messages">
             <Card>
               <CardHeader>
-                <CardTitle className="font-display text-sm tracking-wider">MENSAGENS GLOBAIS</CardTitle>
+                <CardTitle className="font-display text-sm tracking-wider">MENSAGENS</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <Select value={messageBolaoId} onValueChange={setMessageBolaoId}>
+                  <SelectTrigger><SelectValue placeholder="Destino da mensagem" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os bolões (global)</SelectItem>
+                    {messageBoloes.map(b => (
+                      <SelectItem key={b.id} value={b.id}>{b.nickname}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <div className="flex gap-3">
-                  <Textarea placeholder="Escreva uma mensagem para todos os competidores..." value={newMessage} onChange={e => setNewMessage(e.target.value)} className="flex-1" />
+                  <Textarea placeholder="Escreva uma mensagem..." value={newMessage} onChange={e => setNewMessage(e.target.value)} className="flex-1" />
                   <Button onClick={addMessage} className="self-end">Enviar</Button>
                 </div>
                 <div className="h-96 overflow-y-auto pr-2">
@@ -565,6 +584,7 @@ const Admin = () => {
                           <p className="text-sm">{msg.content}</p>
                           <p className="text-xs text-muted-foreground mt-1">
                             {format(new Date(msg.created_at), "dd MMM, HH:mm", { locale: ptBR })}
+                            {msg.bolao_id ? ` • ${messageBoloes.find(b => b.id === msg.bolao_id)?.nickname || 'Bolão'}` : ' • Global'}
                           </p>
                         </div>
                         <Button variant="ghost" size="icon" onClick={() => deleteMessage(msg.id)}>
