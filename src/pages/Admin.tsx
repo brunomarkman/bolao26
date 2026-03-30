@@ -252,7 +252,7 @@ const Admin = () => {
       </header>
 
       <main className="container mx-auto px-4 py-6">
-        <Tabs defaultValue="competitions" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           {/* Desktop tabs */}
           <TabsList className="hidden md:grid w-full grid-cols-5">
             <TabsTrigger value="competitions" className="font-display text-xs tracking-wider">COMPETIÇÕES</TabsTrigger>
@@ -261,6 +261,21 @@ const Admin = () => {
             <TabsTrigger value="messages" className="font-display text-xs tracking-wider">MENSAGENS</TabsTrigger>
             <TabsTrigger value="payments" className="font-display text-xs tracking-wider">PAGAMENTOS</TabsTrigger>
           </TabsList>
+          {/* Mobile dropdown */}
+          <div className="md:hidden">
+            <Select value={activeTab} onValueChange={setActiveTab}>
+              <SelectTrigger className="font-display tracking-wider">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="competitions">COMPETIÇÕES</SelectItem>
+                <SelectItem value="phases">FASES</SelectItem>
+                <SelectItem value="results">RESULTADOS</SelectItem>
+                <SelectItem value="messages">MENSAGENS</SelectItem>
+                <SelectItem value="payments">PAGAMENTOS</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
           {/* Competitions Tab */}
           <TabsContent value="competitions" className="space-y-6">
