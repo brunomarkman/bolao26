@@ -61,6 +61,7 @@ const Admin = () => {
   // Results state
   const [resultScoreA, setResultScoreA] = useState<Record<string, string>>({});
   const [resultScoreB, setResultScoreB] = useState<Record<string, string>>({});
+  const [activeTab, setActiveTab] = useState('competitions');
 
   const isSiteAdmin = profile?.email === 'brunomarkman@gmail.com';
 

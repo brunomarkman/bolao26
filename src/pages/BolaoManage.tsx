@@ -32,6 +32,7 @@ const BolaoManage = () => {
   const [receivedBy, setReceivedBy] = useState('');
   const [betValue, setBetValue] = useState('');
   const [nickname, setNickname] = useState('');
+  const [activeTab, setActiveTab] = useState('settings');
 
   useEffect(() => {
     if (!bolaoId || !user) return;
