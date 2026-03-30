@@ -32,6 +32,7 @@ const BolaoManage = () => {
   const [receivedBy, setReceivedBy] = useState('');
   const [betValue, setBetValue] = useState('');
   const [nickname, setNickname] = useState('');
+  const [activeTab, setActiveTab] = useState('settings');
 
   useEffect(() => {
     if (!bolaoId || !user) return;
@@ -161,13 +162,28 @@ const BolaoManage = () => {
       </header>
 
       <main className="container mx-auto px-4 py-6">
-        <Tabs defaultValue="settings" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          {/* Desktop tabs */}
+          <TabsList className="hidden md:grid w-full grid-cols-4">
             <TabsTrigger value="settings" className="font-display text-xs tracking-wider"><Settings className="w-3 h-3 mr-1" />CONFIG</TabsTrigger>
             <TabsTrigger value="participants" className="font-display text-xs tracking-wider"><Users className="w-3 h-3 mr-1" />MEMBROS</TabsTrigger>
             <TabsTrigger value="payments" className="font-display text-xs tracking-wider"><DollarSign className="w-3 h-3 mr-1" />PAGAMENTOS</TabsTrigger>
             <TabsTrigger value="messages" className="font-display text-xs tracking-wider"><MessageSquare className="w-3 h-3 mr-1" />MENSAGENS</TabsTrigger>
           </TabsList>
+          {/* Mobile dropdown */}
+          <div className="md:hidden">
+            <Select value={activeTab} onValueChange={setActiveTab}>
+              <SelectTrigger className="font-display tracking-wider">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="settings">CONFIG</SelectItem>
+                <SelectItem value="participants">MEMBROS</SelectItem>
+                <SelectItem value="payments">PAGAMENTOS</SelectItem>
+                <SelectItem value="messages">MENSAGENS</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
           <TabsContent value="settings">
             <Card>
