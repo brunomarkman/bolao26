@@ -98,9 +98,15 @@ const Dashboard = () => {
 
       <main className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-7rem)]">
-          <OrganizerMessages bolaoId={bolaoId} />
-          <Leaderboard bolaoId={bolaoId} onOpenPredictions={() => setPredictionOpen(true)} onOpenBracket={() => setBracketOpen(true)} onOpenRules={() => setRulesOpen(true)} />
-          <MatchPredictions bolaoId={bolaoId} competitionId={bolao?.competition_id} />
+          <div className="order-2 lg:order-1">
+            <OrganizerMessages bolaoId={bolaoId} />
+          </div>
+          <div className="order-1 lg:order-2">
+            <Leaderboard bolaoId={bolaoId} onOpenPredictions={() => setPredictionOpen(true)} onOpenBracket={() => setBracketOpen(true)} onOpenRules={() => setRulesOpen(true)} />
+          </div>
+          <div className="order-3 lg:order-3">
+            <MatchPredictions bolaoId={bolaoId} competitionId={bolao?.competition_id} />
+          </div>
         </div>
       </main>
 

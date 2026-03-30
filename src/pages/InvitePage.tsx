@@ -259,7 +259,7 @@ const InvitePage = () => {
                   <li>Se ainda não tem conta, <strong>crie uma</strong> no botão abaixo</li>
                   <li>Verifique seu e-mail e <strong>confirme o cadastro</strong></li>
                   <li>Faça <strong>login</strong> com seu e-mail e senha</li>
-                  <li>Após o login, clique em <strong>"Ingressar Bolão"</strong> e informe o código:
+                  <li>Após o login, caso não tenha sido vinculado ao Bolão, clique em <strong>"Ingressar Bolão"</strong> e informe o código:
                     <span className="font-display font-bold text-primary ml-1 tracking-widest">{code?.toUpperCase()}</span>
                   </li>
                 </ol>
