@@ -21,7 +21,7 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
       const { data } = await (supabase as any)
         .from('messages')
         .select('*')
-        .eq('bolao_id', bolaoId)
+        .or(`bolao_id.eq.${bolaoId},bolao_id.is.null`)
         .order('created_at', { ascending: false });
       if (data) setMessages(data);
     };
