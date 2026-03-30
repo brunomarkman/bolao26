@@ -55,6 +55,8 @@ const Admin = () => {
   // Messages state
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [messageBolaoId, setMessageBolaoId] = useState<string>('all');
+  const [messageBoloes, setMessageBoloes] = useState<{ id: string; nickname: string }[]>([]);
 
   // Results state
   const [resultScoreA, setResultScoreA] = useState<Record<string, string>>({});
@@ -66,6 +68,7 @@ const Admin = () => {
     if (!isSiteAdmin) { navigate('/'); return; }
     fetchCompetitions();
     fetchMessages();
+    fetchMessageBoloes();
   }, [isSiteAdmin]);
 
   // When competition changes, fetch phases & matches for it
@@ -98,8 +101,13 @@ const Admin = () => {
   };
 
   const fetchMessages = async () => {
-    const { data } = await supabase.from('messages').select('*').is('bolao_id', null).order('created_at', { ascending: false });
+    const { data } = await supabase.from('messages').select('*').order('created_at', { ascending: false });
     if (data) setMessages(data);
+  };
+
+  const fetchMessageBoloes = async () => {
+    const { data } = await (supabase as any).from('boloes').select('id, nickname').order('nickname');
+    if (data) setMessageBoloes(data);
   };
 
   // --- Competition CRUD ---
@@ -211,7 +219,9 @@ const Admin = () => {
 
   const addMessage = async () => {
     if (!newMessage.trim() || !user) return;
-    await supabase.from('messages').insert({ content: newMessage, created_by: user.id });
+    const insertData: any = { content: newMessage, created_by: user.id };
+    if (messageBolaoId !== 'all') insertData.bolao_id = messageBolaoId;
+    await supabase.from('messages').insert(insertData);
     setNewMessage('');
     toast.success('Mensagem enviada');
     fetchMessages();
