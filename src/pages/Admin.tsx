@@ -253,7 +253,8 @@ const Admin = () => {
 
       <main className="container mx-auto px-4 py-6">
         <Tabs defaultValue="competitions" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          {/* Desktop tabs */}
+          <TabsList className="hidden md:grid w-full grid-cols-5">
             <TabsTrigger value="competitions" className="font-display text-xs tracking-wider">COMPETIÇÕES</TabsTrigger>
             <TabsTrigger value="phases" className="font-display text-xs tracking-wider">FASES</TabsTrigger>
             <TabsTrigger value="results" className="font-display text-xs tracking-wider">RESULTADOS</TabsTrigger>

@@ -119,8 +119,21 @@ const Home = () => {
   };
 
   useEffect(() => {
-    fetchBoloes();
+    if (!user) return;
+    const loadAndRedirect = async () => {
+      await fetchBoloes();
+    };
+    loadAndRedirect();
   }, [user]);
+
+  // Auto-redirect if user has exactly one active/waiting bolão
+  useEffect(() => {
+    if (loading || boloes.length === 0) return;
+    const activeBoloes = boloes.filter(b => b.status === 'waiting' || b.status === 'active');
+    if (activeBoloes.length === 1) {
+      navigate(`/bolao/${activeBoloes[0].id}`);
+    }
+  }, [loading, boloes]);
 
   // Check for pending invite
   useEffect(() => {
