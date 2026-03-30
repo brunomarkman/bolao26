@@ -560,11 +560,20 @@ const Admin = () => {
           <TabsContent value="messages">
             <Card>
               <CardHeader>
-                <CardTitle className="font-display text-sm tracking-wider">MENSAGENS GLOBAIS</CardTitle>
+                <CardTitle className="font-display text-sm tracking-wider">MENSAGENS</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <Select value={messageBolaoId} onValueChange={setMessageBolaoId}>
+                  <SelectTrigger><SelectValue placeholder="Destino da mensagem" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os bolões (global)</SelectItem>
+                    {messageBoloes.map(b => (
+                      <SelectItem key={b.id} value={b.id}>{b.nickname}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <div className="flex gap-3">
-                  <Textarea placeholder="Escreva uma mensagem para todos os competidores..." value={newMessage} onChange={e => setNewMessage(e.target.value)} className="flex-1" />
+                  <Textarea placeholder="Escreva uma mensagem..." value={newMessage} onChange={e => setNewMessage(e.target.value)} className="flex-1" />
                   <Button onClick={addMessage} className="self-end">Enviar</Button>
                 </div>
                 <div className="h-96 overflow-y-auto pr-2">
@@ -575,6 +584,7 @@ const Admin = () => {
                           <p className="text-sm">{msg.content}</p>
                           <p className="text-xs text-muted-foreground mt-1">
                             {format(new Date(msg.created_at), "dd MMM, HH:mm", { locale: ptBR })}
+                            {msg.bolao_id ? ` • ${messageBoloes.find(b => b.id === msg.bolao_id)?.nickname || 'Bolão'}` : ' • Global'}
                           </p>
                         </div>
                         <Button variant="ghost" size="icon" onClick={() => deleteMessage(msg.id)}>
