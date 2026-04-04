@@ -77,7 +77,7 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
       }
     };
     fetchPredictions();
-  }, [selectedMatch, bolaoId]);
+  }, [selectedMatch, bolaoId, refreshKey]);
 
   const currentMatch = matches.find(m => m.id === selectedMatch);
 

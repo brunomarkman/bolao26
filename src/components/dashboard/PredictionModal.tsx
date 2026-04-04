@@ -62,12 +62,11 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
       if (matchesData) {
         setMatches(matchesData);
 
-        // Get existing predictions for this bolão
+        // Get existing predictions for this user and these matches (unique constraint is user_id + match_id)
         const { data: existingPreds } = await (supabase as any)
           .from('predictions')
           .select('*')
           .eq('user_id', user.id)
-          .eq('bolao_id', bolaoId)
           .in('match_id', matchesData.map(m => m.id));
 
         if (existingPreds) setExistingPredictions(existingPreds);
