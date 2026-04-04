@@ -113,9 +113,6 @@ const Leaderboard = ({ bolaoId, onOpenPredictions, onOpenBracket, onOpenRules, o
           <Button onClick={onOpenPredictions} className="w-full font-display tracking-wider">
             ⚽ LANÇAR PALPITES
           </Button>
-          <Button onClick={onRefreshPredictions} variant="outline" className="w-full font-display tracking-wider gap-2">
-            <RefreshCw className="w-4 h-4" /> ATUALIZAR
-          </Button>
           <Button onClick={onOpenBracket} variant="outline" className="w-full font-display tracking-wider">
             📋 TABELA DE JOGOS
           </Button>
