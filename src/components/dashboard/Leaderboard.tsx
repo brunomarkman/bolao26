@@ -21,7 +21,7 @@ interface RankedUser {
   user_id: string;
 }
 
-const Leaderboard = ({ bolaoId, onOpenPredictions, onOpenBracket, onOpenRules, onRefreshPredictions }: LeaderboardProps) => {
+const Leaderboard = ({ bolaoId, onOpenPredictions, onOpenBracket, onOpenRules }: LeaderboardProps) => {
   const [rankings, setRankings] = useState<RankedUser[]>([]);
 
   useEffect(() => {
