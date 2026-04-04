@@ -106,7 +106,7 @@ const Dashboard = () => {
             <Leaderboard bolaoId={bolaoId} onOpenPredictions={() => setPredictionOpen(true)} onOpenBracket={() => setBracketOpen(true)} onOpenRules={() => setRulesOpen(true)} />
           </div>
           <div className="order-3 lg:order-3">
-            <MatchPredictions key={refreshKey} bolaoId={bolaoId} competitionId={bolao?.competition_id} />
+            <MatchPredictions bolaoId={bolaoId} competitionId={bolao?.competition_id} />
           </div>
         </div>
       </main>
