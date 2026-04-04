@@ -23,6 +23,9 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
   const [matches, setMatches] = useState<Match[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<string>('');
   const [predictions, setPredictions] = useState<(Prediction & { profile?: Profile })[]>([]);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleRefresh = () => setRefreshKey(k => k + 1);
 
   useEffect(() => {
     if (!competitionId) return;
