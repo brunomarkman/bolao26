@@ -87,6 +87,9 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        <Button onClick={handleRefresh} variant="outline" size="sm" className="w-full font-display tracking-wider gap-2">
+          <RefreshCw className="w-4 h-4" /> ATUALIZAR PALPITES
+        </Button>
         <Select value={selectedMatch} onValueChange={setSelectedMatch}>
           <SelectTrigger>
             <SelectValue placeholder="Selecione um jogo" />
