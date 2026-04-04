@@ -21,6 +21,7 @@ const Dashboard = () => {
   const [predictionOpen, setPredictionOpen] = useState(false);
   const [bracketOpen, setBracketOpen] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [bolao, setBolao] = useState<Bolao | null>(null);
   const [competition, setCompetition] = useState<Competition | null>(null);
   const [paidCount, setPaidCount] = useState(0);
