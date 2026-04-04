@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Settings, Users, DollarSign, ArrowLeft, Copy } from 'lucide-react';
+import { Settings, Users, DollarSign, ArrowLeft, Copy, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import trophyImg from '@/assets/trophy.png';
 import OrganizerMessages from '@/components/dashboard/OrganizerMessages';
@@ -21,6 +21,7 @@ const Dashboard = () => {
   const [predictionOpen, setPredictionOpen] = useState(false);
   const [bracketOpen, setBracketOpen] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [bolao, setBolao] = useState<Bolao | null>(null);
   const [competition, setCompetition] = useState<Competition | null>(null);
   const [paidCount, setPaidCount] = useState(0);
@@ -102,10 +103,10 @@ const Dashboard = () => {
             <OrganizerMessages bolaoId={bolaoId} />
           </div>
           <div className="order-1 lg:order-2">
-            <Leaderboard bolaoId={bolaoId} onOpenPredictions={() => setPredictionOpen(true)} onOpenBracket={() => setBracketOpen(true)} onOpenRules={() => setRulesOpen(true)} />
+            <Leaderboard bolaoId={bolaoId} onOpenPredictions={() => setPredictionOpen(true)} onOpenBracket={() => setBracketOpen(true)} onOpenRules={() => setRulesOpen(true)} onRefreshPredictions={() => setRefreshKey(k => k + 1)} />
           </div>
           <div className="order-3 lg:order-3">
-            <MatchPredictions bolaoId={bolaoId} competitionId={bolao?.competition_id} />
+            <MatchPredictions key={refreshKey} bolaoId={bolaoId} competitionId={bolao?.competition_id} />
           </div>
         </div>
       </main>

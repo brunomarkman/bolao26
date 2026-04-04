@@ -100,12 +100,16 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
         const existing = existingPredictions.find(p => p.match_id === pred.matchId);
 
         if (existing) {
-          await supabase
+          const { error } = await supabase
             .from('predictions')
             .update({ score_a: scoreA, score_b: scoreB })
             .eq('id', existing.id);
+          if (error) {
+            console.error('Update prediction error:', error);
+            throw error;
+          }
         } else {
-          await (supabase as any)
+          const { error } = await (supabase as any)
             .from('predictions')
             .insert({
               user_id: user.id,
@@ -114,6 +118,10 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
               score_b: scoreB,
               bolao_id: bolaoId,
             });
+          if (error) {
+            console.error('Insert prediction error:', error);
+            throw error;
+          }
         }
       }
 
