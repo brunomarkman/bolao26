@@ -71,6 +71,12 @@ const Home = () => {
     // Get competitions
     const { data: competitions } = await (supabase as any)
       .from('competitions')
+      .select('*')
+      .order('start_date', { ascending: false });
+
+    // Get competitions
+    const { data: competitions } = await (supabase as any)
+      .from('competitions')
       .select('*');
 
     // Get all participants counts
