@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { Trophy, Medal, Award, RefreshCw } from 'lucide-react';
+import { Trophy, Medal, Award } from 'lucide-react';
 import type { Tables } from '@/integrations/supabase/types';
 import type { BolaoParticipant } from '@/types/bolao';
 
@@ -14,7 +14,6 @@ interface LeaderboardProps {
   onOpenPredictions: () => void;
   onOpenBracket: () => void;
   onOpenRules: () => void;
-  onRefreshPredictions: () => void;
 }
 
 interface RankedUser {
@@ -23,7 +22,7 @@ interface RankedUser {
   user_id: string;
 }
 
-const Leaderboard = ({ bolaoId, onOpenPredictions, onOpenBracket, onOpenRules, onRefreshPredictions }: LeaderboardProps) => {
+const Leaderboard = ({ bolaoId, onOpenPredictions, onOpenBracket, onOpenRules }: LeaderboardProps) => {
   const [rankings, setRankings] = useState<RankedUser[]>([]);
 
   useEffect(() => {
@@ -112,9 +111,6 @@ const Leaderboard = ({ bolaoId, onOpenPredictions, onOpenBracket, onOpenRules, o
         <div className="p-4 border-t border-border space-y-2">
           <Button onClick={onOpenPredictions} className="w-full font-display tracking-wider">
             ⚽ LANÇAR PALPITES
-          </Button>
-          <Button onClick={onRefreshPredictions} variant="outline" className="w-full font-display tracking-wider gap-2">
-            <RefreshCw className="w-4 h-4" /> ATUALIZAR
           </Button>
           <Button onClick={onOpenBracket} variant="outline" className="w-full font-display tracking-wider">
             📋 TABELA DE JOGOS

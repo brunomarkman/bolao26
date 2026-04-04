@@ -3,7 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Eye } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Eye, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { Tables } from '@/integrations/supabase/types';
@@ -22,6 +23,9 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
   const [matches, setMatches] = useState<Match[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<string>('');
   const [predictions, setPredictions] = useState<(Prediction & { profile?: Profile })[]>([]);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleRefresh = () => setRefreshKey(k => k + 1);
 
   useEffect(() => {
     if (!competitionId) return;
@@ -50,7 +54,7 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
       }
     };
     fetchMatches();
-  }, [competitionId]);
+  }, [competitionId, refreshKey]);
 
   useEffect(() => {
     if (!selectedMatch || !bolaoId) return;
@@ -73,7 +77,7 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
       }
     };
     fetchPredictions();
-  }, [selectedMatch, bolaoId]);
+  }, [selectedMatch, bolaoId, refreshKey]);
 
   const currentMatch = matches.find(m => m.id === selectedMatch);
 
@@ -86,6 +90,9 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        <Button onClick={handleRefresh} variant="outline" size="sm" className="w-full font-display tracking-wider gap-2">
+          <RefreshCw className="w-4 h-4" /> ATUALIZAR PALPITES
+        </Button>
         <Select value={selectedMatch} onValueChange={setSelectedMatch}>
           <SelectTrigger>
             <SelectValue placeholder="Selecione um jogo" />
