@@ -54,7 +54,7 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
       }
     };
     fetchMatches();
-  }, [competitionId]);
+  }, [competitionId, refreshKey]);
 
   useEffect(() => {
     if (!selectedMatch || !bolaoId) return;
