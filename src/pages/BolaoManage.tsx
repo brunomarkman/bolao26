@@ -233,7 +233,10 @@ const BolaoManage = () => {
                 <div className="h-[50vh] overflow-y-auto pr-2 space-y-2">
                   {participants.map(p => (
                     <div key={p.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
-                      <span className="text-sm font-medium">{p.profile?.name || 'Desconhecido'}</span>
+                      <div>
+                        <span className="text-sm font-medium">{p.profile?.name || 'Desconhecido'}</span>
+                        <span className="text-xs text-muted-foreground ml-2">{p.profile?.email || ''}</span>
+                      </div>
                       <span className="font-display font-bold text-primary">{p.total_score} pts</span>
                     </div>
                   ))}

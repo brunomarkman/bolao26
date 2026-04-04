@@ -116,6 +116,12 @@ const Home = () => {
       };
     });
 
+    // Sort by competition start_date descending
+    rows.sort((a, b) => {
+      const dateA = a.competition?.start_date || '';
+      const dateB = b.competition?.start_date || '';
+      return dateB.localeCompare(dateA);
+    });
     setBoloes(rows);
     setLoading(false);
   };
