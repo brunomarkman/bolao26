@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Settings, Users, DollarSign, ArrowLeft, Copy } from 'lucide-react';
+import { Settings, Users, DollarSign, ArrowLeft, Copy, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import trophyImg from '@/assets/trophy.png';
 import OrganizerMessages from '@/components/dashboard/OrganizerMessages';
