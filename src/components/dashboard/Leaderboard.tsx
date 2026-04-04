@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
-import { Trophy, Medal, Award, RefreshCw } from 'lucide-react';
+import { Trophy, Medal, Award } from 'lucide-react';
 import type { Tables } from '@/integrations/supabase/types';
 import type { BolaoParticipant } from '@/types/bolao';
 
