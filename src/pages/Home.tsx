@@ -126,9 +126,12 @@ const Home = () => {
     loadAndRedirect();
   }, [user]);
 
-  // Auto-redirect if user has exactly one active/waiting bolão
+  // Auto-redirect only on fresh login (not when returning to Home)
   useEffect(() => {
     if (loading || boloes.length === 0) return;
+    const justLoggedIn = sessionStorage.getItem('just_logged_in');
+    if (!justLoggedIn) return;
+    sessionStorage.removeItem('just_logged_in');
     const activeBoloes = boloes.filter(b => b.status === 'waiting' || b.status === 'active');
     if (activeBoloes.length === 1) {
       navigate(`/bolao/${activeBoloes[0].id}`);
