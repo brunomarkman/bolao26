@@ -9,12 +9,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { ArrowLeft, Copy, Users, DollarSign, Save, Trash2, MessageSquare, Settings, Play, Square } from 'lucide-react';
+import { ArrowLeft, Copy, Users, DollarSign, Save, Trash2, MessageSquare, Settings, Play, Square, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import trophyImg from '@/assets/trophy.png';
 import type { Bolao, BolaoParticipant } from '@/types/bolao';
 import type { Tables } from '@/integrations/supabase/types';
+import ResultsReport from '@/components/manage/ResultsReport';
 
 type Profile = Tables<'profiles'>;
 
@@ -153,7 +154,10 @@ const BolaoManage = () => {
     <div className="min-h-screen">
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="container mx-auto px-4 h-14 flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate(`/bolao/${bolaoId}`)}>
+          <Button variant="ghost" size="icon" onClick={() => {
+            navigate(`/bolao/${bolaoId}`);
+            setTimeout(() => navigate(`/bolao/${bolaoId}`), 50);
+          }}>
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <img src={trophyImg} alt="Troféu" className="w-6 h-6 object-contain" />
@@ -164,11 +168,12 @@ const BolaoManage = () => {
       <main className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           {/* Desktop tabs */}
-          <TabsList className="hidden md:grid w-full grid-cols-4">
+          <TabsList className="hidden md:grid w-full grid-cols-5">
             <TabsTrigger value="settings" className="font-display text-xs tracking-wider"><Settings className="w-3 h-3 mr-1" />CONFIG</TabsTrigger>
             <TabsTrigger value="participants" className="font-display text-xs tracking-wider"><Users className="w-3 h-3 mr-1" />MEMBROS</TabsTrigger>
             <TabsTrigger value="payments" className="font-display text-xs tracking-wider"><DollarSign className="w-3 h-3 mr-1" />PAGAMENTOS</TabsTrigger>
             <TabsTrigger value="messages" className="font-display text-xs tracking-wider"><MessageSquare className="w-3 h-3 mr-1" />MENSAGENS</TabsTrigger>
+            <TabsTrigger value="results" className="font-display text-xs tracking-wider"><FileText className="w-3 h-3 mr-1" />LISTA RESULTADOS</TabsTrigger>
           </TabsList>
           {/* Mobile dropdown */}
           <div className="md:hidden">
@@ -181,6 +186,7 @@ const BolaoManage = () => {
                 <SelectItem value="participants">MEMBROS</SelectItem>
                 <SelectItem value="payments">PAGAMENTOS</SelectItem>
                 <SelectItem value="messages">MENSAGENS</SelectItem>
+                <SelectItem value="results">LISTA RESULTADOS</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -319,6 +325,14 @@ const BolaoManage = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="results">
+            <ResultsReport
+              bolaoId={bolaoId!}
+              bolaoNickname={bolao.nickname}
+              competitionId={bolao.competition_id}
+            />
           </TabsContent>
         </Tabs>
       </main>
