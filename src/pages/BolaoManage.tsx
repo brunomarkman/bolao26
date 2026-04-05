@@ -15,6 +15,7 @@ import { ptBR } from 'date-fns/locale';
 import trophyImg from '@/assets/trophy.png';
 import type { Bolao, BolaoParticipant } from '@/types/bolao';
 import type { Tables } from '@/integrations/supabase/types';
+import ResultsReport from '@/components/manage/ResultsReport';
 
 type Profile = Tables<'profiles'>;
 
