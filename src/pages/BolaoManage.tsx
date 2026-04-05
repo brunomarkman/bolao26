@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { ArrowLeft, Copy, Users, DollarSign, Save, Trash2, MessageSquare, Settings, Play, Square } from 'lucide-react';
+import { ArrowLeft, Copy, Users, DollarSign, Save, Trash2, MessageSquare, Settings, Play, Square, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import trophyImg from '@/assets/trophy.png';
