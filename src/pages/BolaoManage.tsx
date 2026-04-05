@@ -186,6 +186,7 @@ const BolaoManage = () => {
                 <SelectItem value="participants">MEMBROS</SelectItem>
                 <SelectItem value="payments">PAGAMENTOS</SelectItem>
                 <SelectItem value="messages">MENSAGENS</SelectItem>
+                <SelectItem value="results">LISTA RESULTADOS</SelectItem>
               </SelectContent>
             </Select>
           </div>
