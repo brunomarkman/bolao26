@@ -168,11 +168,12 @@ const BolaoManage = () => {
       <main className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           {/* Desktop tabs */}
-          <TabsList className="hidden md:grid w-full grid-cols-4">
+          <TabsList className="hidden md:grid w-full grid-cols-5">
             <TabsTrigger value="settings" className="font-display text-xs tracking-wider"><Settings className="w-3 h-3 mr-1" />CONFIG</TabsTrigger>
             <TabsTrigger value="participants" className="font-display text-xs tracking-wider"><Users className="w-3 h-3 mr-1" />MEMBROS</TabsTrigger>
             <TabsTrigger value="payments" className="font-display text-xs tracking-wider"><DollarSign className="w-3 h-3 mr-1" />PAGAMENTOS</TabsTrigger>
             <TabsTrigger value="messages" className="font-display text-xs tracking-wider"><MessageSquare className="w-3 h-3 mr-1" />MENSAGENS</TabsTrigger>
+            <TabsTrigger value="results" className="font-display text-xs tracking-wider"><FileText className="w-3 h-3 mr-1" />LISTA RESULTADOS</TabsTrigger>
           </TabsList>
           {/* Mobile dropdown */}
           <div className="md:hidden">
