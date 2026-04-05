@@ -67,6 +67,7 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
           .from('predictions')
           .select('*')
           .eq('user_id', user.id)
+          .eq('bolao_id', bolaoId)
           .in('match_id', matchesData.map(m => m.id));
 
         if (existingPreds) setExistingPredictions(existingPreds);
