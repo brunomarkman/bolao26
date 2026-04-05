@@ -154,7 +154,10 @@ const BolaoManage = () => {
     <div className="min-h-screen">
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="container mx-auto px-4 h-14 flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate(`/bolao/${bolaoId}`)}>
+          <Button variant="ghost" size="icon" onClick={() => {
+            navigate(`/bolao/${bolaoId}`);
+            setTimeout(() => navigate(`/bolao/${bolaoId}`), 50);
+          }}>
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <img src={trophyImg} alt="Troféu" className="w-6 h-6 object-contain" />
