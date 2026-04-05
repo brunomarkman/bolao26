@@ -326,6 +326,14 @@ const BolaoManage = () => {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="results">
+            <ResultsReport
+              bolaoId={bolaoId!}
+              bolaoNickname={bolao.nickname}
+              competitionId={bolao.competition_id}
+            />
+          </TabsContent>
         </Tabs>
       </main>
     </div>
