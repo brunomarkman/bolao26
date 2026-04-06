@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Save } from 'lucide-react';
 import type { Tables } from '@/integrations/supabase/types';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 type Match = Tables<'matches'>;
 
@@ -17,6 +18,7 @@ interface EditMatchModalProps {
 }
 
 const EditMatchModal = ({ open, onOpenChange, match, onSaved }: EditMatchModalProps) => {
+  const { t } = useLanguage();
   const [teamA, setTeamA] = useState('');
   const [teamB, setTeamB] = useState('');
   const [matchDate, setMatchDate] = useState('');
@@ -32,9 +34,15 @@ const EditMatchModal = ({ open, onOpenChange, match, onSaved }: EditMatchModalPr
       setLocation(match.location || '');
       setGroup(match.group_name || '');
       if (match.match_date) {
+        // Parse the ISO date and extract date/time in local timezone
         const d = new Date(match.match_date);
-        setMatchDate(d.toISOString().split('T')[0]);
-        setMatchTime(d.toTimeString().slice(0, 5));
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const hours = String(d.getHours()).padStart(2, '0');
+        const minutes = String(d.getMinutes()).padStart(2, '0');
+        setMatchDate(`${year}-${month}-${day}`);
+        setMatchTime(`${hours}:${minutes}`);
       } else {
         setMatchDate('');
         setMatchTime('');
@@ -58,9 +66,9 @@ const EditMatchModal = ({ open, onOpenChange, match, onSaved }: EditMatchModalPr
     }).eq('id', match.id);
 
     if (error) {
-      toast.error('Erro ao salvar');
+      toast.error(t('editMatch.error'));
     } else {
-      toast.success('Jogo atualizado');
+      toast.success(t('editMatch.success'));
       onSaved();
       onOpenChange(false);
     }
@@ -71,19 +79,19 @@ const EditMatchModal = ({ open, onOpenChange, match, onSaved }: EditMatchModalPr
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-display tracking-wider text-primary">✏️ EDITAR JOGO</DialogTitle>
+          <DialogTitle className="font-display tracking-wider text-primary">{t('editMatch.title')}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            <Input placeholder="Time A" value={teamA} onChange={e => setTeamA(e.target.value)} />
-            <Input placeholder="Time B" value={teamB} onChange={e => setTeamB(e.target.value)} />
+            <Input placeholder={t('admin.teamA')} value={teamA} onChange={e => setTeamA(e.target.value)} />
+            <Input placeholder={t('admin.teamB')} value={teamB} onChange={e => setTeamB(e.target.value)} />
             <Input type="date" value={matchDate} onChange={e => setMatchDate(e.target.value)} />
             <Input type="time" value={matchTime} onChange={e => setMatchTime(e.target.value)} />
-            <Input placeholder="Local" value={location} onChange={e => setLocation(e.target.value)} />
-            <Input placeholder="Grupo (ex: A)" value={group} onChange={e => setGroup(e.target.value)} />
+            <Input placeholder={t('admin.location')} value={location} onChange={e => setLocation(e.target.value)} />
+            <Input placeholder={t('admin.group')} value={group} onChange={e => setGroup(e.target.value)} />
           </div>
           <Button onClick={handleSave} disabled={loading} className="w-full gap-2">
-            <Save className="w-4 h-4" /> {loading ? 'Salvando...' : 'Salvar Alterações'}
+            <Save className="w-4 h-4" /> {loading ? t('editMatch.saving') : t('editMatch.save')}
           </Button>
         </div>
       </DialogContent>

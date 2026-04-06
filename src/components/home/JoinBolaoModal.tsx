@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 interface Props {
   open: boolean;
@@ -15,76 +16,40 @@ interface Props {
 
 const JoinBolaoModal = ({ open, onOpenChange, onJoined }: Props) => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleJoin = async () => {
-    if (!user || !code.trim()) {
-      toast.error('Informe o código do convite');
-      return;
-    }
+    if (!user || !code.trim()) { toast.error(t('join.enterCode')); return; }
     setLoading(true);
-
-    const { data: bolao } = await (supabase as any)
-      .from('boloes')
-      .select('*')
-      .eq('invite_code', code.trim().toUpperCase())
-      .single();
-
-    if (!bolao) {
-      toast.error('Bolão não encontrado. Verifique o código.');
-      setLoading(false);
-      return;
-    }
-
-    if (bolao.status === 'cancelled') {
-      toast.error('Este bolão foi cancelado');
-      setLoading(false);
-      return;
-    }
-
-    const { error } = await (supabase as any)
-      .from('bolao_participants')
-      .insert({ bolao_id: bolao.id, user_id: user.id });
-
+    const { data: bolao } = await (supabase as any).from('boloes').select('*').eq('invite_code', code.trim().toUpperCase()).single();
+    if (!bolao) { toast.error(t('join.notFound')); setLoading(false); return; }
+    if (bolao.status === 'cancelled') { toast.error(t('join.cancelled')); setLoading(false); return; }
+    const { error } = await (supabase as any).from('bolao_participants').insert({ bolao_id: bolao.id, user_id: user.id });
     if (error) {
-      if (error.code === '23505') toast.info('Você já participa deste bolão');
-      else toast.error('Erro ao ingressar no bolão');
-      setLoading(false);
-      return;
+      if (error.code === '23505') toast.info(t('join.alreadyIn'));
+      else toast.error(t('join.error'));
+      setLoading(false); return;
     }
-
-    toast.success(`Você entrou no bolão "${bolao.nickname}"!`);
-    setCode('');
-    setLoading(false);
-    onOpenChange(false);
-    onJoined();
+    toast.success(`${t('invite.joinedSuccess')} "${bolao.nickname}"!`);
+    setCode(''); setLoading(false); onOpenChange(false); onJoined();
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-display tracking-wider text-primary">
-            🎟️ INGRESSAR EM BOLÃO
-          </DialogTitle>
+          <DialogTitle className="font-display tracking-wider text-primary">{t('join.title')}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>Código do Convite</Label>
-            <Input
-              placeholder="Ex: ABC12345"
-              value={code}
-              onChange={e => setCode(e.target.value.toUpperCase())}
-              maxLength={8}
-              className="font-display text-center text-lg tracking-widest"
-            />
-            <p className="text-xs text-muted-foreground">
-              Solicite o código de convite ao criador do bolão.
-            </p>
+            <Label>{t('join.code')}</Label>
+            <Input placeholder={t('join.codePlaceholder')} value={code} onChange={e => setCode(e.target.value.toUpperCase())} maxLength={8} className="font-display text-center text-lg tracking-widest" />
+            <p className="text-xs text-muted-foreground">{t('join.codeHelp')}</p>
           </div>
           <Button onClick={handleJoin} disabled={loading} className="w-full font-display tracking-wider">
-            {loading ? 'ENTRANDO...' : 'INGRESSAR'}
+            {loading ? t('join.loading') : t('join.submit')}
           </Button>
         </div>
       </DialogContent>
