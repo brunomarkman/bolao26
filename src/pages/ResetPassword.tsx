@@ -7,8 +7,11 @@ import { toast } from 'sonner';
 import { Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import trophyImg from '@/assets/trophy.png';
+import LanguageSelector from '@/components/LanguageSelector';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 const ResetPassword = () => {
+  const { t } = useLanguage();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -33,18 +36,18 @@ const ResetPassword = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      toast.error('As senhas não coincidem');
+      toast.error(t('reset.mismatch'));
       return;
     }
     if (password.length < 6) {
-      toast.error('A senha deve ter pelo menos 6 caracteres');
+      toast.error(t('reset.minLength'));
       return;
     }
     setLoading(true);
     try {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
-      toast.success('Senha atualizada com sucesso!');
+      toast.success(t('reset.success'));
       await supabase.auth.signOut();
       navigate('/');
     } catch (error: any) {
@@ -59,8 +62,9 @@ const ResetPassword = () => {
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="w-full max-w-md border-primary/20 shadow-2xl bg-card/95 backdrop-blur-sm">
           <CardContent className="pt-6 text-center">
-            <p className="text-muted-foreground">Link inválido ou expirado. Solicite um novo link de redefinição de senha.</p>
-            <Button className="mt-4" onClick={() => navigate('/')}>Voltar ao Login</Button>
+            <div className="flex justify-end mb-4"><LanguageSelector /></div>
+            <p className="text-muted-foreground">{t('reset.invalid')}</p>
+            <Button className="mt-4" onClick={() => navigate('/')}>{t('reset.backToLogin')}</Button>
           </CardContent>
         </Card>
       </div>
@@ -79,44 +83,29 @@ const ResetPassword = () => {
     >
       <Card className="w-full max-w-md border-primary/20 shadow-2xl bg-card/95 backdrop-blur-sm">
         <CardHeader className="text-center space-y-4">
+          <div className="flex justify-end"><LanguageSelector /></div>
           <div className="mx-auto w-16 h-16">
             <img src={trophyImg} alt="Troféu" className="w-full h-full object-contain" />
           </div>
           <CardTitle className="text-2xl font-display tracking-wider text-primary">
-            NOVA SENHA
+            {t('reset.title')}
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Digite sua nova senha
+            {t('reset.subtitle')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="relative">
               <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="password"
-                placeholder="Nova senha"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="pl-10"
-                required
-                minLength={6}
-              />
+              <Input type="password" placeholder={t('reset.newPassword')} value={password} onChange={e => setPassword(e.target.value)} className="pl-10" required minLength={6} />
             </div>
             <div className="relative">
               <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="password"
-                placeholder="Confirmar nova senha"
-                value={confirmPassword}
-                onChange={e => setConfirmPassword(e.target.value)}
-                className="pl-10"
-                required
-                minLength={6}
-              />
+              <Input type="password" placeholder={t('reset.confirmPassword')} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="pl-10" required minLength={6} />
             </div>
             <Button type="submit" className="w-full font-display tracking-wider" disabled={loading}>
-              {loading ? 'Aguarde...' : 'ATUALIZAR SENHA'}
+              {loading ? t('reset.loading') : t('reset.submit')}
             </Button>
           </form>
         </CardContent>

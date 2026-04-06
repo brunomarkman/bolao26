@@ -12,6 +12,8 @@ import type { Bolao, Competition, BolaoParticipant } from '@/types/bolao';
 import type { Tables } from '@/integrations/supabase/types';
 import CreateBolaoModal from '@/components/home/CreateBolaoModal';
 import JoinBolaoModal from '@/components/home/JoinBolaoModal';
+import LanguageSelector from '@/components/LanguageSelector';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 type Profile = Tables<'profiles'>;
 
@@ -28,6 +30,7 @@ interface BolaoRow extends Bolao {
 const Home = () => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [boloes, setBoloes] = useState<BolaoRow[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
   const [joinOpen, setJoinOpen] = useState(false);
@@ -39,55 +42,25 @@ const Home = () => {
     if (!user) return;
     setLoading(true);
 
-    // Get all bolões where user participates
     const { data: participations } = await (supabase as any)
-      .from('bolao_participants')
-      .select('bolao_id')
-      .eq('user_id', user.id);
-
-    // Also get bolões created by user (they might not have joined yet)
+      .from('bolao_participants').select('bolao_id').eq('user_id', user.id);
     const { data: createdBoloes } = await (supabase as any)
-      .from('boloes')
-      .select('id')
-      .eq('created_by', user.id);
+      .from('boloes').select('id').eq('created_by', user.id);
 
     const participatedIds = (participations || []).map((p: any) => p.bolao_id);
     const createdIds = (createdBoloes || []).map((b: any) => b.id);
     const allIds = [...new Set([...participatedIds, ...createdIds])];
 
-    if (allIds.length === 0) {
-      setBoloes([]);
-      setLoading(false);
-      return;
-    }
+    if (allIds.length === 0) { setBoloes([]); setLoading(false); return; }
 
-    // Get bolão details
     const { data: boloesData } = await (supabase as any)
-      .from('boloes')
-      .select('*')
-      .in('id', allIds)
-      .order('created_at', { ascending: false });
-
-    // Get competitions
+      .from('boloes').select('*').in('id', allIds).order('created_at', { ascending: false });
     const { data: competitions } = await (supabase as any)
-      .from('competitions')
-      .select('*')
-      .order('start_date', { ascending: false });
-
-
-    // Get all participants counts
+      .from('competitions').select('*').order('start_date', { ascending: false });
     const { data: allParticipants } = await (supabase as any)
-      .from('bolao_participants')
-      .select('*')
-      .in('bolao_id', allIds);
-
-    // Get all payments counts
+      .from('bolao_participants').select('*').in('bolao_id', allIds);
     const { data: allPayments } = await (supabase as any)
-      .from('payments')
-      .select('bolao_id')
-      .in('bolao_id', allIds);
-
-    // Get profiles for manager names and winners
+      .from('payments').select('bolao_id').in('bolao_id', allIds);
     const { data: profiles } = await supabase.from('profiles').select('*');
 
     const rows: BolaoRow[] = (boloesData || []).map((b: Bolao) => {
@@ -96,7 +69,6 @@ const Home = () => {
       const payments = (allPayments || []).filter((p: any) => p.bolao_id === b.id);
       const manager = (profiles || []).find((p: Profile) => p.user_id === b.created_by);
 
-      // Find winner if finished
       let winnerName: string | undefined;
       if (b.status === 'finished' && participants.length > 0) {
         const sorted = [...participants].sort((a: BolaoParticipant, b: BolaoParticipant) => b.total_score - a.total_score);
@@ -107,7 +79,7 @@ const Home = () => {
       return {
         ...b,
         competition: comp,
-        managerName: manager?.name || 'Desconhecido',
+        managerName: manager?.name || t('home.unknown'),
         participantCount: participants.length,
         totalCollected: payments.length * Number(b.bet_value),
         winnerName,
@@ -116,7 +88,6 @@ const Home = () => {
       };
     });
 
-    // Sort by competition start_date descending
     rows.sort((a, b) => {
       const dateA = a.competition?.start_date || '';
       const dateB = b.competition?.start_date || '';
@@ -126,27 +97,17 @@ const Home = () => {
     setLoading(false);
   };
 
-  useEffect(() => {
-    if (!user) return;
-    const loadAndRedirect = async () => {
-      await fetchBoloes();
-    };
-    loadAndRedirect();
-  }, [user]);
+  useEffect(() => { if (user) fetchBoloes(); }, [user]);
 
-  // Auto-redirect only on fresh login (not when returning to Home)
   useEffect(() => {
     if (loading || boloes.length === 0) return;
     const justLoggedIn = sessionStorage.getItem('just_logged_in');
     if (!justLoggedIn) return;
     sessionStorage.removeItem('just_logged_in');
     const activeBoloes = boloes.filter(b => b.status === 'waiting' || b.status === 'active');
-    if (activeBoloes.length === 1) {
-      navigate(`/bolao/${activeBoloes[0].id}`);
-    }
+    if (activeBoloes.length === 1) navigate(`/bolao/${activeBoloes[0].id}`);
   }, [loading, boloes]);
 
-  // Check for pending invite
   useEffect(() => {
     const pendingCode = localStorage.getItem('pending_invite_code');
     if (pendingCode && user) {
@@ -156,71 +117,53 @@ const Home = () => {
   }, [user]);
 
   const handleJoinByCode = async (code: string) => {
-    const { data: bolao } = await (supabase as any)
-      .from('boloes')
-      .select('*')
-      .eq('invite_code', code.toUpperCase())
-      .single();
-
-    if (!bolao) {
-      toast.error('Bolão não encontrado');
-      return;
-    }
-    if (bolao.status === 'cancelled') {
-      toast.error('Este bolão foi cancelado');
-      return;
-    }
-
-    const { error } = await (supabase as any)
-      .from('bolao_participants')
-      .insert({ bolao_id: bolao.id, user_id: user!.id });
-
+    const { data: bolao } = await (supabase as any).from('boloes').select('*').eq('invite_code', code.toUpperCase()).single();
+    if (!bolao) { toast.error(t('home.poolNotFound')); return; }
+    if (bolao.status === 'cancelled') { toast.error(t('home.poolCancelled')); return; }
+    const { error } = await (supabase as any).from('bolao_participants').insert({ bolao_id: bolao.id, user_id: user!.id });
     if (error) {
-      if (error.code === '23505') toast.info('Você já participa deste bolão');
-      else toast.error('Erro ao ingressar');
+      if (error.code === '23505') toast.info(t('home.alreadyIn'));
+      else toast.error(t('home.joinError'));
       return;
     }
-    toast.success(`Você entrou no bolão "${bolao.nickname}"!`);
+    toast.success(`${t('invite.joinedSuccess')} "${bolao.nickname}"!`);
     fetchBoloes();
   };
 
   const handleLeaveBolao = async (bolaoId: string) => {
-    if (!confirm('Deseja realmente sair deste bolão?')) return;
+    if (!confirm(t('home.confirmLeave'))) return;
     await (supabase as any).from('bolao_participants').delete().eq('bolao_id', bolaoId).eq('user_id', user!.id);
-    toast.success('Você saiu do bolão');
+    toast.success(t('home.leftPool'));
     fetchBoloes();
   };
 
   const handleCancelBolao = async (bolaoId: string) => {
-    if (!confirm('Deseja cancelar este bolão? Essa ação não pode ser desfeita.')) return;
+    if (!confirm(t('home.confirmCancel'))) return;
     await (supabase as any).from('boloes').update({ status: 'cancelled' }).eq('id', bolaoId);
-    toast.success('Bolão cancelado');
+    toast.success(t('home.poolCancelledMsg'));
     fetchBoloes();
   };
 
   const handleDeleteBolao = async (bolaoId: string) => {
-    if (!confirm('Deseja deletar este bolão? Essa ação não pode ser desfeita.')) return;
+    if (!confirm(t('home.confirmDelete'))) return;
     await (supabase as any).from('boloes').delete().eq('id', bolaoId);
-    toast.success('Bolão deletado');
+    toast.success(t('home.poolDeleted'));
     fetchBoloes();
   };
 
   const getStatusBadge = (status: Bolao['status']) => {
     const map = {
-      waiting: { label: 'Esperando', variant: 'secondary' as const },
-      active: { label: 'Ativo', variant: 'default' as const },
-      finished: { label: 'Finalizado', variant: 'outline' as const },
-      cancelled: { label: 'Cancelado', variant: 'destructive' as const },
+      waiting: { label: t('status.waiting'), variant: 'secondary' as const },
+      active: { label: t('status.active'), variant: 'default' as const },
+      finished: { label: t('status.finished'), variant: 'outline' as const },
+      cancelled: { label: t('status.cancelled'), variant: 'destructive' as const },
     };
     const s = map[status];
     return <Badge variant={s.variant}>{s.label}</Badge>;
   };
 
   const handleSelectBolao = (bolao: BolaoRow) => {
-    if (bolao.status === 'cancelled') {
-      toast.error('Este bolão foi cancelado');
-      return;
-    }
+    if (bolao.status === 'cancelled') { toast.error(t('home.poolCancelled')); return; }
     navigate(`/bolao/${bolao.id}`);
   };
 
@@ -231,18 +174,19 @@ const Home = () => {
           <div className="flex items-center gap-3">
             <img src={trophyImg} alt="Troféu" className="w-7 h-7 object-contain" />
             <h1 className="font-display text-lg tracking-wider text-primary font-bold">
-              MEUS BOLÕES
+              {t('home.title')}
             </h1>
           </div>
           <div className="flex items-center gap-3">
+            <LanguageSelector />
             <span className="text-sm text-muted-foreground hidden sm:block">
-              Olá, <span className="font-medium text-foreground">{profile?.name}</span>
+              {t('home.hello')}, <span className="font-medium text-foreground">{profile?.name}</span>
             </span>
             {isSiteAdmin && (
               <Button variant="outline" size="sm" onClick={() => navigate('/admin')} className="gap-1">
                 <Shield className="w-4 h-4" />
-                <span className="hidden sm:inline">Área de Administração do Site</span>
-                <span className="sm:hidden">Admin</span>
+                <span className="hidden sm:inline">{t('home.admin')}</span>
+                <span className="sm:hidden">{t('home.adminShort')}</span>
               </Button>
             )}
             <Button variant="ghost" size="icon" onClick={signOut}>
@@ -255,17 +199,17 @@ const Home = () => {
       <main className="container mx-auto px-4 py-6 space-y-6">
         <div className="flex flex-wrap gap-3">
           <Button onClick={() => setCreateOpen(true)} className="gap-2 font-display tracking-wider">
-            <Plus className="w-4 h-4" /> CRIAR BOLÃO
+            <Plus className="w-4 h-4" /> {t('home.createPool')}
           </Button>
           <Button onClick={() => setJoinOpen(true)} variant="outline" className="gap-2 font-display tracking-wider">
-            <UserPlus className="w-4 h-4" /> INGRESSAR BOLÃO
+            <UserPlus className="w-4 h-4" /> {t('home.joinPool')}
           </Button>
         </div>
 
         <Card>
           <CardHeader>
             <CardTitle className="font-display text-sm tracking-wider flex items-center gap-2 text-primary">
-              <Trophy className="w-4 h-4" /> MEUS BOLÕES
+              <Trophy className="w-4 h-4" /> {t('home.myPools')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -274,35 +218,29 @@ const Home = () => {
                 <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
               </div>
             ) : boloes.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">
-                Você ainda não participa de nenhum bolão. Crie um novo ou ingresse em um existente!
-              </p>
+              <p className="text-center text-muted-foreground py-8">{t('home.noPoolsYet')}</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border">
-                      <th className="text-left p-2 font-display text-xs tracking-wider text-muted-foreground">Competição</th>
-                      <th className="text-center p-2 font-display text-xs tracking-wider text-muted-foreground">Nº</th>
-                      <th className="text-left p-2 font-display text-xs tracking-wider text-muted-foreground">Apelido</th>
-                      <th className="text-center p-2 font-display text-xs tracking-wider text-muted-foreground">Ano</th>
-                      <th className="text-center p-2 font-display text-xs tracking-wider text-muted-foreground">Início</th>
-                      <th className="text-center p-2 font-display text-xs tracking-wider text-muted-foreground">Final</th>
-                      <th className="text-center p-2 font-display text-xs tracking-wider text-muted-foreground">Status</th>
-                      <th className="text-left p-2 font-display text-xs tracking-wider text-muted-foreground">Gerente</th>
+                      <th className="text-left p-2 font-display text-xs tracking-wider text-muted-foreground">{t('home.competition')}</th>
+                      <th className="text-center p-2 font-display text-xs tracking-wider text-muted-foreground">{t('home.number')}</th>
+                      <th className="text-left p-2 font-display text-xs tracking-wider text-muted-foreground">{t('home.nickname')}</th>
+                      <th className="text-center p-2 font-display text-xs tracking-wider text-muted-foreground">{t('home.year')}</th>
+                      <th className="text-center p-2 font-display text-xs tracking-wider text-muted-foreground">{t('home.start')}</th>
+                      <th className="text-center p-2 font-display text-xs tracking-wider text-muted-foreground">{t('home.end')}</th>
+                      <th className="text-center p-2 font-display text-xs tracking-wider text-muted-foreground">{t('home.status')}</th>
+                      <th className="text-left p-2 font-display text-xs tracking-wider text-muted-foreground">{t('home.manager')}</th>
                       <th className="text-center p-2 font-display text-xs tracking-wider text-muted-foreground"><Users className="w-3 h-3 inline" /></th>
-                      <th className="text-center p-2 font-display text-xs tracking-wider text-muted-foreground">R$ Total</th>
-                      <th className="text-left p-2 font-display text-xs tracking-wider text-muted-foreground">Vencedor</th>
-                      <th className="text-center p-2 font-display text-xs tracking-wider text-muted-foreground">Ações</th>
+                      <th className="text-center p-2 font-display text-xs tracking-wider text-muted-foreground">{t('home.totalR$')}</th>
+                      <th className="text-left p-2 font-display text-xs tracking-wider text-muted-foreground">{t('home.winner')}</th>
+                      <th className="text-center p-2 font-display text-xs tracking-wider text-muted-foreground">{t('home.actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {boloes.map(b => (
-                      <tr
-                        key={b.id}
-                        className="border-b border-border/50 hover:bg-muted/30 cursor-pointer transition-colors"
-                        onClick={() => handleSelectBolao(b)}
-                      >
+                      <tr key={b.id} className="border-b border-border/50 hover:bg-muted/30 cursor-pointer transition-colors" onClick={() => handleSelectBolao(b)}>
                         <td className="p-2">{b.competition?.name || '—'}</td>
                         <td className="p-2 text-center font-display font-bold">{b.number}</td>
                         <td className="p-2 font-medium">{b.nickname}</td>
@@ -319,7 +257,7 @@ const Home = () => {
                             {b.isCreator && b.status === 'waiting' && (
                               <>
                                 <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => handleCancelBolao(b.id)}>
-                                  Cancelar
+                                  {t('home.cancel')}
                                 </Button>
                                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDeleteBolao(b.id)}>
                                   <Trash2 className="w-3 h-3 text-destructive" />
@@ -328,12 +266,12 @@ const Home = () => {
                             )}
                             {b.isCreator && b.status === 'active' && (
                               <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => handleCancelBolao(b.id)}>
-                                Cancelar
+                                {t('home.cancel')}
                               </Button>
                             )}
                             {!b.isCreator && b.isParticipant && b.status !== 'cancelled' && (
                               <Button variant="outline" size="sm" className="text-xs h-7 text-destructive" onClick={() => handleLeaveBolao(b.id)}>
-                                Sair
+                                {t('home.leave')}
                               </Button>
                             )}
                           </div>

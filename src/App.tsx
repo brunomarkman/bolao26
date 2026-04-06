@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
+import { LanguageProvider } from "@/i18n/LanguageContext";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
 import ResetPassword from "./pages/ResetPassword";
@@ -19,20 +20,22 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/home" element={<Index />} />
-            <Route path="/bolao/:bolaoId" element={<Dashboard />} />
-            <Route path="/bolao/:bolaoId/manage" element={<BolaoManage />} />
-            <Route path="/invite/:code" element={<InvitePage />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
+      <LanguageProvider>
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/home" element={<Index />} />
+              <Route path="/bolao/:bolaoId" element={<Dashboard />} />
+              <Route path="/bolao/:bolaoId/manage" element={<BolaoManage />} />
+              <Route path="/invite/:code" element={<InvitePage />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      </LanguageProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

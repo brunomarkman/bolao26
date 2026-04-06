@@ -6,10 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { toast } from 'sonner';
 import { Mail, Lock, User } from 'lucide-react';
 import trophyImg from '@/assets/trophy.png';
+import LanguageSelector from '@/components/LanguageSelector';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 type Mode = 'login' | 'signup' | 'forgot';
 
 const Auth = () => {
+  const { t } = useLanguage();
   const [mode, setMode] = useState<Mode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,12 +29,12 @@ const Auth = () => {
           redirectTo: `${window.location.origin}/reset-password`,
         });
         if (error) throw error;
-        toast.success('E-mail de redefinição enviado! Verifique sua caixa de entrada.');
+        toast.success(t('auth.resetSent'));
         setMode('login');
       } else if (mode === 'login') {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        toast.success('Bem-vindo de volta!');
+        toast.success(t('auth.welcomeBack'));
       } else {
         const { error } = await supabase.auth.signUp({
           email,
@@ -42,7 +45,7 @@ const Auth = () => {
           },
         });
         if (error) throw error;
-        toast.success('Conta criada! Verifique seu e-mail para confirmar.');
+        toast.success(t('auth.accountCreated'));
       }
     } catch (error: any) {
       toast.error(error.message);
@@ -52,9 +55,9 @@ const Auth = () => {
   };
 
   const getTitle = () => {
-    if (mode === 'forgot') return 'Recuperar sua senha';
-    if (mode === 'signup') return 'Crie sua conta e participe';
-    return 'Entre na competição';
+    if (mode === 'forgot') return t('auth.forgot.title');
+    if (mode === 'signup') return t('auth.signup.title');
+    return t('auth.login.title');
   };
 
   return (
@@ -69,11 +72,14 @@ const Auth = () => {
     >
       <Card className="w-full max-w-md border-primary/20 shadow-2xl bg-card/95 backdrop-blur-sm">
         <CardHeader className="text-center space-y-4">
+          <div className="flex justify-end">
+            <LanguageSelector />
+          </div>
           <div className="mx-auto w-20 h-20">
             <img src={trophyImg} alt="Troféu Copa 2026" className="w-full h-full object-contain" />
           </div>
           <CardTitle className="text-2xl font-display tracking-wider text-primary">
-            BOLÃO COPA 2026
+            {t('auth.title')}
           </CardTitle>
           <CardDescription className="text-muted-foreground">
             {getTitle()}
@@ -86,7 +92,7 @@ const Auth = () => {
               <div className="relative">
                 <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Seu nome"
+                  placeholder={t('auth.name')}
                   value={name}
                   onChange={e => setName(e.target.value)}
                   className="pl-10"
@@ -98,7 +104,7 @@ const Auth = () => {
               <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 type="email"
-                placeholder="E-mail"
+                placeholder={t('auth.email')}
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 className="pl-10"
@@ -110,7 +116,7 @@ const Auth = () => {
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="password"
-                  placeholder="Senha"
+                  placeholder={t('auth.password')}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   className="pl-10"
@@ -121,7 +127,7 @@ const Auth = () => {
             )}
 
             <Button type="submit" className="w-full font-display tracking-wider" disabled={loading}>
-              {loading ? 'Aguarde...' : mode === 'forgot' ? 'ENVIAR LINK' : mode === 'login' ? 'ENTRAR' : 'CRIAR CONTA'}
+              {loading ? t('auth.loading') : mode === 'forgot' ? t('auth.sendLink') : mode === 'login' ? t('auth.login') : t('auth.signup')}
             </Button>
           </form>
 
@@ -132,13 +138,13 @@ const Auth = () => {
                   onClick={() => setMode('forgot')}
                   className="block w-full text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Esqueceu a senha?
+                  {t('auth.forgotPassword')}
                 </button>
                 <button
                   onClick={() => setMode('signup')}
                   className="block w-full text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
-                  Não tem conta? Cadastre-se
+                  {t('auth.noAccount')}
                 </button>
               </>
             )}
@@ -147,7 +153,7 @@ const Auth = () => {
                 onClick={() => setMode('login')}
                 className="text-sm text-muted-foreground hover:text-primary transition-colors"
               >
-                Já tem conta? Faça login
+                {t('auth.hasAccount')}
               </button>
             )}
             {mode === 'forgot' && (
@@ -155,7 +161,7 @@ const Auth = () => {
                 onClick={() => setMode('login')}
                 className="text-sm text-muted-foreground hover:text-primary transition-colors"
               >
-                Voltar ao login
+                {t('auth.backToLogin')}
               </button>
             )}
           </div>
