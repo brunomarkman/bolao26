@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { ptBR, enUS } from 'date-fns/locale';
 import type { Tables } from '@/integrations/supabase/types';
 import TeamName from '@/components/TeamName';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 type Match = Tables<'matches'>;
 type Prediction = Tables<'predictions'>;
@@ -21,64 +22,31 @@ interface PredictionModalProps {
   competitionId?: string;
 }
 
-interface PredictionInput {
-  matchId: string;
-  scoreA: string;
-  scoreB: string;
-}
+interface PredictionInput { matchId: string; scoreA: string; scoreB: string; }
 
 const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: PredictionModalProps) => {
   const { user } = useAuth();
+  const { t, language } = useLanguage();
   const [matches, setMatches] = useState<Match[]>([]);
   const [predictions, setPredictions] = useState<PredictionInput[]>([]);
   const [existingPredictions, setExistingPredictions] = useState<Prediction[]>([]);
   const [loading, setLoading] = useState(false);
+  const dateLocale = language === 'en' ? enUS : ptBR;
 
   useEffect(() => {
     if (!open || !user || !competitionId) return;
-
     const fetchData = async () => {
-      // Get active phases for this competition
-      const { data: phases } = await (supabase as any)
-        .from('phases')
-        .select('id')
-        .eq('is_active', true)
-        .eq('competition_id', competitionId);
-
-      if (!phases || phases.length === 0) {
-        toast.info('Nenhuma fase ativa no momento');
-        return;
-      }
-
+      const { data: phases } = await (supabase as any).from('phases').select('id').eq('is_active', true).eq('competition_id', competitionId);
+      if (!phases || phases.length === 0) { toast.info(t('predModal.noActivePhase')); return; }
       const phaseIds = phases.map((p: any) => p.id);
-
-      const { data: matchesData } = await supabase
-        .from('matches')
-        .select('*')
-        .in('phase_id', phaseIds)
-        .eq('is_finished', false)
-        .order('match_date', { ascending: true });
-
+      const { data: matchesData } = await supabase.from('matches').select('*').in('phase_id', phaseIds).eq('is_finished', false).order('match_date', { ascending: true });
       if (matchesData) {
         setMatches(matchesData);
-
-        // Get existing predictions for this user and these matches (unique constraint is user_id + match_id)
-        const { data: existingPreds } = await (supabase as any)
-          .from('predictions')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('bolao_id', bolaoId)
-          .in('match_id', matchesData.map(m => m.id));
-
+        const { data: existingPreds } = await (supabase as any).from('predictions').select('*').eq('user_id', user.id).eq('bolao_id', bolaoId).in('match_id', matchesData.map(m => m.id));
         if (existingPreds) setExistingPredictions(existingPreds);
-
         setPredictions(matchesData.map(m => {
           const existing = existingPreds?.find((p: Prediction) => p.match_id === m.id);
-          return {
-            matchId: m.id,
-            scoreA: existing ? String(existing.score_a) : '',
-            scoreB: existing ? String(existing.score_b) : '',
-          };
+          return { matchId: m.id, scoreA: existing ? String(existing.score_a) : '', scoreB: existing ? String(existing.score_b) : '' };
         }));
       }
     };
@@ -88,71 +56,40 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
   const handleSave = async () => {
     if (!user || !bolaoId) return;
     setLoading(true);
-
     try {
       for (const pred of predictions) {
         if (pred.scoreA === '' || pred.scoreB === '') continue;
-
         const scoreA = parseInt(pred.scoreA);
         const scoreB = parseInt(pred.scoreB);
         if (isNaN(scoreA) || isNaN(scoreB) || scoreA < 0 || scoreB < 0) continue;
-
         const existing = existingPredictions.find(p => p.match_id === pred.matchId);
-
         if (existing) {
-          const { error } = await supabase
-            .from('predictions')
-            .update({ score_a: scoreA, score_b: scoreB })
-            .eq('id', existing.id);
-          if (error) {
-            console.error('Update prediction error:', error);
-            throw error;
-          }
+          const { error } = await supabase.from('predictions').update({ score_a: scoreA, score_b: scoreB }).eq('id', existing.id);
+          if (error) throw error;
         } else {
-          const { error } = await (supabase as any)
-            .from('predictions')
-            .insert({
-              user_id: user.id,
-              match_id: pred.matchId,
-              score_a: scoreA,
-              score_b: scoreB,
-              bolao_id: bolaoId,
-            });
-          if (error) {
-            console.error('Insert prediction error:', error);
-            throw error;
-          }
+          const { error } = await (supabase as any).from('predictions').insert({ user_id: user.id, match_id: pred.matchId, score_a: scoreA, score_b: scoreB, bolao_id: bolaoId });
+          if (error) throw error;
         }
       }
-
-      toast.success('Palpites salvos com sucesso!');
+      toast.success(t('predModal.success'));
       onOpenChange(false);
     } catch (error: any) {
-      toast.error('Erro ao salvar palpites');
-    } finally {
-      setLoading(false);
-    }
+      toast.error(t('predModal.error'));
+    } finally { setLoading(false); }
   };
 
   const updatePrediction = (matchId: string, field: 'scoreA' | 'scoreB', value: string) => {
-    setPredictions(prev => prev.map(p =>
-      p.matchId === matchId ? { ...p, [field]: value } : p
-    ));
+    setPredictions(prev => prev.map(p => p.matchId === matchId ? { ...p, [field]: value } : p));
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[85vh]">
         <DialogHeader>
-          <DialogTitle className="font-display tracking-wider text-primary">
-            ⚽ LANÇAR PALPITES
-          </DialogTitle>
+          <DialogTitle className="font-display tracking-wider text-primary">{t('predModal.title')}</DialogTitle>
         </DialogHeader>
-
         {matches.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8">
-            Nenhum jogo disponível para palpite
-          </p>
+          <p className="text-center text-muted-foreground py-8">{t('predModal.noGames')}</p>
         ) : (
           <>
             <ScrollArea className="max-h-[55vh] pr-4">
@@ -163,30 +100,20 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
                     <div key={match.id} className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
                       {match.match_date && (
                         <p className="text-xs text-muted-foreground text-center">
-                          {format(new Date(match.match_date), "dd MMM, HH:mm", { locale: ptBR })}
+                          {format(new Date(match.match_date), "dd MMM, HH:mm", { locale: dateLocale })}
                         </p>
                       )}
                       <div className="flex items-center justify-center gap-3">
                         <div className="text-center">
                           <p className="text-xs text-muted-foreground mb-1"><TeamName name={match.team_a || 'Time A'} side="left" /></p>
-                          <Input
-                            type="number"
-                            min="0"
-                            className="w-16 text-center font-display font-bold"
-                            value={pred?.scoreA ?? ''}
-                            onChange={e => updatePrediction(match.id, 'scoreA', e.target.value)}
-                          />
+                          <Input type="number" min="0" className="w-16 text-center font-display font-bold"
+                            value={pred?.scoreA ?? ''} onChange={e => updatePrediction(match.id, 'scoreA', e.target.value)} />
                         </div>
                         <span className="font-display text-lg text-muted-foreground pt-4">×</span>
                         <div className="text-center">
                           <p className="text-xs text-muted-foreground mb-1"><TeamName name={match.team_b || 'Time B'} side="right" /></p>
-                          <Input
-                            type="number"
-                            min="0"
-                            className="w-16 text-center font-display font-bold"
-                            value={pred?.scoreB ?? ''}
-                            onChange={e => updatePrediction(match.id, 'scoreB', e.target.value)}
-                          />
+                          <Input type="number" min="0" className="w-16 text-center font-display font-bold"
+                            value={pred?.scoreB ?? ''} onChange={e => updatePrediction(match.id, 'scoreB', e.target.value)} />
                         </div>
                       </div>
                     </div>
@@ -194,9 +121,8 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
                 })}
               </div>
             </ScrollArea>
-
             <Button onClick={handleSave} disabled={loading} className="w-full font-display tracking-wider">
-              {loading ? 'SALVANDO...' : 'SALVAR PALPITES'}
+              {loading ? t('predModal.saving') : t('predModal.save')}
             </Button>
           </>
         )}

@@ -12,16 +12,18 @@ import MatchPredictions from '@/components/dashboard/MatchPredictions';
 import PredictionModal from '@/components/dashboard/PredictionModal';
 import MatchBracket from '@/components/dashboard/MatchBracket';
 import RulesModal from '@/components/dashboard/RulesModal';
+import LanguageSelector from '@/components/LanguageSelector';
+import { useLanguage } from '@/i18n/LanguageContext';
 import type { Bolao, Competition } from '@/types/bolao';
 
 const Dashboard = () => {
   const { bolaoId } = useParams();
   const { profile, user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [predictionOpen, setPredictionOpen] = useState(false);
   const [bracketOpen, setBracketOpen] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
-  
   const [bolao, setBolao] = useState<Bolao | null>(null);
   const [competition, setCompetition] = useState<Competition | null>(null);
   const [paidCount, setPaidCount] = useState(0);
@@ -38,7 +40,6 @@ const Dashboard = () => {
         const { data: compData } = await (supabase as any).from('competitions').select('*').eq('id', bolaoData.competition_id).single();
         if (compData) setCompetition(compData);
       }
-
       const [paymentsRes, participantsRes] = await Promise.all([
         (supabase as any).from('payments').select('id', { count: 'exact', head: true }).eq('bolao_id', bolaoId),
         (supabase as any).from('bolao_participants').select('id', { count: 'exact', head: true }).eq('bolao_id', bolaoId),
@@ -55,7 +56,7 @@ const Dashboard = () => {
     if (!bolao) return;
     const url = `${window.location.origin}/invite/${bolao.invite_code}`;
     navigator.clipboard.writeText(url);
-    toast.success('Link de convite copiado!');
+    toast.success(t('dash.inviteCopied'));
   };
 
   return (
@@ -63,36 +64,35 @@ const Dashboard = () => {
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="container mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => {
-              navigate('/home', { replace: true });
-            }}>
+            <Button variant="ghost" size="icon" onClick={() => navigate('/home', { replace: true })}>
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <img src={trophyImg} alt="Troféu" className="w-7 h-7 object-contain" />
             <h1 className="font-display text-lg tracking-wider text-primary font-bold truncate max-w-[200px]">
-              {bolao?.nickname || 'BOLÃO'}
+              {bolao?.nickname || t('dash.pool')}
             </h1>
           </div>
           <div className="flex items-center gap-4">
+            <LanguageSelector />
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <Users className="w-4 h-4" />
               <span className="font-medium text-foreground">{paidCount}/{totalParticipants}</span>
-              <span className="hidden sm:inline">pagos</span>
+              <span className="hidden sm:inline">{t('dash.paid')}</span>
             </div>
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <DollarSign className="w-4 h-4" />
               <span className="font-medium text-foreground">R$ {totalReceived.toFixed(2)}</span>
             </div>
             <Button variant="ghost" size="sm" onClick={copyInviteCode} className="gap-1 hidden sm:flex">
-              <Copy className="w-3 h-3" /> Convite
+              <Copy className="w-3 h-3" /> {t('dash.invite')}
             </Button>
             <span className="text-sm text-muted-foreground hidden sm:block">
-              Olá, <span className="font-medium text-foreground">{profile?.name}</span>
+              {t('home.hello')}, <span className="font-medium text-foreground">{profile?.name}</span>
             </span>
             {isCreator && (
               <Button variant="outline" size="sm" onClick={() => navigate(`/bolao/${bolaoId}/manage`)} className="gap-1">
                 <Settings className="w-4 h-4" />
-                <span className="hidden sm:inline">Gerenciar</span>
+                <span className="hidden sm:inline">{t('dash.manage')}</span>
               </Button>
             )}
           </div>

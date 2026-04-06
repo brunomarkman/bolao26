@@ -6,9 +6,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Eye, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { ptBR, enUS } from 'date-fns/locale';
 import type { Tables } from '@/integrations/supabase/types';
 import TeamName from '@/components/TeamName';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 type Match = Tables<'matches'>;
 type Prediction = Tables<'predictions'>;
@@ -24,33 +25,21 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
   const [selectedMatch, setSelectedMatch] = useState<string>('');
   const [predictions, setPredictions] = useState<(Prediction & { profile?: Profile })[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
+  const { t, language } = useLanguage();
 
   const handleRefresh = () => setRefreshKey(k => k + 1);
+  const dateLocale = language === 'en' ? enUS : ptBR;
 
   useEffect(() => {
     if (!competitionId) return;
     const fetchMatches = async () => {
-      // Get phases for this competition
-      const { data: phases } = await (supabase as any)
-        .from('phases')
-        .select('id')
-        .eq('competition_id', competitionId);
-
+      const { data: phases } = await (supabase as any).from('phases').select('id').eq('competition_id', competitionId);
       if (!phases || phases.length === 0) return;
       const phaseIds = phases.map((p: any) => p.id);
-
-      const { data } = await supabase
-        .from('matches')
-        .select('*')
-        .in('phase_id', phaseIds)
-        .eq('is_finished', false)
-        .order('match_date', { ascending: true });
-
+      const { data } = await supabase.from('matches').select('*').in('phase_id', phaseIds).eq('is_finished', false).order('match_date', { ascending: true });
       if (data) {
         setMatches(data);
-        if (data.length > 0 && !selectedMatch) {
-          setSelectedMatch(data[0].id);
-        }
+        if (data.length > 0 && !selectedMatch) setSelectedMatch(data[0].id);
       }
     };
     fetchMatches();
@@ -59,20 +48,10 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
   useEffect(() => {
     if (!selectedMatch || !bolaoId) return;
     const fetchPredictions = async () => {
-      // Get predictions for this match AND this bolão
-      const { data: preds } = await (supabase as any)
-        .from('predictions')
-        .select('*')
-        .eq('match_id', selectedMatch)
-        .eq('bolao_id', bolaoId);
-
+      const { data: preds } = await (supabase as any).from('predictions').select('*').eq('match_id', selectedMatch).eq('bolao_id', bolaoId);
       const { data: profiles } = await supabase.from('profiles').select('*');
-
       if (preds && profiles) {
-        const merged = preds.map((p: Prediction) => ({
-          ...p,
-          profile: profiles.find((pr: Profile) => pr.user_id === p.user_id),
-        }));
+        const merged = preds.map((p: Prediction) => ({ ...p, profile: profiles.find((pr: Profile) => pr.user_id === p.user_id) }));
         setPredictions(merged);
       }
     };
@@ -85,18 +64,15 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
     <Card className="h-full border-primary/10">
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-display tracking-wider flex items-center gap-2 text-primary">
-          <Eye className="w-4 h-4" />
-          CONFIRA PALPITES
+          <Eye className="w-4 h-4" /> {t('predictions.title')}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <Button onClick={handleRefresh} variant="outline" size="sm" className="w-full font-display tracking-wider gap-2">
-          <RefreshCw className="w-4 h-4" /> ATUALIZAR PALPITES
+          <RefreshCw className="w-4 h-4" /> {t('predictions.refresh')}
         </Button>
         <Select value={selectedMatch} onValueChange={setSelectedMatch}>
-          <SelectTrigger>
-            <SelectValue placeholder="Selecione um jogo" />
-          </SelectTrigger>
+          <SelectTrigger><SelectValue placeholder={t('predictions.selectMatch')} /></SelectTrigger>
           <SelectContent>
             {matches.map(m => (
               <SelectItem key={m.id} value={m.id}>
@@ -109,9 +85,7 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
           </SelectContent>
         </Select>
 
-        {matches.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-8">Nenhum jogo pendente</p>
-        )}
+        {matches.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">{t('predictions.noPending')}</p>}
 
         {currentMatch && (
           <div className="text-center py-2">
@@ -120,7 +94,7 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
             </p>
             {currentMatch.match_date && (
               <p className="text-xs text-muted-foreground mt-1">
-                {format(new Date(currentMatch.match_date), "dd MMM, HH:mm", { locale: ptBR })}
+                {format(new Date(currentMatch.match_date), "dd MMM, HH:mm", { locale: dateLocale })}
                 {currentMatch.location && ` • ${currentMatch.location}`}
               </p>
             )}
@@ -129,15 +103,13 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
 
         <ScrollArea className="h-[calc(100vh-26rem)]">
           {predictions.length === 0 && selectedMatch ? (
-            <p className="text-sm text-muted-foreground text-center py-4">Nenhum palpite registrado</p>
+            <p className="text-sm text-muted-foreground text-center py-4">{t('predictions.noRegistered')}</p>
           ) : (
             <div className="space-y-2">
               {predictions.map(pred => (
                 <div key={pred.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
-                  <span className="text-sm font-medium">{pred.profile?.name || 'Competidor'}</span>
-                  <span className="font-display font-bold text-primary">
-                    {pred.score_a} × {pred.score_b}
-                  </span>
+                  <span className="text-sm font-medium">{pred.profile?.name || t('predictions.competitor')}</span>
+                  <span className="font-display font-bold text-primary">{pred.score_a} × {pred.score_b}</span>
                 </div>
               ))}
             </div>
