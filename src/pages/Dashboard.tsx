@@ -62,39 +62,65 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen">
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-40">
-        <div className="container mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/home', { replace: true })}>
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            <img src={trophyImg} alt="Troféu" className="w-7 h-7 object-contain" />
-            <h1 className="font-display text-lg tracking-wider text-primary font-bold truncate max-w-[200px]">
-              {bolao?.nickname || t('dash.pool')}
-            </h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <LanguageSelector />
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              <Users className="w-4 h-4" />
-              <span className="font-medium text-foreground">{paidCount}/{totalParticipants}</span>
-              <span className="hidden sm:inline">{t('dash.paid')}</span>
-            </div>
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              <DollarSign className="w-4 h-4" />
-              <span className="font-medium text-foreground">R$ {totalReceived.toFixed(2)}</span>
-            </div>
-            <Button variant="ghost" size="sm" onClick={copyInviteCode} className="gap-1 hidden sm:flex">
-              <Copy className="w-3 h-3" /> {t('dash.invite')}
-            </Button>
-            <span className="text-sm text-muted-foreground hidden sm:block">
-              {t('home.hello')}, <span className="font-medium text-foreground">{profile?.name}</span>
-            </span>
-            {isCreator && (
-              <Button variant="outline" size="sm" onClick={() => navigate(`/bolao/${bolaoId}/manage`)} className="gap-1">
-                <Settings className="w-4 h-4" />
-                <span className="hidden sm:inline">{t('dash.manage')}</span>
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-14">
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" onClick={() => navigate('/home', { replace: true })}>
+                <ArrowLeft className="w-4 h-4" />
               </Button>
-            )}
+              <img src={trophyImg} alt="Troféu" className="w-7 h-7 object-contain" />
+              <h1 className="font-display text-lg tracking-wider text-primary font-bold truncate max-w-[200px]">
+                {bolao?.nickname || t('dash.pool')}
+              </h1>
+            </div>
+            <div className="flex items-center gap-3">
+              <LanguageSelector />
+              <div className="hidden md:flex items-center gap-4">
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <Users className="w-4 h-4" />
+                  <span className="font-medium text-foreground">{paidCount}/{totalParticipants}</span>
+                  <span>{t('dash.paid')}</span>
+                </div>
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <DollarSign className="w-4 h-4" />
+                  <span className="font-medium text-foreground">R$ {totalReceived.toFixed(2)}</span>
+                </div>
+                <Button variant="ghost" size="sm" onClick={copyInviteCode} className="gap-1">
+                  <Copy className="w-3 h-3" /> {t('dash.invite')}
+                </Button>
+                <span className="text-sm text-muted-foreground">
+                  {t('home.hello')}, <span className="font-medium text-foreground">{profile?.name}</span>
+                </span>
+                {isCreator && (
+                  <Button variant="outline" size="sm" onClick={() => navigate(`/bolao/${bolaoId}/manage`)} className="gap-1">
+                    <Settings className="w-4 h-4" />
+                    <span>{t('dash.manage')}</span>
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="flex md:hidden items-center justify-between pb-2 -mt-1 flex-wrap gap-2">
+            <div className="flex items-center gap-3 text-sm">
+              <div className="flex items-center gap-1 text-muted-foreground">
+                <Users className="w-4 h-4" />
+                <span className="font-medium text-foreground">{paidCount}/{totalParticipants}</span>
+              </div>
+              <div className="flex items-center gap-1 text-muted-foreground">
+                <DollarSign className="w-4 h-4" />
+                <span className="font-medium text-foreground">R$ {totalReceived.toFixed(2)}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="sm" onClick={copyInviteCode} className="gap-1 h-7 text-xs">
+                <Copy className="w-3 h-3" /> {t('dash.invite')}
+              </Button>
+              {isCreator && (
+                <Button variant="outline" size="sm" onClick={() => navigate(`/bolao/${bolaoId}/manage`)} className="gap-1 h-7 text-xs">
+                  <Settings className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </header>
