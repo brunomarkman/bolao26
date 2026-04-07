@@ -12,6 +12,7 @@ type Profile = Tables<'profiles'>;
 
 interface LeaderboardProps {
   bolaoId?: string;
+  competitionId?: string;
   onOpenPredictions: () => void;
   onOpenBracket: () => void;
   onOpenRules: () => void;
@@ -23,8 +24,9 @@ interface RankedUser {
   user_id: string;
 }
 
-const Leaderboard = ({ bolaoId, onOpenPredictions, onOpenBracket, onOpenRules }: LeaderboardProps) => {
+const Leaderboard = ({ bolaoId, competitionId, onOpenPredictions, onOpenBracket, onOpenRules }: LeaderboardProps) => {
   const [rankings, setRankings] = useState<RankedUser[]>([]);
+  const [hasActivePhase, setHasActivePhase] = useState(false);
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -47,6 +49,15 @@ const Leaderboard = ({ bolaoId, onOpenPredictions, onOpenBracket, onOpenRules }:
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [bolaoId]);
+
+  useEffect(() => {
+    if (!competitionId) return;
+    const checkActivePhase = async () => {
+      const { data } = await (supabase as any).from('phases').select('id').eq('competition_id', competitionId).eq('is_active', true);
+      setHasActivePhase(data && data.length > 0);
+    };
+    checkActivePhase();
+  }, [competitionId]);
 
   const getRankIcon = (index: number) => {
     if (index === 0) return <Trophy className="w-5 h-5 text-gold" />;
@@ -83,7 +94,7 @@ const Leaderboard = ({ bolaoId, onOpenPredictions, onOpenBracket, onOpenRules }:
           )}
         </ScrollArea>
         <div className="p-4 border-t border-border space-y-2">
-          <Button onClick={onOpenPredictions} className="w-full font-display tracking-wider">{t('leaderboard.launchPredictions')}</Button>
+          <Button onClick={onOpenPredictions} className="w-full font-display tracking-wider" disabled={!hasActivePhase} title={!hasActivePhase ? t('leaderboard.noActivePhase') : ''}>{t('leaderboard.launchPredictions')}</Button>
           <Button onClick={onOpenBracket} variant="outline" className="w-full font-display tracking-wider">{t('leaderboard.matchTable')}</Button>
           <Button onClick={onOpenRules} variant="outline" className="w-full font-display tracking-wider">{t('leaderboard.rules')}</Button>
         </div>
