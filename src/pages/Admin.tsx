@@ -77,7 +77,23 @@ const Admin = () => {
 
   const fetchCompetitions = async () => {
     const { data } = await (supabase as any).from('competitions').select('*').order('year', { ascending: false });
-    if (data) setCompetitions(data);
+    if (data) {
+      setCompetitions(data);
+      // Pre-select if only one active/waiting competition
+      if (!selectedCompetition) {
+        const activeOrWaiting = data.filter((c: Competition) => {
+          const startDate = c.start_date ? new Date(c.start_date) : null;
+          const endDate = c.end_date ? new Date(c.end_date) : null;
+          const now = new Date();
+          // "active" = started and not ended, "waiting" = not started yet or no dates
+          if (endDate && endDate < now) return false;
+          return true;
+        });
+        if (activeOrWaiting.length === 1) {
+          setSelectedCompetition(activeOrWaiting[0].id);
+        }
+      }
+    }
   };
 
   const fetchPhasesAndMatches = async () => {
@@ -85,7 +101,7 @@ const Admin = () => {
       (supabase as any).from('phases').select('*').eq('competition_id', selectedCompetition).order('number'),
       supabase.from('matches').select('*').order('match_date', { ascending: true }),
     ]);
-    if (phasesRes.data) { setPhases(phasesRes.data); if (phasesRes.data.length > 0) setSelectedPhase(phasesRes.data[0].id); else setSelectedPhase(''); }
+    if (phasesRes.data) { setPhases(phasesRes.data); if (!selectedPhase || !phasesRes.data.find((p: Phase) => p.id === selectedPhase)) { if (phasesRes.data.length > 0) setSelectedPhase(phasesRes.data[0].id); else setSelectedPhase(''); } }
     if (matchesRes.data) setMatches(matchesRes.data);
   };
 
