@@ -170,28 +170,47 @@ const Home = () => {
   return (
     <div className="min-h-screen">
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-40">
-        <div className="container mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src={trophyImg} alt="Troféu" className="w-7 h-7 object-contain" />
-            <h1 className="font-display text-lg tracking-wider text-primary font-bold">
-              {t('home.title')}
-            </h1>
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-14">
+            <div className="flex items-center gap-3">
+              <img src={trophyImg} alt="Troféu" className="w-7 h-7 object-contain" />
+              <h1 className="font-display text-lg tracking-wider text-primary font-bold">
+                {t('home.title')}
+              </h1>
+            </div>
+            <div className="flex items-center gap-3">
+              <LanguageSelector />
+              <span className="text-sm text-muted-foreground hidden md:block">
+                {t('home.hello')}, <span className="font-medium text-foreground">{profile?.name}</span>
+              </span>
+              <span className="hidden md:flex items-center gap-1">
+                {isSiteAdmin && (
+                  <Button variant="outline" size="sm" onClick={() => navigate('/admin')} className="gap-1">
+                    <Shield className="w-4 h-4" />
+                    <span>{t('home.admin')}</span>
+                  </Button>
+                )}
+                <Button variant="ghost" size="icon" onClick={signOut}>
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </span>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <LanguageSelector />
-            <span className="text-sm text-muted-foreground hidden sm:block">
+          <div className="flex md:hidden items-center justify-between pb-2 -mt-1">
+            <span className="text-sm text-muted-foreground">
               {t('home.hello')}, <span className="font-medium text-foreground">{profile?.name}</span>
             </span>
-            {isSiteAdmin && (
-              <Button variant="outline" size="sm" onClick={() => navigate('/admin')} className="gap-1">
-                <Shield className="w-4 h-4" />
-                <span className="hidden sm:inline">{t('home.admin')}</span>
-                <span className="sm:hidden">{t('home.adminShort')}</span>
+            <div className="flex items-center gap-1">
+              {isSiteAdmin && (
+                <Button variant="outline" size="sm" onClick={() => navigate('/admin')} className="gap-1">
+                  <Shield className="w-4 h-4" />
+                  <span>{t('home.adminShort')}</span>
+                </Button>
+              )}
+              <Button variant="ghost" size="icon" onClick={signOut}>
+                <LogOut className="w-4 h-4" />
               </Button>
-            )}
-            <Button variant="ghost" size="icon" onClick={signOut}>
-              <LogOut className="w-4 h-4" />
-            </Button>
+            </div>
           </div>
         </div>
       </header>

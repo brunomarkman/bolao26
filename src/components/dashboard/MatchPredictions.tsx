@@ -87,19 +87,6 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
 
         {matches.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">{t('predictions.noPending')}</p>}
 
-        {currentMatch && (
-          <div className="text-center py-2">
-            <p className="font-display text-lg font-bold">
-              <TeamName name={currentMatch.team_a || '???'} side="left" /> vs <TeamName name={currentMatch.team_b || '???'} side="right" />
-            </p>
-            {currentMatch.match_date && (
-              <p className="text-xs text-muted-foreground mt-1">
-                {format(new Date(currentMatch.match_date), "dd MMM, HH:mm", { locale: dateLocale })}
-                {currentMatch.location && ` • ${currentMatch.location}`}
-              </p>
-            )}
-          </div>
-        )}
 
         <ScrollArea className="h-[calc(100vh-26rem)]">
           {predictions.length === 0 && selectedMatch ? (

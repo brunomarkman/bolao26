@@ -121,6 +121,13 @@ const Admin = () => {
   };
 
   const togglePhase = async (phaseId: string, isActive: boolean) => {
+    if (isActive) {
+      // Deactivate all other phases first
+      const otherActive = phases.filter(p => p.is_active && p.id !== phaseId);
+      for (const p of otherActive) {
+        await supabase.from('phases').update({ is_active: false }).eq('id', p.id);
+      }
+    }
     await supabase.from('phases').update({ is_active: isActive }).eq('id', phaseId);
     toast.success(isActive ? t('admin.phaseActivated') : t('admin.phaseDeactivated'));
     fetchPhasesAndMatches();

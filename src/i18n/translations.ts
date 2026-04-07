@@ -108,6 +108,9 @@ export const translations = {
   'predModal.success': { pt: 'Palpites salvos com sucesso!', en: 'Predictions saved successfully!' },
   'predModal.error': { pt: 'Erro ao salvar palpites', en: 'Error saving predictions' },
   'predModal.noActivePhase': { pt: 'Nenhuma fase ativa no momento', en: 'No active phase at the moment' },
+  'predModal.locked': { pt: 'Palpite permitido somente até 10 minutos antes da partida', en: 'Predictions allowed only up to 10 minutes before the match' },
+  'predModal.lockedLabel': { pt: 'Bloqueado', en: 'Locked' },
+  'leaderboard.noActivePhase': { pt: 'Nenhuma fase ativa. Palpites desabilitados.', en: 'No active phase. Predictions disabled.' },
 
   // MatchBracket
   'bracket.title': { pt: '⚽ TABELA DE JOGOS', en: '⚽ MATCH TABLE' },

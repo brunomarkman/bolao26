@@ -53,6 +53,15 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
     fetchData();
   }, [open, user, competitionId, bolaoId]);
 
+  const isMatchLocked = (match: Match) => {
+    if (!match.match_date) return false;
+    // match_date is stored as Brasília time (UTC-3), but JS parses ISO as UTC
+    const matchTime = new Date(match.match_date).getTime();
+    const now = Date.now();
+    const tenMinMs = 10 * 60 * 1000;
+    return now >= matchTime - tenMinMs;
+  };
+
   const handleSave = async () => {
     if (!user || !bolaoId) return;
     setLoading(true);
@@ -62,6 +71,13 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
         const scoreA = parseInt(pred.scoreA);
         const scoreB = parseInt(pred.scoreB);
         if (isNaN(scoreA) || isNaN(scoreB) || scoreA < 0 || scoreB < 0) continue;
+        
+        const match = matches.find(m => m.id === pred.matchId);
+        if (match && isMatchLocked(match)) {
+          toast.error(`${match.team_a} x ${match.team_b}: ${t('predModal.locked')}`);
+          continue;
+        }
+        
         const existing = existingPredictions.find(p => p.match_id === pred.matchId);
         if (existing) {
           const { error } = await supabase.from('predictions').update({ score_a: scoreA, score_b: scoreB }).eq('id', existing.id);
@@ -97,23 +113,24 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
                 {matches.map(match => {
                   const pred = predictions.find(p => p.matchId === match.id);
                   return (
-                    <div key={match.id} className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
+                    <div key={match.id} className={`p-4 rounded-lg border border-border/50 space-y-3 ${isMatchLocked(match) ? 'bg-muted/60 opacity-60' : 'bg-muted/30'}`}>
                       {match.match_date && (
                         <p className="text-xs text-muted-foreground text-center">
                           {format(new Date(match.match_date), "dd MMM, HH:mm", { locale: dateLocale })}
+                          {isMatchLocked(match) && <span className="ml-2 text-destructive font-bold">🔒 {t('predModal.lockedLabel')}</span>}
                         </p>
                       )}
                       <div className="flex items-center justify-center gap-3">
                         <div className="text-center">
                           <p className="text-xs text-muted-foreground mb-1"><TeamName name={match.team_a || 'Time A'} side="left" /></p>
                           <Input type="number" min="0" className="w-16 text-center font-display font-bold"
-                            value={pred?.scoreA ?? ''} onChange={e => updatePrediction(match.id, 'scoreA', e.target.value)} />
+                            value={pred?.scoreA ?? ''} onChange={e => updatePrediction(match.id, 'scoreA', e.target.value)} disabled={isMatchLocked(match)} />
                         </div>
                         <span className="font-display text-lg text-muted-foreground pt-4">×</span>
                         <div className="text-center">
                           <p className="text-xs text-muted-foreground mb-1"><TeamName name={match.team_b || 'Time B'} side="right" /></p>
                           <Input type="number" min="0" className="w-16 text-center font-display font-bold"
-                            value={pred?.scoreB ?? ''} onChange={e => updatePrediction(match.id, 'scoreB', e.target.value)} />
+                            value={pred?.scoreB ?? ''} onChange={e => updatePrediction(match.id, 'scoreB', e.target.value)} disabled={isMatchLocked(match)} />
                         </div>
                       </div>
                     </div>
