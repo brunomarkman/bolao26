@@ -131,7 +131,7 @@ const Dashboard = () => {
             <OrganizerMessages bolaoId={bolaoId} />
           </div>
           <div className="order-1 lg:order-2">
-            <Leaderboard bolaoId={bolaoId} onOpenPredictions={() => setPredictionOpen(true)} onOpenBracket={() => setBracketOpen(true)} onOpenRules={() => setRulesOpen(true)} />
+            <Leaderboard bolaoId={bolaoId} competitionId={bolao?.competition_id} onOpenPredictions={() => setPredictionOpen(true)} onOpenBracket={() => setBracketOpen(true)} onOpenRules={() => setRulesOpen(true)} />
           </div>
           <div className="order-3 lg:order-3">
             <MatchPredictions bolaoId={bolaoId} competitionId={bolao?.competition_id} />
