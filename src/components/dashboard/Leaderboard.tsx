@@ -16,6 +16,7 @@ interface LeaderboardProps {
   onOpenPredictions: () => void;
   onOpenBracket: () => void;
   onOpenRules: () => void;
+  onOpenResults: () => void;
 }
 
 interface RankedUser {
