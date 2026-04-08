@@ -45,30 +45,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
+    let hadUserBefore = false;
+
+    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
+      hadUserBefore = !!initialSession?.user;
+      setSession(initialSession);
+      setUser(initialSession?.user ?? null);
+      if (initialSession?.user) {
+        fetchProfile(initialSession.user.id);
+      }
+      setLoading(false);
+    });
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          if (_event === 'SIGNED_IN') {
+          if (_event === 'SIGNED_IN' && !hadUserBefore) {
             sessionStorage.setItem('just_logged_in', 'true');
           }
+          hadUserBefore = true;
           setTimeout(() => fetchProfile(session.user.id), 500);
         } else {
+          hadUserBefore = false;
           setProfile(null);
         }
         setLoading(false);
       }
     );
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      }
-      setLoading(false);
-    });
 
     return () => subscription.unsubscribe();
   }, []);
