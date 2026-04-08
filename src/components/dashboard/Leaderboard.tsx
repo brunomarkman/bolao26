@@ -25,7 +25,7 @@ interface RankedUser {
   user_id: string;
 }
 
-const Leaderboard = ({ bolaoId, competitionId, onOpenPredictions, onOpenBracket, onOpenRules }: LeaderboardProps) => {
+const Leaderboard = ({ bolaoId, competitionId, onOpenPredictions, onOpenBracket, onOpenRules, onOpenResults }: LeaderboardProps) => {
   const [rankings, setRankings] = useState<RankedUser[]>([]);
   const [hasActivePhase, setHasActivePhase] = useState(false);
   const { t } = useLanguage();
@@ -98,6 +98,7 @@ const Leaderboard = ({ bolaoId, competitionId, onOpenPredictions, onOpenBracket,
           <Button onClick={onOpenPredictions} className="w-full font-display tracking-wider" disabled={!hasActivePhase} title={!hasActivePhase ? t('leaderboard.noActivePhase') : ''}>{t('leaderboard.launchPredictions')}</Button>
           <Button onClick={onOpenBracket} variant="outline" className="w-full font-display tracking-wider">{t('leaderboard.matchTable')}</Button>
           <Button onClick={onOpenRules} variant="outline" className="w-full font-display tracking-wider">{t('leaderboard.rules')}</Button>
+          <Button onClick={onOpenResults} variant="outline" className="w-full font-display tracking-wider">{t('report.title')}</Button>
         </div>
       </CardContent>
     </Card>
