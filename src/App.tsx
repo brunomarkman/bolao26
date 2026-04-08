@@ -35,9 +35,9 @@ const App = () => (
             </Routes>
           </AuthProvider>
         </BrowserRouter>
-      </LanguageProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </LanguageProvider>
 );
 
 export default App;
