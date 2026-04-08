@@ -33,8 +33,8 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
   useEffect(() => {
     if (!competitionId) return;
     const fetchMatches = async () => {
-      const { data: phases } = await (supabase as any).from('phases').select('id').eq('competition_id', competitionId);
-      if (!phases || phases.length === 0) return;
+      const { data: phases } = await (supabase as any).from('phases').select('id').eq('competition_id', competitionId).eq('is_active', true);
+      if (!phases || phases.length === 0) { setMatches([]); return; }
       const phaseIds = phases.map((p: any) => p.id);
       const { data } = await supabase.from('matches').select('*').in('phase_id', phaseIds).eq('is_finished', false).order('match_date', { ascending: true });
       if (data) {
