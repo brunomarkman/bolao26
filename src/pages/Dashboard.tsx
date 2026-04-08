@@ -12,6 +12,8 @@ import MatchPredictions from '@/components/dashboard/MatchPredictions';
 import PredictionModal from '@/components/dashboard/PredictionModal';
 import MatchBracket from '@/components/dashboard/MatchBracket';
 import RulesModal from '@/components/dashboard/RulesModal';
+import ResultsReport from '@/components/manage/ResultsReport';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import LanguageSelector from '@/components/LanguageSelector';
 import { useLanguage } from '@/i18n/LanguageContext';
 import type { Bolao, Competition } from '@/types/bolao';
@@ -24,6 +26,7 @@ const Dashboard = () => {
   const [predictionOpen, setPredictionOpen] = useState(false);
   const [bracketOpen, setBracketOpen] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
+  const [resultsOpen, setResultsOpen] = useState(false);
   const [bolao, setBolao] = useState<Bolao | null>(null);
   const [competition, setCompetition] = useState<Competition | null>(null);
   const [paidCount, setPaidCount] = useState(0);
@@ -131,7 +134,7 @@ const Dashboard = () => {
             <OrganizerMessages bolaoId={bolaoId} />
           </div>
           <div className="order-1 lg:order-2">
-            <Leaderboard bolaoId={bolaoId} competitionId={bolao?.competition_id} onOpenPredictions={() => setPredictionOpen(true)} onOpenBracket={() => setBracketOpen(true)} onOpenRules={() => setRulesOpen(true)} />
+            <Leaderboard bolaoId={bolaoId} competitionId={bolao?.competition_id} onOpenPredictions={() => setPredictionOpen(true)} onOpenBracket={() => setBracketOpen(true)} onOpenRules={() => setRulesOpen(true)} onOpenResults={() => setResultsOpen(true)} />
           </div>
           <div className="order-3 lg:order-3">
             <MatchPredictions bolaoId={bolaoId} competitionId={bolao?.competition_id} />
@@ -142,6 +145,13 @@ const Dashboard = () => {
       <PredictionModal open={predictionOpen} onOpenChange={setPredictionOpen} bolaoId={bolaoId} competitionId={bolao?.competition_id} />
       <MatchBracket open={bracketOpen} onOpenChange={setBracketOpen} competitionId={bolao?.competition_id} />
       <RulesModal open={rulesOpen} onOpenChange={setRulesOpen} bolao={bolao} />
+      <Dialog open={resultsOpen} onOpenChange={setResultsOpen}>
+        <DialogContent className="max-w-[95vw] max-h-[90vh] overflow-auto">
+          {bolaoId && bolao?.competition_id && (
+            <ResultsReport bolaoId={bolaoId} bolaoNickname={bolao?.nickname || ''} competitionId={bolao.competition_id} />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
