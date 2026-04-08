@@ -62,12 +62,14 @@ const Admin = () => {
   const [resultScoreA, setResultScoreA] = useState<Record<string, string>>({});
   const [resultScoreB, setResultScoreB] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState('competitions');
+  const [lockMinutes, setLockMinutes] = useState('10');
+  const [lockMinutesLoading, setLockMinutesLoading] = useState(false);
 
   const isSiteAdmin = profile?.email === 'brunomarkman@gmail.com';
 
   useEffect(() => {
     if (!isSiteAdmin) { navigate('/'); return; }
-    fetchCompetitions(); fetchMessages(); fetchMessageBoloes();
+    fetchCompetitions(); fetchMessages(); fetchMessageBoloes(); fetchLockMinutes();
   }, [isSiteAdmin]);
 
   useEffect(() => {
@@ -196,6 +198,25 @@ const Admin = () => {
 
   const deleteMessage = async (id: string) => { await supabase.from('messages').delete().eq('id', id); toast.success(t('admin.messageRemoved')); fetchMessages(); };
 
+  const fetchLockMinutes = async () => {
+    const { data } = await supabase.from('settings').select('*').eq('key', 'lock_minutes_before_match').maybeSingle();
+    if (data) setLockMinutes(data.value);
+  };
+
+  const saveLockMinutes = async () => {
+    const val = parseInt(lockMinutes);
+    if (isNaN(val) || val < 0) { toast.error(t('admin.prefInvalidMinutes')); return; }
+    setLockMinutesLoading(true);
+    const { data: existing } = await supabase.from('settings').select('id').eq('key', 'lock_minutes_before_match').maybeSingle();
+    if (existing) {
+      await supabase.from('settings').update({ value: String(val) }).eq('id', existing.id);
+    } else {
+      await supabase.from('settings').insert({ key: 'lock_minutes_before_match', value: String(val) });
+    }
+    toast.success(t('admin.prefSaved'));
+    setLockMinutesLoading(false);
+  };
+
   const phaseIds = phases.map(p => p.id);
   const competitionMatches = matches.filter(m => phaseIds.includes(m.phase_id));
   const phaseMatches = competitionMatches.filter(m => m.phase_id === selectedPhase);
@@ -216,12 +237,13 @@ const Admin = () => {
 
       <main className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="hidden md:grid w-full grid-cols-5">
+          <TabsList className="hidden md:grid w-full grid-cols-6">
             <TabsTrigger value="competitions" className="font-display text-xs tracking-wider">{t('admin.competitions')}</TabsTrigger>
             <TabsTrigger value="phases" className="font-display text-xs tracking-wider">{t('admin.phases')}</TabsTrigger>
             <TabsTrigger value="results" className="font-display text-xs tracking-wider">{t('admin.results')}</TabsTrigger>
             <TabsTrigger value="messages" className="font-display text-xs tracking-wider">{t('admin.messages')}</TabsTrigger>
             <TabsTrigger value="payments" className="font-display text-xs tracking-wider">{t('admin.payments')}</TabsTrigger>
+            <TabsTrigger value="preferences" className="font-display text-xs tracking-wider">{t('admin.preferences')}</TabsTrigger>
           </TabsList>
           <div className="md:hidden">
             <Select value={activeTab} onValueChange={setActiveTab}>
@@ -232,6 +254,7 @@ const Admin = () => {
                 <SelectItem value="results">{t('admin.results')}</SelectItem>
                 <SelectItem value="messages">{t('admin.messages')}</SelectItem>
                 <SelectItem value="payments">{t('admin.payments')}</SelectItem>
+                <SelectItem value="preferences">{t('admin.preferences')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -475,6 +498,20 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="payments"><PaymentsTab /></TabsContent>
+
+          <TabsContent value="preferences" className="space-y-6">
+            <Card>
+              <CardHeader><CardTitle className="font-display text-sm tracking-wider">{t('admin.prefTitle')}</CardTitle></CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <label className="text-sm font-medium whitespace-nowrap">{t('admin.prefLockBefore')}</label>
+                  <Input type="number" min="0" className="w-24 text-center" value={lockMinutes} onChange={e => setLockMinutes(e.target.value)} />
+                  <span className="text-sm text-muted-foreground">{t('admin.prefMinutes')}</span>
+                </div>
+                <Button onClick={saveLockMinutes} disabled={lockMinutesLoading} className="gap-2"><Save className="w-4 h-4" /> {t('admin.prefSaveBtn')}</Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </main>
 

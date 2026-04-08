@@ -364,6 +364,15 @@ export const translations = {
   'report.pdfSuccess': { pt: 'PDF exportado com sucesso!', en: 'PDF exported successfully!' },
   'report.generatedAt': { pt: 'Gerado em:', en: 'Generated at:' },
 
+  // Admin Preferences
+  'admin.preferences': { pt: 'Preferências', en: 'Preferences' },
+  'admin.prefTitle': { pt: 'PREFERÊNCIAS DO SITE', en: 'SITE PREFERENCES' },
+  'admin.prefLockBefore': { pt: 'Bloqueia Palpites antes do jogo', en: 'Lock Predictions before match' },
+  'admin.prefMinutes': { pt: 'Minutos', en: 'Minutes' },
+  'admin.prefSaveBtn': { pt: 'Salvar', en: 'Save' },
+  'admin.prefSaved': { pt: 'Preferência salva com sucesso!', en: 'Preference saved successfully!' },
+  'admin.prefInvalidMinutes': { pt: 'Informe um valor válido em minutos', en: 'Enter a valid value in minutes' },
+
   // NotFound
   'notFound.title': { pt: 'Oops! Página não encontrada', en: 'Oops! Page not found' },
   'notFound.back': { pt: 'Voltar ao Início', en: 'Return to Home' },

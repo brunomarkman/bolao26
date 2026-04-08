@@ -31,11 +31,16 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
   const [predictions, setPredictions] = useState<PredictionInput[]>([]);
   const [existingPredictions, setExistingPredictions] = useState<Prediction[]>([]);
   const [loading, setLoading] = useState(false);
+  const [lockMinutes, setLockMinutes] = useState(10);
   const dateLocale = language === 'en' ? enUS : ptBR;
 
   useEffect(() => {
     if (!open || !user || !competitionId) return;
     const fetchData = async () => {
+      // Fetch lock minutes setting
+      const { data: settingData } = await supabase.from('settings').select('value').eq('key', 'lock_minutes_before_match').maybeSingle();
+      if (settingData) setLockMinutes(parseInt(settingData.value) || 10);
+
       const { data: phases } = await (supabase as any).from('phases').select('id').eq('is_active', true).eq('competition_id', competitionId);
       if (!phases || phases.length === 0) { toast.info(t('predModal.noActivePhase')); return; }
       const phaseIds = phases.map((p: any) => p.id);
@@ -55,11 +60,10 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
 
   const isMatchLocked = (match: Match) => {
     if (!match.match_date) return false;
-    // match_date is stored as Brasília time (UTC-3), but JS parses ISO as UTC
     const matchTime = new Date(match.match_date).getTime();
     const now = Date.now();
-    const tenMinMs = 10 * 60 * 1000;
-    return now >= matchTime - tenMinMs;
+    const lockMs = lockMinutes * 60 * 1000;
+    return now >= matchTime - lockMs;
   };
 
   const handleSave = async () => {
