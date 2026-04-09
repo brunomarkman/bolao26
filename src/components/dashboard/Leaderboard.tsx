@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { Trophy, Medal, Award } from 'lucide-react';
+import { Trophy, Medal, Award, FileText } from 'lucide-react';
 import type { Tables } from '@/integrations/supabase/types';
 import type { BolaoParticipant } from '@/types/bolao';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -98,7 +98,7 @@ const Leaderboard = ({ bolaoId, competitionId, onOpenPredictions, onOpenBracket,
           <Button onClick={onOpenPredictions} className="w-full font-display tracking-wider" disabled={!hasActivePhase} title={!hasActivePhase ? t('leaderboard.noActivePhase') : ''}>{t('leaderboard.launchPredictions')}</Button>
           <Button onClick={onOpenBracket} variant="outline" className="w-full font-display tracking-wider">{t('leaderboard.matchTable')}</Button>
           <Button onClick={onOpenRules} variant="outline" className="w-full font-display tracking-wider">{t('leaderboard.rules')}</Button>
-          <Button onClick={onOpenResults} variant="outline" className="w-full font-display tracking-wider">{t('report.title')}</Button>
+          <Button onClick={onOpenResults} variant="outline" className="w-full font-display tracking-wider"><FileText className="w-4 h-4 mr-2" />{t('report.title')}</Button>
         </div>
       </CardContent>
     </Card>
