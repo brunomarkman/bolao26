@@ -243,7 +243,7 @@ const Admin = () => {
             <TabsTrigger value="results" className="font-display text-xs tracking-wider">{t('admin.results')}</TabsTrigger>
             <TabsTrigger value="messages" className="font-display text-xs tracking-wider">{t('admin.messages')}</TabsTrigger>
             <TabsTrigger value="payments" className="font-display text-xs tracking-wider">{t('admin.payments')}</TabsTrigger>
-            <TabsTrigger value="preferences" className="font-display text-xs tracking-wider">{t('admin.preferences')}</TabsTrigger>
+            <TabsTrigger value="preferences" className="font-display text-xs tracking-wider uppercase">{t('admin.preferences')}</TabsTrigger>
           </TabsList>
           <div className="md:hidden">
             <Select value={activeTab} onValueChange={setActiveTab}>
