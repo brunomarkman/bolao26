@@ -67,7 +67,7 @@ const ResultsReport = ({ bolaoId, bolaoNickname, competitionId }: Props) => {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-row items-center gap-3">
         <CardTitle className="font-display text-sm tracking-wider">{t('report.title')} — {activePhase}</CardTitle>
         <Button onClick={exportPDF} size="sm" className="gap-1"><FileDown className="w-4 h-4" /> {t('report.exportPdf')}</Button>
       </CardHeader>
