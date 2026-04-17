@@ -75,7 +75,7 @@ const GroupView = ({ matches }: { matches: Match[] }) => {
   if (sortedGroups.length === 0) return <p className="text-center text-muted-foreground py-8">{t('bracket.noMatches')}</p>;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-1">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-1">
       {sortedGroups.map(([groupName, groupMatches]) => (
         <div key={groupName} className="rounded-lg border border-primary/20 bg-card/80 overflow-hidden">
           <div className="bg-primary/10 px-3 py-2 text-center">
