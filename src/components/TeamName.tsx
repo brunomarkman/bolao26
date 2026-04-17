@@ -12,7 +12,7 @@ const COUNTRY_CODES: Record<string, string> = {
   'Canadá': 'CA', 'Catar': 'QA', 'Cazaquistão': 'KZ', 'Chade': 'TD',
   'Chile': 'CL', 'China': 'CN', 'Chipre': 'CY', 'Colômbia': 'CO',
   'Comores': 'KM', 'Congo': 'CG', 'Coreia do Norte': 'KP', 'Coreia do Sul': 'KR',
-  'Costa do Marfim': 'CI', 'Costa Rica': 'CR', 'Croácia': 'HR', 'Cuba': 'CU',
+  'Costa do Marfim': 'CI', 'Costa Rica': 'CR', 'Croácia': 'HR', 'Cuba': 'CU', 'Curaçao': 'CW',
   'Dinamarca': 'DK', 'Egito': 'EG', 'El Salvador': 'SV', 'Emirados Árabes': 'AE',
   'Equador': 'EC', 'Escócia': 'GB-SCT', 'Eslováquia': 'SK', 'Eslovênia': 'SI',
   'Espanha': 'ES', 'Estados Unidos': 'US', 'EUA': 'US', 'Estônia': 'EE',
