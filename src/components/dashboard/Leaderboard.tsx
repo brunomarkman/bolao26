@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { Trophy, Medal, Award, FileText } from 'lucide-react';
+import { Trophy, Medal, Award, FileText, RefreshCw } from 'lucide-react';
 import type { Tables } from '@/integrations/supabase/types';
 import type { BolaoParticipant } from '@/types/bolao';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -70,9 +70,14 @@ const Leaderboard = ({ bolaoId, competitionId, onOpenPredictions, onOpenBracket,
   return (
     <Card className="h-full border-primary/10">
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-display tracking-wider flex items-center gap-2 text-primary">
-          <Trophy className="w-4 h-4" /> {t('leaderboard.title')}
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm font-display tracking-wider flex items-center gap-2 text-primary">
+            <Trophy className="w-4 h-4" /> {t('leaderboard.title')}
+          </CardTitle>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => window.location.reload()}>
+            <RefreshCw className="w-4 h-4" />
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="p-0 flex flex-col">
         <ScrollArea className="h-[calc(100vh-22rem)] px-4">
