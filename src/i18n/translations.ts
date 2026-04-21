@@ -110,6 +110,16 @@ export const translations = {
   'predModal.noActivePhase': { pt: 'Nenhuma fase ativa no momento', en: 'No active phase at the moment' },
   'predModal.locked': { pt: 'Palpite permitido somente até 10 minutos antes da partida', en: 'Predictions allowed only up to 10 minutes before the match' },
   'predModal.lockedLabel': { pt: 'Bloqueado', en: 'Locked' },
+  'predModal.matchesTitle': { pt: 'PALPITES DOS JOGOS', en: 'MATCH PREDICTIONS' },
+  'predModal.extrasTitle': { pt: 'PERGUNTAS EXTRAS', en: 'EXTRA QUESTIONS' },
+  'predModal.extrasLockedMsg': { pt: 'Perguntas extras bloqueadas — a competição já começou.', en: 'Extra questions locked — the competition has started.' },
+  'predModal.q1': { pt: 'Quem será o campeão da Copa do Mundo?', en: 'Who will be the World Cup champion?' },
+  'predModal.q1Placeholder': { pt: 'Selecione a seleção campeã', en: 'Select the champion team' },
+  'predModal.q2': { pt: 'Quem será a Bola de Ouro da competição?', en: 'Who will be the Golden Ball of the competition?' },
+  'predModal.q2Placeholder': { pt: 'NOME DO JOGADOR', en: 'PLAYER NAME' },
+  'predModal.q3': { pt: 'Quem será o artilheiro da competição?', en: 'Who will be the top scorer of the competition?' },
+  'predModal.q3Placeholder': { pt: 'NOME DO JOGADOR', en: 'PLAYER NAME' },
+  'predModal.playerNameWarning': { pt: 'Certifique-se que você digitou o nome correto do jogador', en: 'Make sure you typed the correct player name' },
   'leaderboard.noActivePhase': { pt: 'Nenhuma fase ativa. Palpites desabilitados.', en: 'No active phase. Predictions disabled.' },
 
   // MatchBracket
@@ -372,6 +382,17 @@ export const translations = {
   'admin.prefSaveBtn': { pt: 'Salvar', en: 'Save' },
   'admin.prefSaved': { pt: 'Preferência salva com sucesso!', en: 'Preference saved successfully!' },
   'admin.prefInvalidMinutes': { pt: 'Informe um valor válido em minutos', en: 'Enter a valid value in minutes' },
+
+  // Admin extras
+  'admin.extrasTitle': { pt: 'RESULTADOS DAS PERGUNTAS EXTRAS', en: 'EXTRA QUESTIONS RESULTS' },
+  'admin.extraChampion': { pt: 'Campeão da Copa (30 pts)', en: 'World Cup Champion (30 pts)' },
+  'admin.extraGoldenBall': { pt: 'Bola de Ouro (25 pts)', en: 'Golden Ball (25 pts)' },
+  'admin.extraTopScorer': { pt: 'Artilheiro (25 pts)', en: 'Top Scorer (25 pts)' },
+  'admin.extraSelectChampion': { pt: 'Selecione a seleção', en: 'Select team' },
+  'admin.extraPlayerPlaceholder': { pt: 'NOME DO JOGADOR', en: 'PLAYER NAME' },
+  'admin.extraSaveCalc': { pt: 'Salvar e Calcular', en: 'Save and Calculate' },
+  'admin.extraSaved': { pt: 'Resposta salva e pontuação processada!', en: 'Answer saved and points processed!' },
+  'admin.extraError': { pt: 'Erro ao salvar resposta', en: 'Error saving answer' },
 
   // NotFound
   'notFound.title': { pt: 'Oops! Página não encontrada', en: 'Oops! Page not found' },

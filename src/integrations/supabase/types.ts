@@ -93,6 +93,44 @@ export type Database = {
           },
         ]
       }
+      competition_extra_results: {
+        Row: {
+          champion: string | null
+          competition_id: string
+          created_at: string
+          golden_ball: string | null
+          id: string
+          top_scorer: string | null
+          updated_at: string
+        }
+        Insert: {
+          champion?: string | null
+          competition_id: string
+          created_at?: string
+          golden_ball?: string | null
+          id?: string
+          top_scorer?: string | null
+          updated_at?: string
+        }
+        Update: {
+          champion?: string | null
+          competition_id?: string
+          created_at?: string
+          golden_ball?: string | null
+          id?: string
+          top_scorer?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competition_extra_results_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: true
+            referencedRelation: "competitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       competitions: {
         Row: {
           created_at: string
@@ -125,6 +163,50 @@ export type Database = {
           year?: number
         }
         Relationships: []
+      }
+      extra_predictions: {
+        Row: {
+          bolao_id: string
+          champion: string | null
+          created_at: string
+          golden_ball: string | null
+          id: string
+          points: number
+          top_scorer: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bolao_id: string
+          champion?: string | null
+          created_at?: string
+          golden_ball?: string | null
+          id?: string
+          points?: number
+          top_scorer?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bolao_id?: string
+          champion?: string | null
+          created_at?: string
+          golden_ball?: string | null
+          id?: string
+          points?: number
+          top_scorer?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "extra_predictions_bolao_id_fkey"
+            columns: ["bolao_id"]
+            isOneToOne: false
+            referencedRelation: "boloes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       matches: {
         Row: {
@@ -396,6 +478,10 @@ export type Database = {
           pred_b: number
         }
         Returns: number
+      }
+      process_extra_question: {
+        Args: { p_competition_id: string; p_field: string }
+        Returns: undefined
       }
       process_match_result: { Args: { p_match_id: string }; Returns: undefined }
       revert_match_result: { Args: { p_match_id: string }; Returns: undefined }

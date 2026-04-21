@@ -42,6 +42,13 @@ const Admin = () => {
   const [newCompClubs, setNewCompClubs] = useState('32');
   const [newCompFormat, setNewCompFormat] = useState<string>('Grupo + Mata-mata');
 
+  // Extra questions (admin)
+  const [extraChampionOptions, setExtraChampionOptions] = useState<string[]>([]);
+  const [extraChampion, setExtraChampion] = useState('');
+  const [extraGoldenBall, setExtraGoldenBall] = useState('');
+  const [extraTopScorer, setExtraTopScorer] = useState('');
+  const [extraSavingField, setExtraSavingField] = useState<string | null>(null);
+
   const [phases, setPhases] = useState<Phase[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
   const [selectedPhase, setSelectedPhase] = useState<string>('');
@@ -73,9 +80,51 @@ const Admin = () => {
   }, [isSiteAdmin]);
 
   useEffect(() => {
-    if (selectedCompetition) fetchPhasesAndMatches();
-    else { setPhases([]); setMatches([]); setSelectedPhase(''); }
+    if (selectedCompetition) { fetchPhasesAndMatches(); fetchExtraResults(); }
+    else { setPhases([]); setMatches([]); setSelectedPhase(''); setExtraChampion(''); setExtraGoldenBall(''); setExtraTopScorer(''); setExtraChampionOptions([]); }
   }, [selectedCompetition]);
+
+  const fetchExtraResults = async () => {
+    if (!selectedCompetition) return;
+    // Champion options from group phase (number=1)
+    const { data: groupPhase } = await (supabase as any).from('phases').select('id').eq('competition_id', selectedCompetition).eq('number', 1).maybeSingle();
+    if (groupPhase) {
+      const { data: gm } = await supabase.from('matches').select('team_a, team_b').eq('phase_id', groupPhase.id);
+      const teams = new Set<string>();
+      (gm || []).forEach((m: any) => { if (m.team_a) teams.add(m.team_a); if (m.team_b) teams.add(m.team_b); });
+      setExtraChampionOptions(Array.from(teams).sort());
+    } else { setExtraChampionOptions([]); }
+    const { data: existing } = await (supabase as any).from('competition_extra_results').select('*').eq('competition_id', selectedCompetition).maybeSingle();
+    if (existing) {
+      setExtraChampion(existing.champion || '');
+      setExtraGoldenBall(existing.golden_ball || '');
+      setExtraTopScorer(existing.top_scorer || '');
+    } else {
+      setExtraChampion(''); setExtraGoldenBall(''); setExtraTopScorer('');
+    }
+  };
+
+  const saveExtraField = async (field: 'champion' | 'golden_ball' | 'top_scorer', value: string) => {
+    if (!selectedCompetition) return;
+    setExtraSavingField(field);
+    try {
+      const cleaned = field === 'champion' ? value : value.toUpperCase().trim();
+      const { data: existing } = await (supabase as any).from('competition_extra_results').select('id').eq('competition_id', selectedCompetition).maybeSingle();
+      if (existing) {
+        const { error } = await (supabase as any).from('competition_extra_results').update({ [field]: cleaned || null }).eq('id', existing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await (supabase as any).from('competition_extra_results').insert({ competition_id: selectedCompetition, [field]: cleaned || null });
+        if (error) throw error;
+      }
+      const { error: rpcError } = await (supabase as any).rpc('process_extra_question', { p_competition_id: selectedCompetition, p_field: field });
+      if (rpcError) throw rpcError;
+      toast.success(t('admin.extraSaved'));
+    } catch (e) {
+      toast.error(t('admin.extraError'));
+    } finally { setExtraSavingField(null); }
+  };
+
 
   const fetchCompetitions = async () => {
     const { data } = await (supabase as any).from('competitions').select('*').order('year', { ascending: false });
@@ -454,6 +503,36 @@ const Admin = () => {
                           </div>
                         ))}
                         {phaseMatches.filter(m => m.is_finished).length === 0 && <p className="text-center text-muted-foreground py-8">{t('admin.noResults')}</p>}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader><CardTitle className="font-display text-sm tracking-wider">{t('admin.extrasTitle')}</CardTitle></CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium">{t('admin.extraChampion')}</label>
+                      <div className="flex gap-2">
+                        <Select value={extraChampion} onValueChange={setExtraChampion}>
+                          <SelectTrigger className="flex-1"><SelectValue placeholder={t('admin.extraSelectChampion')} /></SelectTrigger>
+                          <SelectContent>{extraChampionOptions.map(team => (<SelectItem key={team} value={team}>{team}</SelectItem>))}</SelectContent>
+                        </Select>
+                        <Button onClick={() => saveExtraField('champion', extraChampion)} disabled={extraSavingField === 'champion'} className="gap-2"><Save className="w-4 h-4" /> {t('admin.extraSaveCalc')}</Button>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium">{t('admin.extraGoldenBall')}</label>
+                      <div className="flex gap-2">
+                        <Input className="uppercase flex-1" placeholder={t('admin.extraPlayerPlaceholder')} value={extraGoldenBall} onChange={e => setExtraGoldenBall(e.target.value.toUpperCase())} />
+                        <Button onClick={() => saveExtraField('golden_ball', extraGoldenBall)} disabled={extraSavingField === 'golden_ball'} className="gap-2"><Save className="w-4 h-4" /> {t('admin.extraSaveCalc')}</Button>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium">{t('admin.extraTopScorer')}</label>
+                      <div className="flex gap-2">
+                        <Input className="uppercase flex-1" placeholder={t('admin.extraPlayerPlaceholder')} value={extraTopScorer} onChange={e => setExtraTopScorer(e.target.value.toUpperCase())} />
+                        <Button onClick={() => saveExtraField('top_scorer', extraTopScorer)} disabled={extraSavingField === 'top_scorer'} className="gap-2"><Save className="w-4 h-4" /> {t('admin.extraSaveCalc')}</Button>
                       </div>
                     </div>
                   </CardContent>
