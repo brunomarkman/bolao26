@@ -80,9 +80,51 @@ const Admin = () => {
   }, [isSiteAdmin]);
 
   useEffect(() => {
-    if (selectedCompetition) fetchPhasesAndMatches();
-    else { setPhases([]); setMatches([]); setSelectedPhase(''); }
+    if (selectedCompetition) { fetchPhasesAndMatches(); fetchExtraResults(); }
+    else { setPhases([]); setMatches([]); setSelectedPhase(''); setExtraChampion(''); setExtraGoldenBall(''); setExtraTopScorer(''); setExtraChampionOptions([]); }
   }, [selectedCompetition]);
+
+  const fetchExtraResults = async () => {
+    if (!selectedCompetition) return;
+    // Champion options from group phase (number=1)
+    const { data: groupPhase } = await (supabase as any).from('phases').select('id').eq('competition_id', selectedCompetition).eq('number', 1).maybeSingle();
+    if (groupPhase) {
+      const { data: gm } = await supabase.from('matches').select('team_a, team_b').eq('phase_id', groupPhase.id);
+      const teams = new Set<string>();
+      (gm || []).forEach((m: any) => { if (m.team_a) teams.add(m.team_a); if (m.team_b) teams.add(m.team_b); });
+      setExtraChampionOptions(Array.from(teams).sort());
+    } else { setExtraChampionOptions([]); }
+    const { data: existing } = await (supabase as any).from('competition_extra_results').select('*').eq('competition_id', selectedCompetition).maybeSingle();
+    if (existing) {
+      setExtraChampion(existing.champion || '');
+      setExtraGoldenBall(existing.golden_ball || '');
+      setExtraTopScorer(existing.top_scorer || '');
+    } else {
+      setExtraChampion(''); setExtraGoldenBall(''); setExtraTopScorer('');
+    }
+  };
+
+  const saveExtraField = async (field: 'champion' | 'golden_ball' | 'top_scorer', value: string) => {
+    if (!selectedCompetition) return;
+    setExtraSavingField(field);
+    try {
+      const cleaned = field === 'champion' ? value : value.toUpperCase().trim();
+      const { data: existing } = await (supabase as any).from('competition_extra_results').select('id').eq('competition_id', selectedCompetition).maybeSingle();
+      if (existing) {
+        const { error } = await (supabase as any).from('competition_extra_results').update({ [field]: cleaned || null }).eq('id', existing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await (supabase as any).from('competition_extra_results').insert({ competition_id: selectedCompetition, [field]: cleaned || null });
+        if (error) throw error;
+      }
+      const { error: rpcError } = await (supabase as any).rpc('process_extra_question', { p_competition_id: selectedCompetition, p_field: field });
+      if (rpcError) throw rpcError;
+      toast.success(t('admin.extraSaved'));
+    } catch (e) {
+      toast.error(t('admin.extraError'));
+    } finally { setExtraSavingField(null); }
+  };
+
 
   const fetchCompetitions = async () => {
     const { data } = await (supabase as any).from('competitions').select('*').order('year', { ascending: false });
