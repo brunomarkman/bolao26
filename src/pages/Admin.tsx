@@ -507,6 +507,36 @@ const Admin = () => {
                     </div>
                   </CardContent>
                 </Card>
+
+                <Card>
+                  <CardHeader><CardTitle className="font-display text-sm tracking-wider">{t('admin.extrasTitle')}</CardTitle></CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium">{t('admin.extraChampion')}</label>
+                      <div className="flex gap-2">
+                        <Select value={extraChampion} onValueChange={setExtraChampion}>
+                          <SelectTrigger className="flex-1"><SelectValue placeholder={t('admin.extraSelectChampion')} /></SelectTrigger>
+                          <SelectContent>{extraChampionOptions.map(team => (<SelectItem key={team} value={team}>{team}</SelectItem>))}</SelectContent>
+                        </Select>
+                        <Button onClick={() => saveExtraField('champion', extraChampion)} disabled={extraSavingField === 'champion'} className="gap-2"><Save className="w-4 h-4" /> {t('admin.extraSaveCalc')}</Button>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium">{t('admin.extraGoldenBall')}</label>
+                      <div className="flex gap-2">
+                        <Input className="uppercase flex-1" placeholder={t('admin.extraPlayerPlaceholder')} value={extraGoldenBall} onChange={e => setExtraGoldenBall(e.target.value.toUpperCase())} />
+                        <Button onClick={() => saveExtraField('golden_ball', extraGoldenBall)} disabled={extraSavingField === 'golden_ball'} className="gap-2"><Save className="w-4 h-4" /> {t('admin.extraSaveCalc')}</Button>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium">{t('admin.extraTopScorer')}</label>
+                      <div className="flex gap-2">
+                        <Input className="uppercase flex-1" placeholder={t('admin.extraPlayerPlaceholder')} value={extraTopScorer} onChange={e => setExtraTopScorer(e.target.value.toUpperCase())} />
+                        <Button onClick={() => saveExtraField('top_scorer', extraTopScorer)} disabled={extraSavingField === 'top_scorer'} className="gap-2"><Save className="w-4 h-4" /> {t('admin.extraSaveCalc')}</Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </>
             )}
           </TabsContent>
