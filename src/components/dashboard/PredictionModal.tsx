@@ -5,6 +5,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertTriangle, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
@@ -32,6 +35,12 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
   const [existingPredictions, setExistingPredictions] = useState<Prediction[]>([]);
   const [loading, setLoading] = useState(false);
   const [lockMinutes, setLockMinutes] = useState(10);
+  const [championOptions, setChampionOptions] = useState<string[]>([]);
+  const [extraChampion, setExtraChampion] = useState('');
+  const [extraGoldenBall, setExtraGoldenBall] = useState('');
+  const [extraTopScorer, setExtraTopScorer] = useState('');
+  const [extrasLocked, setExtrasLocked] = useState(false);
+  const [extraId, setExtraId] = useState<string | null>(null);
   const dateLocale = language === 'en' ? enUS : ptBR;
 
   useEffect(() => {
@@ -41,10 +50,16 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
       const { data: settingData } = await supabase.from('settings').select('value').eq('key', 'lock_minutes_before_match').maybeSingle();
       if (settingData) setLockMinutes(parseInt(settingData.value) || 10);
 
-      const { data: phases } = await (supabase as any).from('phases').select('id').eq('is_active', true).eq('competition_id', competitionId);
+      const { data: phases } = await (supabase as any).from('phases').select('id, number').eq('competition_id', competitionId).order('number');
       if (!phases || phases.length === 0) { toast.info(t('predModal.noActivePhase')); return; }
-      const phaseIds = phases.map((p: any) => p.id);
-      const { data: matchesData } = await supabase.from('matches').select('*').in('phase_id', phaseIds).eq('is_finished', false).order('match_date', { ascending: true });
+
+      // Active phase matches for predictions
+      const { data: activePhases } = await (supabase as any).from('phases').select('id').eq('is_active', true).eq('competition_id', competitionId);
+      const activePhaseIds = (activePhases || []).map((p: any) => p.id);
+      const { data: matchesData } = activePhaseIds.length > 0
+        ? await supabase.from('matches').select('*').in('phase_id', activePhaseIds).eq('is_finished', false).order('match_date', { ascending: true })
+        : { data: [] as Match[] };
+
       if (matchesData) {
         setMatches(matchesData);
         const { data: existingPreds } = await (supabase as any).from('predictions').select('*').eq('user_id', user.id).eq('bolao_id', bolaoId).in('match_id', matchesData.map(m => m.id));
@@ -53,6 +68,39 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
           const existing = existingPreds?.find((p: Prediction) => p.match_id === m.id);
           return { matchId: m.id, scoreA: existing ? String(existing.score_a) : '', scoreB: existing ? String(existing.score_b) : '' };
         }));
+      }
+
+      // Champion options: distinct teams from group phase (number=1) of competition
+      const groupPhase = phases.find((p: any) => p.number === 1);
+      if (groupPhase) {
+        const { data: groupMatches } = await supabase.from('matches').select('team_a, team_b').eq('phase_id', groupPhase.id);
+        const teams = new Set<string>();
+        (groupMatches || []).forEach((m: any) => {
+          if (m.team_a) teams.add(m.team_a);
+          if (m.team_b) teams.add(m.team_b);
+        });
+        setChampionOptions(Array.from(teams).sort());
+      }
+
+      // Check if extras are locked: first match (any phase) of competition has started
+      const allPhaseIds = phases.map((p: any) => p.id);
+      const { data: firstMatch } = await supabase.from('matches').select('match_date').in('phase_id', allPhaseIds).not('match_date', 'is', null).order('match_date', { ascending: true }).limit(1).maybeSingle();
+      if (firstMatch?.match_date) {
+        setExtrasLocked(new Date(firstMatch.match_date).getTime() <= Date.now());
+      } else {
+        setExtrasLocked(false);
+      }
+
+      // Existing extra predictions for this user/bolao
+      const { data: existingExtra } = await (supabase as any).from('extra_predictions').select('*').eq('user_id', user.id).eq('bolao_id', bolaoId).maybeSingle();
+      if (existingExtra) {
+        setExtraId(existingExtra.id);
+        setExtraChampion(existingExtra.champion || '');
+        setExtraGoldenBall(existingExtra.golden_ball || '');
+        setExtraTopScorer(existingExtra.top_scorer || '');
+      } else {
+        setExtraId(null);
+        setExtraChampion(''); setExtraGoldenBall(''); setExtraTopScorer('');
       }
     };
     fetchData();
@@ -70,18 +118,19 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
     if (!user || !bolaoId) return;
     setLoading(true);
     try {
+      // Save match predictions
       for (const pred of predictions) {
         if (pred.scoreA === '' || pred.scoreB === '') continue;
         const scoreA = parseInt(pred.scoreA);
         const scoreB = parseInt(pred.scoreB);
         if (isNaN(scoreA) || isNaN(scoreB) || scoreA < 0 || scoreB < 0) continue;
-        
+
         const match = matches.find(m => m.id === pred.matchId);
         if (match && isMatchLocked(match)) {
           toast.error(`${match.team_a} x ${match.team_b}: ${t('predModal.locked')}`);
           continue;
         }
-        
+
         const existing = existingPredictions.find(p => p.match_id === pred.matchId);
         if (existing) {
           const { error } = await supabase.from('predictions').update({ score_a: scoreA, score_b: scoreB }).eq('id', existing.id);
@@ -91,6 +140,25 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
           if (error) throw error;
         }
       }
+
+      // Save extra predictions (only if not locked)
+      if (!extrasLocked && (extraChampion || extraGoldenBall || extraTopScorer)) {
+        const payload = {
+          user_id: user.id,
+          bolao_id: bolaoId,
+          champion: extraChampion || null,
+          golden_ball: extraGoldenBall ? extraGoldenBall.toUpperCase().trim() : null,
+          top_scorer: extraTopScorer ? extraTopScorer.toUpperCase().trim() : null,
+        };
+        if (extraId) {
+          const { error } = await (supabase as any).from('extra_predictions').update(payload).eq('id', extraId);
+          if (error) throw error;
+        } else {
+          const { error } = await (supabase as any).from('extra_predictions').insert(payload);
+          if (error) throw error;
+        }
+      }
+
       toast.success(t('predModal.success'));
       onOpenChange(false);
     } catch (error: any) {
@@ -104,49 +172,101 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[85vh]">
+      <DialogContent className="max-w-5xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="font-display tracking-wider text-primary">{t('predModal.title')}</DialogTitle>
         </DialogHeader>
-        {matches.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8">{t('predModal.noGames')}</p>
-        ) : (
-          <>
-            <ScrollArea className="max-h-[55vh] pr-4">
-              <div className="space-y-4">
-                {matches.map(match => {
-                  const pred = predictions.find(p => p.matchId === match.id);
-                  return (
-                    <div key={match.id} className={`p-4 rounded-lg border border-border/50 space-y-3 ${isMatchLocked(match) ? 'bg-muted/60 opacity-60' : 'bg-muted/30'}`}>
-                      {match.match_date && (
-                        <p className="text-xs text-muted-foreground text-center">
-                          {format(new Date(match.match_date), "dd MMM, HH:mm", { locale: dateLocale })}
-                          {isMatchLocked(match) && <span className="ml-2 text-destructive font-bold">🔒 {t('predModal.lockedLabel')}</span>}
-                        </p>
-                      )}
-                      <div className="flex items-center justify-center gap-3">
-                        <div className="text-center">
-                          <p className="text-xs text-muted-foreground mb-1"><TeamName name={match.team_a || 'Time A'} side="left" /></p>
-                          <Input type="number" min="0" className="w-16 text-center font-display font-bold"
-                            value={pred?.scoreA ?? ''} onChange={e => updatePrediction(match.id, 'scoreA', e.target.value)} disabled={isMatchLocked(match)} />
-                        </div>
-                        <span className="font-display text-lg text-muted-foreground pt-4">×</span>
-                        <div className="text-center">
-                          <p className="text-xs text-muted-foreground mb-1"><TeamName name={match.team_b || 'Time B'} side="right" /></p>
-                          <Input type="number" min="0" className="w-16 text-center font-display font-bold"
-                            value={pred?.scoreB ?? ''} onChange={e => updatePrediction(match.id, 'scoreB', e.target.value)} disabled={isMatchLocked(match)} />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* LEFT: match predictions */}
+          <div className="space-y-3">
+            <h3 className="font-display tracking-wider text-sm text-primary">{t('predModal.matchesTitle')}</h3>
+            {matches.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">{t('predModal.noGames')}</p>
+            ) : (
+              <ScrollArea className="h-[55vh] pr-4">
+                <div className="space-y-4">
+                  {matches.map(match => {
+                    const pred = predictions.find(p => p.matchId === match.id);
+                    return (
+                      <div key={match.id} className={`p-4 rounded-lg border border-border/50 space-y-3 ${isMatchLocked(match) ? 'bg-muted/60 opacity-60' : 'bg-muted/30'}`}>
+                        {match.match_date && (
+                          <p className="text-xs text-muted-foreground text-center">
+                            {format(new Date(match.match_date), "dd MMM, HH:mm", { locale: dateLocale })}
+                            {isMatchLocked(match) && <span className="ml-2 text-destructive font-bold">🔒 {t('predModal.lockedLabel')}</span>}
+                          </p>
+                        )}
+                        <div className="flex items-center justify-center gap-3">
+                          <div className="text-center">
+                            <p className="text-xs text-muted-foreground mb-1"><TeamName name={match.team_a || 'Time A'} side="left" /></p>
+                            <Input type="number" min="0" className="w-16 text-center font-display font-bold"
+                              value={pred?.scoreA ?? ''} onChange={e => updatePrediction(match.id, 'scoreA', e.target.value)} disabled={isMatchLocked(match)} />
+                          </div>
+                          <span className="font-display text-lg text-muted-foreground pt-4">×</span>
+                          <div className="text-center">
+                            <p className="text-xs text-muted-foreground mb-1"><TeamName name={match.team_b || 'Time B'} side="right" /></p>
+                            <Input type="number" min="0" className="w-16 text-center font-display font-bold"
+                              value={pred?.scoreB ?? ''} onChange={e => updatePrediction(match.id, 'scoreB', e.target.value)} disabled={isMatchLocked(match)} />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
+              </ScrollArea>
+            )}
+          </div>
+
+          {/* RIGHT: extra questions */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-display tracking-wider text-sm text-primary">{t('predModal.extrasTitle')}</h3>
+              {extrasLocked && <span className="flex items-center gap-1 text-xs text-destructive font-bold"><Lock className="w-3 h-3" /> {t('predModal.lockedLabel')}</span>}
+            </div>
+            <ScrollArea className="h-[55vh] pr-4">
+              <div className="space-y-5">
+                {extrasLocked && (
+                  <Alert>
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertDescription className="text-xs">{t('predModal.extrasLockedMsg')}</AlertDescription>
+                  </Alert>
+                )}
+
+                <div className="space-y-2">
+                  <label className="text-xs font-medium">{t('predModal.q1')} <span className="text-primary font-bold">(30 pts)</span></label>
+                  <Select value={extraChampion} onValueChange={setExtraChampion} disabled={extrasLocked}>
+                    <SelectTrigger><SelectValue placeholder={t('predModal.q1Placeholder')} /></SelectTrigger>
+                    <SelectContent>
+                      {championOptions.map(team => (<SelectItem key={team} value={team}>{team}</SelectItem>))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-medium">{t('predModal.q2')} <span className="text-primary font-bold">(25 pts)</span></label>
+                  <Input className="uppercase" value={extraGoldenBall} onChange={e => setExtraGoldenBall(e.target.value.toUpperCase())} disabled={extrasLocked} placeholder={t('predModal.q2Placeholder')} />
+                  <Alert>
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertDescription className="text-xs">{t('predModal.playerNameWarning')}</AlertDescription>
+                  </Alert>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-medium">{t('predModal.q3')} <span className="text-primary font-bold">(25 pts)</span></label>
+                  <Input className="uppercase" value={extraTopScorer} onChange={e => setExtraTopScorer(e.target.value.toUpperCase())} disabled={extrasLocked} placeholder={t('predModal.q3Placeholder')} />
+                  <Alert>
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertDescription className="text-xs">{t('predModal.playerNameWarning')}</AlertDescription>
+                  </Alert>
+                </div>
               </div>
             </ScrollArea>
-            <Button onClick={handleSave} disabled={loading} className="w-full font-display tracking-wider">
-              {loading ? t('predModal.saving') : t('predModal.save')}
-            </Button>
-          </>
-        )}
+          </div>
+        </div>
+
+        <Button onClick={handleSave} disabled={loading} className="w-full font-display tracking-wider">
+          {loading ? t('predModal.saving') : t('predModal.save')}
+        </Button>
       </DialogContent>
     </Dialog>
   );
