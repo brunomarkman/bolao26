@@ -42,6 +42,13 @@ const Admin = () => {
   const [newCompClubs, setNewCompClubs] = useState('32');
   const [newCompFormat, setNewCompFormat] = useState<string>('Grupo + Mata-mata');
 
+  // Extra questions (admin)
+  const [extraChampionOptions, setExtraChampionOptions] = useState<string[]>([]);
+  const [extraChampion, setExtraChampion] = useState('');
+  const [extraGoldenBall, setExtraGoldenBall] = useState('');
+  const [extraTopScorer, setExtraTopScorer] = useState('');
+  const [extraSavingField, setExtraSavingField] = useState<string | null>(null);
+
   const [phases, setPhases] = useState<Phase[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
   const [selectedPhase, setSelectedPhase] = useState<string>('');
