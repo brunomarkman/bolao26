@@ -50,8 +50,12 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
     const fetchPredictions = async () => {
       const { data: preds } = await (supabase as any).from('predictions').select('*').eq('match_id', selectedMatch).eq('bolao_id', bolaoId);
       const { data: profiles } = await supabase.from('profiles').select('*');
+      const { data: parts } = await (supabase as any).from('bolao_participants').select('user_id,is_active').eq('bolao_id', bolaoId);
+      const activeIds = new Set((parts || []).filter((p: any) => p.is_active !== false).map((p: any) => p.user_id));
       if (preds && profiles) {
-        const merged = preds.map((p: Prediction) => ({ ...p, profile: profiles.find((pr: Profile) => pr.user_id === p.user_id) }));
+        const merged = preds
+          .filter((p: Prediction) => activeIds.has(p.user_id))
+          .map((p: Prediction) => ({ ...p, profile: profiles.find((pr: Profile) => pr.user_id === p.user_id) }));
         setPredictions(merged);
       }
     };
