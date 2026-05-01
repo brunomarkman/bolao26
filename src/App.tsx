@@ -18,6 +18,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <LanguageProvider>
     <QueryClientProvider client={queryClient}>
+      {/* LanguageProvider wraps all */}
       <TooltipProvider>
         <Toaster />
         <Sonner />
