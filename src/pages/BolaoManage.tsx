@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { ArrowLeft, Copy, Users, DollarSign, Save, Trash2, MessageSquare, Settings, Play, Square, FileText } from 'lucide-react';
 import { format } from 'date-fns';
@@ -175,15 +176,34 @@ const BolaoManage = () => {
               <CardHeader><CardTitle className="font-display text-sm tracking-wider">{t('manage.participants')} ({participants.length})</CardTitle></CardHeader>
               <CardContent>
                 <div className="h-[50vh] overflow-y-auto pr-2 space-y-2">
-                  {participants.map(p => (
-                    <div key={p.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
-                      <div>
-                        <span className="text-sm font-medium">{p.profile?.name || t('home.unknown')}</span>
-                        <span className="text-xs text-muted-foreground ml-2">{p.profile?.email || ''}</span>
+                  {participants.map(p => {
+                    const hasPaid = paidUserIds.has(p.user_id);
+                    const isActive = p.is_active !== false;
+                    return (
+                      <div key={p.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
+                        <div className="flex-1">
+                          <span className="text-sm font-medium">{p.profile?.name || t('home.unknown')}</span>
+                          <span className="text-xs text-muted-foreground ml-2">{p.profile?.email || ''}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="font-display font-bold text-primary">{p.total_score} pts</span>
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              checked={isActive}
+                              disabled={hasPaid && isActive}
+                              onCheckedChange={async (checked) => {
+                                if (hasPaid && !checked) { toast.error(t('manage.cannotDeactivatePaid')); return; }
+                                await (supabase as any).from('bolao_participants').update({ is_active: checked }).eq('id', p.id);
+                                toast.success(t('manage.memberStatusUpdated'));
+                                fetchAll();
+                              }}
+                            />
+                            <span className="text-xs text-muted-foreground w-14">{isActive ? t('manage.activeMember') : t('manage.inactiveMember')}</span>
+                          </div>
+                        </div>
                       </div>
-                      <span className="font-display font-bold text-primary">{p.total_score} pts</span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>

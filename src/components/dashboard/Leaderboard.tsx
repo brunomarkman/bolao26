@@ -33,8 +33,9 @@ const Leaderboard = ({ bolaoId, competitionId, onOpenPredictions, onOpenBracket,
   useEffect(() => {
     const fetchRankings = async () => {
       if (!bolaoId) return;
-      const { data: participants } = await (supabase as any)
+      const { data: participantsRaw } = await (supabase as any)
         .from('bolao_participants').select('*').eq('bolao_id', bolaoId).order('total_score', { ascending: false });
+      const participants = (participantsRaw || []).filter((p: any) => p.is_active !== false);
       const { data: profiles } = await supabase.from('profiles').select('*');
       if (participants && profiles) {
         const ranked = participants.map((p: BolaoParticipant) => {

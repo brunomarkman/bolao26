@@ -42,6 +42,20 @@ const Dashboard = () => {
         setBolao(bolaoData);
         const { data: compData } = await (supabase as any).from('competitions').select('*').eq('id', bolaoData.competition_id).single();
         if (compData) setCompetition(compData);
+        // Block access if current user is an inactive participant (creator can always access)
+        if (user && bolaoData.created_by !== user.id) {
+          const { data: myPart } = await (supabase as any)
+            .from('bolao_participants')
+            .select('is_active')
+            .eq('bolao_id', bolaoId)
+            .eq('user_id', user.id)
+            .maybeSingle();
+          if (myPart && myPart.is_active === false) {
+            toast.error(t('dash.inactiveBlocked'));
+            navigate('/home', { replace: true });
+            return;
+          }
+        }
       }
       const [paymentsRes, participantsRes] = await Promise.all([
         (supabase as any).from('payments').select('id', { count: 'exact', head: true }).eq('bolao_id', bolaoId),
@@ -51,7 +65,7 @@ const Dashboard = () => {
       setTotalParticipants(participantsRes.count ?? 0);
     };
     fetchBolaoData();
-  }, [bolaoId]);
+  }, [bolaoId, user]);
 
   const totalReceived = paidCount * (bolao?.bet_value ? Number(bolao.bet_value) : 0);
 

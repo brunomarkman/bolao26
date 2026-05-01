@@ -38,6 +38,7 @@ export interface BolaoParticipant {
   user_id: string;
   total_score: number;
   joined_at: string;
+  is_active?: boolean;
 }
 
 export const generateInviteCode = (): string => {

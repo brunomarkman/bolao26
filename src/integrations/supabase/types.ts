@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           bolao_id: string
           id: string
+          is_active: boolean
           joined_at: string
           total_score: number
           user_id: string
@@ -25,6 +26,7 @@ export type Database = {
         Insert: {
           bolao_id: string
           id?: string
+          is_active?: boolean
           joined_at?: string
           total_score?: number
           user_id: string
@@ -32,6 +34,7 @@ export type Database = {
         Update: {
           bolao_id?: string
           id?: string
+          is_active?: boolean
           joined_at?: string
           total_score?: number
           user_id?: string
