@@ -82,11 +82,17 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
         setChampionOptions(Array.from(teams).sort());
       }
 
-      // Check if extras are locked: first match (any phase) of competition has started
-      const allPhaseIds = phases.map((p: any) => p.id);
-      const { data: firstMatch } = await supabase.from('matches').select('match_date').in('phase_id', allPhaseIds).not('match_date', 'is', null).order('match_date', { ascending: true }).limit(1).maybeSingle();
-      if (firstMatch?.match_date) {
-        setExtrasLocked(new Date(firstMatch.match_date).getTime() <= Date.now());
+      // Check if extras are locked: competition start date, matching the pool status rule
+      const { data: competition } = await (supabase as any)
+        .from('competitions')
+        .select('start_date')
+        .eq('id', competitionId)
+        .maybeSingle();
+      if (competition?.start_date) {
+        const startDate = new Date(`${competition.start_date}T00:00:00`);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        setExtrasLocked(startDate.getTime() <= today.getTime());
       } else {
         setExtrasLocked(false);
       }

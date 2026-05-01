@@ -113,7 +113,7 @@ export const translations = {
   'predModal.matchesTitle': { pt: 'PALPITES DOS JOGOS', en: 'MATCH PREDICTIONS' },
   'predModal.extrasTitle': { pt: 'PERGUNTAS EXTRAS', en: 'EXTRA QUESTIONS' },
   'predModal.extrasLockedMsg': { pt: 'Perguntas extras bloqueadas — a competição já começou.', en: 'Extra questions locked — the competition has started.' },
-  'predModal.q1': { pt: 'Quem será o campeão da Copa do Mundo?', en: 'Who will be the World Cup champion?' },
+  'predModal.q1': { pt: 'Que equipe será a campeã?', en: 'Which team will be the champion?' },
   'predModal.q1Placeholder': { pt: 'Selecione a seleção campeã', en: 'Select the champion team' },
   'predModal.q2': { pt: 'Quem será a Bola de Ouro da competição?', en: 'Who will be the Golden Ball of the competition?' },
   'predModal.q2Placeholder': { pt: 'NOME DO JOGADOR', en: 'PLAYER NAME' },
