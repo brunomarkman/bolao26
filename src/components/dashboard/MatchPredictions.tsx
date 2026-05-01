@@ -92,7 +92,7 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
         {matches.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">{t('predictions.noPending')}</p>}
 
 
-        <ScrollArea className="h-[calc(100vh-26rem)]">
+        <ScrollArea className="h-[calc((100vh-26rem)*0.9)]">
           {predictions.length === 0 && selectedMatch ? (
             <p className="text-sm text-muted-foreground text-center py-4">{t('predictions.noRegistered')}</p>
           ) : (

@@ -81,7 +81,7 @@ const Leaderboard = ({ bolaoId, competitionId, onOpenPredictions, onOpenBracket,
         </div>
       </CardHeader>
       <CardContent className="p-0 flex flex-col">
-        <ScrollArea className="h-[calc(100vh-22rem)] px-4">
+        <ScrollArea className="h-[calc((100vh-22rem)*0.9)] px-4">
           {rankings.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">{t('leaderboard.noCompetitors')}</p>
           ) : (
