@@ -46,13 +46,24 @@ const RulesModal = ({ open, onOpenChange, bolao }: RulesModalProps) => {
                 <Target className="w-4 h-4" /> {t('rules.scoringTitle')}
               </h3>
               <p className="text-muted-foreground">{t('rules.scoringDesc')}</p>
-              <div className="space-y-1 ml-2">
-                <div className="flex items-center gap-2"><span className="font-display font-bold text-primary w-6 text-right">5</span><span className="text-muted-foreground">— {t('rules.score5')}</span></div>
-                <div className="flex items-center gap-2"><span className="font-display font-bold text-primary w-6 text-right">4</span><span className="text-muted-foreground">— {t('rules.score4')}</span></div>
-                <div className="flex items-center gap-2"><span className="font-display font-bold text-primary w-6 text-right">3</span><span className="text-muted-foreground">— {t('rules.score3')}</span></div>
-                <div className="flex items-center gap-2"><span className="font-display font-bold text-primary w-6 text-right">2</span><span className="text-muted-foreground">— {t('rules.score2')}</span></div>
-                <div className="flex items-center gap-2"><span className="font-display font-bold text-primary w-6 text-right">1</span><span className="text-muted-foreground">— {t('rules.score1')}</span></div>
-                <div className="flex items-center gap-2"><span className="font-display font-bold text-muted-foreground w-6 text-right">0</span><span className="text-muted-foreground">— {t('rules.score0')}</span></div>
+              <div className="ml-2 border border-border/50 rounded-lg overflow-hidden">
+                <div className="grid grid-cols-[80px_1fr] bg-muted/30 text-xs font-display tracking-wider text-primary">
+                  <div className="px-2 py-1.5 text-center border-r border-border/50">{t('rules.pointsCol') || 'Pontos'}</div>
+                  <div className="px-3 py-1.5 text-left">{t('rules.descCol') || 'Descrição'}</div>
+                </div>
+                {[
+                  { p: '5', d: t('rules.score5'), primary: true },
+                  { p: '4', d: t('rules.score4'), primary: true },
+                  { p: '3', d: t('rules.score3'), primary: true },
+                  { p: '2', d: t('rules.score2'), primary: true },
+                  { p: '1', d: t('rules.score1'), primary: true },
+                  { p: '0', d: t('rules.score0'), primary: false },
+                ].map((row) => (
+                  <div key={row.p} className="grid grid-cols-[80px_1fr] border-t border-border/50">
+                    <div className={`px-2 py-1.5 text-center font-display font-bold border-r border-border/50 ${row.primary ? 'text-primary' : 'text-muted-foreground'}`}>{row.p}</div>
+                    <div className="px-3 py-1.5 text-left text-muted-foreground">{row.d}</div>
+                  </div>
+                ))}
               </div>
             </section>
 

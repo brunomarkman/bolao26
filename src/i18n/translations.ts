@@ -152,6 +152,8 @@ export const translations = {
   'rules.finalDesc': { pt: '1 jogo', en: '1 match' },
   'rules.scoringTitle': { pt: 'SISTEMA DE PONTUAÇÃO', en: 'SCORING SYSTEM' },
   'rules.scoringDesc': { pt: 'Para cada jogo, o competidor recebe pontos com base na precisão do seu palpite:', en: 'For each match, the competitor earns points based on prediction accuracy:' },
+  'rules.pointsCol': { pt: 'Pontos', en: 'Points' },
+  'rules.descCol': { pt: 'Descrição', en: 'Description' },
   'rules.score5': { pt: 'Acertou o placar exato do jogo', en: 'Exact score prediction' },
   'rules.score4': { pt: 'Acertou o placar do vencedor, errou o do perdedor', en: "Got winner's score right, missed loser's" },
   'rules.score3': { pt: 'Acertou o placar do perdedor ou acertou o empate com placar diferente', en: "Got loser's score right or predicted draw with different score" },
