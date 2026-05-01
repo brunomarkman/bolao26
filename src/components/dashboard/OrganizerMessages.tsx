@@ -41,7 +41,7 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4 pt-0">
-        <div className="h-[calc(100vh-16rem)] overflow-y-auto pr-2">
+        <div className="h-[calc((100vh-16rem)*0.9)] overflow-y-auto pr-2">
           {messages.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">{t('messages.none')}</p>
           ) : (

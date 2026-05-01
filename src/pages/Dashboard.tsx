@@ -143,7 +143,7 @@ const Dashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-7rem)]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc((100vh-7rem)*0.9)]">
           <div className="order-2 lg:order-1">
             <OrganizerMessages bolaoId={bolaoId} />
           </div>
