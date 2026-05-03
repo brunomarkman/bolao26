@@ -239,9 +239,9 @@ const Admin = () => {
 
   const addMessage = async () => {
     if (!newMessage.trim() || !user) return;
-    const insertData: any = { content: newMessage, created_by: user.id };
+    const insertData: any = { content: newMessage, created_by: user.id, source: 'admin' };
     if (messageBolaoId !== 'all') insertData.bolao_id = messageBolaoId;
-    await supabase.from('messages').insert(insertData);
+    await (supabase as any).from('messages').insert(insertData);
     setNewMessage(''); toast.success(t('admin.messageSent')); fetchMessages();
   };
 
