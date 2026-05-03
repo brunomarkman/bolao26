@@ -53,11 +53,6 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
   // Messages strictly for this bolão
   useEffect(() => {
     if (!bolaoId) return;
-    const fetchMessages = async () => {
-      const { data } = await (supabase as any)
-        .from('messages').select('*').eq('bolao_id', bolaoId).order('created_at', { ascending: false });
-      if (data) setMessages(data);
-    };
     fetchMessages();
     const channel = supabase.channel(`messages-${bolaoId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'messages', filter: `bolao_id=eq.${bolaoId}` }, () => fetchMessages())
@@ -92,6 +87,13 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
 
   const dateLocale = language === 'en' ? enUS : ptBR;
 
+  const fetchMessages = async () => {
+    if (!bolaoId) return;
+    const { data } = await (supabase as any)
+      .from('messages').select('*').eq('bolao_id', bolaoId).order('created_at', { ascending: false });
+    if (data) setMessages(data);
+  };
+
   const sendMessage = async () => {
     const content = newMsg.trim();
     if (!content || !user || !bolaoId) return;
@@ -101,11 +103,13 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
       content,
       created_by: user.id,
       source: 'dashboard',
+      tipo: 'D',
     });
     setSending(false);
     if (error) { toast.error(t('messages.errorSend')); return; }
     setNewMsg('');
     toast.success(t('messages.sent'));
+    await fetchMessages();
   };
 
   const getMsgBg = (msg: any) => {
@@ -118,8 +122,8 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
   };
 
   const getAuthorLabel = (msg: any) => {
-    if (msg.source === 'admin') return t('messages.authorAdmin');
-    if (msg.source === 'manage') return t('messages.authorManage');
+    if (msg.tipo === 'A' || msg.source === 'admin') return t('messages.authorAdmin');
+    if (msg.tipo === 'G' || msg.source === 'manage') return t('messages.authorManage');
     return profilesMap[msg.created_by]?.name || '—';
   };
 
