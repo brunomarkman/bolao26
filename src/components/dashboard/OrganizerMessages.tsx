@@ -31,7 +31,6 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
   const { t, language } = useLanguage();
   const { user } = useAuth();
 
-  // Load bolao info (creator + competition_id)
   useEffect(() => {
     if (!bolaoId) return;
     (async () => {
@@ -40,7 +39,6 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
     })();
   }, [bolaoId]);
 
-  // Profiles
   useEffect(() => {
     (async () => {
       const { data } = await supabase.from('profiles').select('*');
@@ -52,36 +50,37 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
     })();
   }, []);
 
-  // Messages with realtime
+  // Messages strictly for this bolão
   useEffect(() => {
     if (!bolaoId) return;
     const fetchMessages = async () => {
       const { data } = await (supabase as any)
-        .from('messages').select('*').or(`bolao_id.eq.${bolaoId},bolao_id.is.null`).order('created_at', { ascending: false });
+        .from('messages').select('*').eq('bolao_id', bolaoId).order('created_at', { ascending: false });
       if (data) setMessages(data);
     };
     fetchMessages();
     const channel = supabase.channel(`messages-${bolaoId}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => fetchMessages())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages', filter: `bolao_id=eq.${bolaoId}` }, () => fetchMessages())
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [bolaoId]);
 
-  // Today's & past matches for the competition (with realtime updates)
+  // Today's matches only
   useEffect(() => {
     if (!competitionId) return;
     const fetchMatches = async () => {
       const { data: phases } = await (supabase as any).from('phases').select('id').eq('competition_id', competitionId);
       if (!phases || phases.length === 0) { setMatches([]); return; }
       const phaseIds = phases.map((p: any) => p.id);
-      const today = new Date(); today.setHours(23, 59, 59, 999);
+      const start = new Date(); start.setHours(0, 0, 0, 0);
+      const end = new Date(); end.setHours(23, 59, 59, 999);
       const { data } = await supabase
         .from('matches')
         .select('*')
         .in('phase_id', phaseIds)
-        .not('match_date', 'is', null)
-        .lte('match_date', today.toISOString())
-        .order('match_date', { ascending: false });
+        .gte('match_date', start.toISOString())
+        .lte('match_date', end.toISOString())
+        .order('match_date', { ascending: true });
       if (data) setMatches(data);
     };
     fetchMatches();
@@ -101,6 +100,7 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
       bolao_id: bolaoId,
       content,
       created_by: user.id,
+      source: 'dashboard',
     });
     setSending(false);
     if (error) { toast.error(t('messages.errorSend')); return; }
@@ -108,70 +108,74 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
     toast.success(t('messages.sent'));
   };
 
-  const getMsgBg = (msg: Message) => {
+  const getMsgBg = (msg: any) => {
+    if (msg.source === 'admin') return 'bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300/50';
+    if (msg.source === 'manage') return 'bg-blue-100 dark:bg-blue-900/30 border-blue-300/50';
     const author = profilesMap[msg.created_by];
     if (author?.is_admin) return 'bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300/50';
     if (msg.created_by === creatorId) return 'bg-blue-100 dark:bg-blue-900/30 border-blue-300/50';
     return 'bg-muted/50 border-border/50';
   };
 
-  return (
-    <Card className="h-full border-primary/10 flex flex-col">
-      <CardHeader className="pb-3 shrink-0">
-        <CardTitle className="text-sm font-display tracking-wider flex items-center gap-2 text-primary">
-          <MessageSquare className="w-4 h-4" /> {t('messages.title')}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-4 pt-0 flex-1 flex flex-col min-h-0">
-        {/* Today's matches: 25% */}
-        <div className="h-[25%] min-h-0 flex flex-col mb-3">
-          <div className="flex items-center gap-1.5 text-xs font-display tracking-wider text-primary/80 mb-1.5 shrink-0">
-            <CalendarDays className="w-3.5 h-3.5" /> {t('messages.todayMatches')}
-          </div>
-          <div className="flex-1 overflow-y-auto pr-2 border rounded-md bg-muted/20">
-            {matches.length === 0 ? (
-              <p className="text-xs text-muted-foreground text-center py-3">{t('messages.noMatches')}</p>
-            ) : (
-              <div className="divide-y divide-border/40">
-                {matches.map(m => (
-                  <div key={m.id} className="px-2 py-1.5 text-xs flex items-center justify-between gap-2">
-                    <TeamName name={m.team_a || '???'} side="left" className="text-xs flex-1 min-w-0 truncate justify-end" />
-                    <span className="font-display font-bold text-primary whitespace-nowrap">
-                      {m.score_a ?? '-'} × {m.score_b ?? '-'}
-                    </span>
-                    <TeamName name={m.team_b || '???'} side="right" className="text-xs flex-1 min-w-0 truncate" />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+  const getAuthorLabel = (msg: any) => {
+    if (msg.source === 'admin') return t('messages.authorAdmin');
+    if (msg.source === 'manage') return t('messages.authorManage');
+    return profilesMap[msg.created_by]?.name || '—';
+  };
 
-        {/* Messages: 75% */}
-        <div className="flex-1 min-h-0 flex flex-col">
+  return (
+    <div className="h-full flex flex-col gap-6">
+      {/* Today's matches: 25% */}
+      <Card className="border-primary/10 flex flex-col h-[calc(25%-0.75rem)]">
+        <CardHeader className="pb-3 shrink-0">
+          <CardTitle className="text-sm font-display tracking-wider flex items-center gap-2 text-primary">
+            <CalendarDays className="w-4 h-4" /> {t('messages.todayMatches')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 pt-0 flex-1 min-h-0 overflow-y-auto">
+          {matches.length === 0 ? null : (
+            <div className="divide-y divide-border/40">
+              {matches.map(m => (
+                <div key={m.id} className="px-2 py-1.5 text-xs flex items-center justify-between gap-2">
+                  <TeamName name={m.team_a || '???'} side="left" className="text-xs flex-1 min-w-0 truncate justify-end" />
+                  <span className="font-display font-bold text-primary whitespace-nowrap">
+                    {m.score_a ?? '-'} × {m.score_b ?? '-'}
+                  </span>
+                  <TeamName name={m.team_b || '???'} side="right" className="text-xs flex-1 min-w-0 truncate" />
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Messages: 75% */}
+      <Card className="border-primary/10 flex flex-col h-[calc(75%-0.75rem)]">
+        <CardHeader className="pb-3 shrink-0">
+          <CardTitle className="text-sm font-display tracking-wider flex items-center gap-2 text-primary">
+            <MessageSquare className="w-4 h-4" /> {t('messages.title')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 pt-0 flex-1 flex flex-col min-h-0">
           <div className="flex-1 overflow-y-auto pr-2 min-h-0">
             {messages.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-8">{t('messages.none')}</p>
             ) : (
               <div className="space-y-2 pb-2">
-                {messages.map(msg => {
-                  const author = profilesMap[msg.created_by];
-                  return (
-                    <div key={msg.id} className={`p-2.5 rounded-lg border ${getMsgBg(msg)}`}>
-                      <p className="text-sm leading-relaxed break-words">{msg.content}</p>
-                      <p className="text-xs text-muted-foreground mt-1.5">
-                        <span className="font-medium">{author?.name || '—'}</span>
-                        {' · '}
-                        {format(new Date(msg.created_at), "dd MMM, HH:mm", { locale: dateLocale })}
-                      </p>
-                    </div>
-                  );
-                })}
+                {messages.map((msg: any) => (
+                  <div key={msg.id} className={`p-2.5 rounded-lg border ${getMsgBg(msg)}`}>
+                    <p className="text-sm leading-relaxed break-words">{msg.content}</p>
+                    <p className="text-xs text-muted-foreground mt-1.5">
+                      <span className="font-medium">{getAuthorLabel(msg)}</span>
+                      {' · '}
+                      {format(new Date(msg.created_at), 'dd MMM, HH:mm', { locale: dateLocale })}
+                    </p>
+                  </div>
+                ))}
               </div>
             )}
           </div>
 
-          {/* Input */}
           <div className="flex items-center gap-2 pt-2 shrink-0">
             <Input
               value={newMsg}
@@ -185,9 +189,9 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
               <Send className="w-3.5 h-3.5" /> {t('messages.send')}
             </Button>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
