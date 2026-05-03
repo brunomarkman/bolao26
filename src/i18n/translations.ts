@@ -91,6 +91,12 @@ export const translations = {
   // Messages
   'messages.title': { pt: 'MENSAGENS', en: 'MESSAGES' },
   'messages.none': { pt: 'Nenhuma mensagem', en: 'No messages' },
+  'messages.todayMatches': { pt: 'JOGOS DO DIA', en: "TODAY'S MATCHES" },
+  'messages.noMatches': { pt: 'Nenhum jogo', en: 'No matches' },
+  'messages.placeholder': { pt: 'Escreva uma mensagem...', en: 'Write a message...' },
+  'messages.send': { pt: 'Enviar', en: 'Send' },
+  'messages.sent': { pt: 'Mensagem enviada', en: 'Message sent' },
+  'messages.errorSend': { pt: 'Erro ao enviar mensagem', en: 'Error sending message' },
 
   // MatchPredictions
   'predictions.title': { pt: 'CONFIRA PALPITES', en: 'CHECK PREDICTIONS' },
