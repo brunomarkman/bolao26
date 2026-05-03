@@ -92,6 +92,13 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
 
   const dateLocale = language === 'en' ? enUS : ptBR;
 
+  const fetchMessages = async () => {
+    if (!bolaoId) return;
+    const { data } = await (supabase as any)
+      .from('messages').select('*').eq('bolao_id', bolaoId).order('created_at', { ascending: false });
+    if (data) setMessages(data);
+  };
+
   const sendMessage = async () => {
     const content = newMsg.trim();
     if (!content || !user || !bolaoId) return;
@@ -101,11 +108,13 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
       content,
       created_by: user.id,
       source: 'dashboard',
+      tipo: 'D',
     });
     setSending(false);
     if (error) { toast.error(t('messages.errorSend')); return; }
     setNewMsg('');
     toast.success(t('messages.sent'));
+    await fetchMessages();
   };
 
   const getMsgBg = (msg: any) => {
