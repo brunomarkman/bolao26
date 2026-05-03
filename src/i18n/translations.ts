@@ -97,6 +97,8 @@ export const translations = {
   'messages.send': { pt: 'Enviar', en: 'Send' },
   'messages.sent': { pt: 'Mensagem enviada', en: 'Message sent' },
   'messages.errorSend': { pt: 'Erro ao enviar mensagem', en: 'Error sending message' },
+  'messages.authorManage': { pt: 'Gerência', en: 'Management' },
+  'messages.authorAdmin': { pt: 'Administração', en: 'Administration' },
 
   // MatchPredictions
   'predictions.title': { pt: 'CONFIRA PALPITES', en: 'CHECK PREDICTIONS' },
