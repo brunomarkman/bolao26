@@ -122,8 +122,8 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
   };
 
   const getAuthorLabel = (msg: any) => {
-    if (msg.source === 'admin') return t('messages.authorAdmin');
-    if (msg.source === 'manage') return t('messages.authorManage');
+    if (msg.tipo === 'A' || msg.source === 'admin') return t('messages.authorAdmin');
+    if (msg.tipo === 'G' || msg.source === 'manage') return t('messages.authorManage');
     return profilesMap[msg.created_by]?.name || '—';
   };
 
