@@ -53,11 +53,6 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
   // Messages strictly for this bolão
   useEffect(() => {
     if (!bolaoId) return;
-    const fetchMessages = async () => {
-      const { data } = await (supabase as any)
-        .from('messages').select('*').eq('bolao_id', bolaoId).order('created_at', { ascending: false });
-      if (data) setMessages(data);
-    };
     fetchMessages();
     const channel = supabase.channel(`messages-${bolaoId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'messages', filter: `bolao_id=eq.${bolaoId}` }, () => fetchMessages())
