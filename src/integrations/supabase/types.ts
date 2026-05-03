@@ -272,6 +272,7 @@ export type Database = {
           created_by: string
           id: string
           source: string
+          tipo: string
         }
         Insert: {
           bolao_id?: string | null
@@ -280,6 +281,7 @@ export type Database = {
           created_by: string
           id?: string
           source?: string
+          tipo?: string
         }
         Update: {
           bolao_id?: string | null
@@ -288,6 +290,7 @@ export type Database = {
           created_by?: string
           id?: string
           source?: string
+          tipo?: string
         }
         Relationships: [
           {
