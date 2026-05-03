@@ -97,7 +97,7 @@ const BolaoManage = () => {
 
   const addMessage = async () => {
     if (!newMessage.trim() || !user) return;
-    await (supabase as any).from('messages').insert({ content: newMessage, created_by: user.id, bolao_id: bolaoId });
+    await (supabase as any).from('messages').insert({ content: newMessage, created_by: user.id, bolao_id: bolaoId, source: 'manage' });
     setNewMessage(''); toast.success(t('manage.messageSent')); fetchAll();
   };
 
