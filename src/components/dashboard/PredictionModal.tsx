@@ -83,7 +83,7 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
         setChampionOptions(Array.from(teams).sort());
       }
 
-      // Check if extras are locked: competition start date, matching the pool status rule
+      // Check if extras are locked + load per-bolão extra config
       const { data: competition } = await (supabase as any)
         .from('competitions')
         .select('start_date')
@@ -96,6 +96,22 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
         setExtrasLocked(startDate.getTime() <= today.getTime());
       } else {
         setExtrasLocked(false);
+      }
+
+      if (bolaoId) {
+        const { data: bolaoCfg } = await (supabase as any).from('boloes')
+          .select('extra_champion_enabled,extra_champion_points,extra_golden_ball_enabled,extra_golden_ball_points,extra_top_scorer_enabled,extra_top_scorer_points')
+          .eq('id', bolaoId).maybeSingle();
+        if (bolaoCfg) {
+          setExtraConfig({
+            q1Enabled: bolaoCfg.extra_champion_enabled ?? true,
+            q1Points: bolaoCfg.extra_champion_points ?? 30,
+            q2Enabled: bolaoCfg.extra_golden_ball_enabled ?? true,
+            q2Points: bolaoCfg.extra_golden_ball_points ?? 25,
+            q3Enabled: bolaoCfg.extra_top_scorer_enabled ?? true,
+            q3Points: bolaoCfg.extra_top_scorer_points ?? 25,
+          });
+        }
       }
 
       // Existing extra predictions for this user/bolao
