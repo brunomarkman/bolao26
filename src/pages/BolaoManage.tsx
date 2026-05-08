@@ -84,7 +84,16 @@ const BolaoManage = () => {
 
   const saveSettings = async () => {
     if (!bolao) return;
-    await (supabase as any).from('boloes').update({ nickname: nickname.trim(), bet_value: parseFloat(betValue) || 0 }).eq('id', bolao.id);
+    await (supabase as any).from('boloes').update({
+      nickname: nickname.trim(),
+      bet_value: parseFloat(betValue) || 0,
+      extra_champion_enabled: extraQ1Enabled,
+      extra_champion_points: parseInt(extraQ1Points) || 0,
+      extra_golden_ball_enabled: extraQ2Enabled,
+      extra_golden_ball_points: parseInt(extraQ2Points) || 0,
+      extra_top_scorer_enabled: extraQ3Enabled,
+      extra_top_scorer_points: parseInt(extraQ3Points) || 0,
+    }).eq('id', bolao.id);
     toast.success(t('manage.settingsSaved')); fetchAll();
   };
 
