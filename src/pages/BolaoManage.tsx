@@ -60,6 +60,12 @@ const BolaoManage = () => {
     ]);
     if (bolaoRes.data) {
       setBolao(bolaoRes.data); setBetValue(String(bolaoRes.data.bet_value)); setNickname(bolaoRes.data.nickname);
+      setExtraQ1Enabled(bolaoRes.data.extra_champion_enabled ?? true);
+      setExtraQ1Points(String(bolaoRes.data.extra_champion_points ?? 30));
+      setExtraQ2Enabled(bolaoRes.data.extra_golden_ball_enabled ?? true);
+      setExtraQ2Points(String(bolaoRes.data.extra_golden_ball_points ?? 25));
+      setExtraQ3Enabled(bolaoRes.data.extra_top_scorer_enabled ?? true);
+      setExtraQ3Points(String(bolaoRes.data.extra_top_scorer_points ?? 25));
       if (bolaoRes.data.created_by !== user!.id) { navigate(`/bolao/${bolaoId}`); return; }
     }
     if (participantsRes.data && profilesRes.data) {
