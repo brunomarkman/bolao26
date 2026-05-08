@@ -385,7 +385,7 @@ export const translations = {
   'paymentsTab.receivedByLabel': { pt: 'Recebido por:', en: 'Received by:' },
 
   // ResultsReport
-  'report.title': { pt: 'LISTA RESULTADOS', en: 'RESULTS LIST' },
+  'report.title': { pt: 'LISTA DE PALPITES', en: 'GUESSES LIST' },
   'report.noActivePhase': { pt: 'Nenhuma fase ativa encontrada', en: 'No active phase found' },
   'report.exportPdf': { pt: 'Exportar PDF', en: 'Export PDF' },
   'report.participant': { pt: 'Participante', en: 'Participant' },
