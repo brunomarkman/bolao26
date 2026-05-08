@@ -41,6 +41,7 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
   const [extraTopScorer, setExtraTopScorer] = useState('');
   const [extrasLocked, setExtrasLocked] = useState(false);
   const [extraId, setExtraId] = useState<string | null>(null);
+  const [extraConfig, setExtraConfig] = useState({ q1Enabled: true, q1Points: 30, q2Enabled: true, q2Points: 25, q3Enabled: true, q3Points: 25 });
   const dateLocale = language === 'en' ? enUS : ptBR;
 
   useEffect(() => {
@@ -82,7 +83,7 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
         setChampionOptions(Array.from(teams).sort());
       }
 
-      // Check if extras are locked: competition start date, matching the pool status rule
+      // Check if extras are locked + load per-bolão extra config
       const { data: competition } = await (supabase as any)
         .from('competitions')
         .select('start_date')
@@ -95,6 +96,22 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
         setExtrasLocked(startDate.getTime() <= today.getTime());
       } else {
         setExtrasLocked(false);
+      }
+
+      if (bolaoId) {
+        const { data: bolaoCfg } = await (supabase as any).from('boloes')
+          .select('extra_champion_enabled,extra_champion_points,extra_golden_ball_enabled,extra_golden_ball_points,extra_top_scorer_enabled,extra_top_scorer_points')
+          .eq('id', bolaoId).maybeSingle();
+        if (bolaoCfg) {
+          setExtraConfig({
+            q1Enabled: bolaoCfg.extra_champion_enabled ?? true,
+            q1Points: bolaoCfg.extra_champion_points ?? 30,
+            q2Enabled: bolaoCfg.extra_golden_ball_enabled ?? true,
+            q2Points: bolaoCfg.extra_golden_ball_points ?? 25,
+            q3Enabled: bolaoCfg.extra_top_scorer_enabled ?? true,
+            q3Points: bolaoCfg.extra_top_scorer_points ?? 25,
+          });
+        }
       }
 
       // Existing extra predictions for this user/bolao
@@ -152,9 +169,9 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
         const payload = {
           user_id: user.id,
           bolao_id: bolaoId,
-          champion: extraChampion || null,
-          golden_ball: extraGoldenBall ? extraGoldenBall.toUpperCase().trim() : null,
-          top_scorer: extraTopScorer ? extraTopScorer.toUpperCase().trim() : null,
+          champion: extraConfig.q1Enabled ? (extraChampion || null) : null,
+          golden_ball: extraConfig.q2Enabled ? (extraGoldenBall ? extraGoldenBall.toUpperCase().trim() : null) : null,
+          top_scorer: extraConfig.q3Enabled ? (extraTopScorer ? extraTopScorer.toUpperCase().trim() : null) : null,
         };
         if (extraId) {
           const { error } = await (supabase as any).from('extra_predictions').update(payload).eq('id', extraId);
@@ -238,33 +255,39 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
                   </Alert>
                 )}
 
-                <div className="space-y-2">
-                  <label className="text-xs font-medium">{t('predModal.q1')} <span className="text-primary font-bold">(30 pts)</span></label>
-                  <Select value={extraChampion} onValueChange={setExtraChampion} disabled={extrasLocked}>
-                    <SelectTrigger><SelectValue placeholder={t('predModal.q1Placeholder')} /></SelectTrigger>
-                    <SelectContent>
-                      {championOptions.map(team => (<SelectItem key={team} value={team}>{team}</SelectItem>))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {extraConfig.q1Enabled && (
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium">{t('predModal.q1')} <span className="text-primary font-bold">({extraConfig.q1Points} pts)</span></label>
+                    <Select value={extraChampion} onValueChange={setExtraChampion} disabled={extrasLocked}>
+                      <SelectTrigger><SelectValue placeholder={t('predModal.q1Placeholder')} /></SelectTrigger>
+                      <SelectContent>
+                        {championOptions.map(team => (<SelectItem key={team} value={team}>{team}</SelectItem>))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
-                <div className="space-y-2">
-                  <label className="text-xs font-medium">{t('predModal.q2')} <span className="text-primary font-bold">(25 pts)</span></label>
-                  <Input className="uppercase" value={extraGoldenBall} onChange={e => setExtraGoldenBall(e.target.value.toUpperCase())} disabled={extrasLocked} placeholder={t('predModal.q2Placeholder')} />
-                  <Alert>
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription className="text-xs">{t('predModal.playerNameWarning')}</AlertDescription>
-                  </Alert>
-                </div>
+                {extraConfig.q2Enabled && (
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium">{t('predModal.q2')} <span className="text-primary font-bold">({extraConfig.q2Points} pts)</span></label>
+                    <Input className="uppercase" value={extraGoldenBall} onChange={e => setExtraGoldenBall(e.target.value.toUpperCase())} disabled={extrasLocked} placeholder={t('predModal.q2Placeholder')} />
+                    <Alert>
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertDescription className="text-xs">{t('predModal.playerNameWarning')}</AlertDescription>
+                    </Alert>
+                  </div>
+                )}
 
-                <div className="space-y-2">
-                  <label className="text-xs font-medium">{t('predModal.q3')} <span className="text-primary font-bold">(25 pts)</span></label>
-                  <Input className="uppercase" value={extraTopScorer} onChange={e => setExtraTopScorer(e.target.value.toUpperCase())} disabled={extrasLocked} placeholder={t('predModal.q3Placeholder')} />
-                  <Alert>
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription className="text-xs">{t('predModal.playerNameWarning')}</AlertDescription>
-                  </Alert>
-                </div>
+                {extraConfig.q3Enabled && (
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium">{t('predModal.q3')} <span className="text-primary font-bold">({extraConfig.q3Points} pts)</span></label>
+                    <Input className="uppercase" value={extraTopScorer} onChange={e => setExtraTopScorer(e.target.value.toUpperCase())} disabled={extrasLocked} placeholder={t('predModal.q3Placeholder')} />
+                    <Alert>
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertDescription className="text-xs">{t('predModal.playerNameWarning')}</AlertDescription>
+                    </Alert>
+                  </div>
+                )}
               </div>
             </ScrollArea>
           </div>

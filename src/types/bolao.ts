@@ -30,6 +30,12 @@ export interface Bolao {
   invite_code: string;
   created_at: string;
   updated_at: string;
+  extra_champion_enabled?: boolean;
+  extra_champion_points?: number;
+  extra_golden_ball_enabled?: boolean;
+  extra_golden_ball_points?: number;
+  extra_top_scorer_enabled?: boolean;
+  extra_top_scorer_points?: number;
 }
 
 export interface BolaoParticipant {

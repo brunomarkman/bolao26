@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { ArrowLeft, Copy, Users, DollarSign, Save, Trash2, MessageSquare, Settings, Play, Square, FileText } from 'lucide-react';
 import { format } from 'date-fns';
@@ -39,6 +40,12 @@ const BolaoManage = () => {
   const [receivedBy, setReceivedBy] = useState('');
   const [betValue, setBetValue] = useState('');
   const [nickname, setNickname] = useState('');
+  const [extraQ1Enabled, setExtraQ1Enabled] = useState(true);
+  const [extraQ1Points, setExtraQ1Points] = useState('30');
+  const [extraQ2Enabled, setExtraQ2Enabled] = useState(true);
+  const [extraQ2Points, setExtraQ2Points] = useState('25');
+  const [extraQ3Enabled, setExtraQ3Enabled] = useState(true);
+  const [extraQ3Points, setExtraQ3Points] = useState('25');
   const [activeTab, setActiveTab] = useState('settings');
 
   useEffect(() => { if (bolaoId && user) fetchAll(); }, [bolaoId, user]);
@@ -53,6 +60,12 @@ const BolaoManage = () => {
     ]);
     if (bolaoRes.data) {
       setBolao(bolaoRes.data); setBetValue(String(bolaoRes.data.bet_value)); setNickname(bolaoRes.data.nickname);
+      setExtraQ1Enabled(bolaoRes.data.extra_champion_enabled ?? true);
+      setExtraQ1Points(String(bolaoRes.data.extra_champion_points ?? 30));
+      setExtraQ2Enabled(bolaoRes.data.extra_golden_ball_enabled ?? true);
+      setExtraQ2Points(String(bolaoRes.data.extra_golden_ball_points ?? 25));
+      setExtraQ3Enabled(bolaoRes.data.extra_top_scorer_enabled ?? true);
+      setExtraQ3Points(String(bolaoRes.data.extra_top_scorer_points ?? 25));
       if (bolaoRes.data.created_by !== user!.id) { navigate(`/bolao/${bolaoId}`); return; }
     }
     if (participantsRes.data && profilesRes.data) {
@@ -71,7 +84,16 @@ const BolaoManage = () => {
 
   const saveSettings = async () => {
     if (!bolao) return;
-    await (supabase as any).from('boloes').update({ nickname: nickname.trim(), bet_value: parseFloat(betValue) || 0 }).eq('id', bolao.id);
+    await (supabase as any).from('boloes').update({
+      nickname: nickname.trim(),
+      bet_value: parseFloat(betValue) || 0,
+      extra_champion_enabled: extraQ1Enabled,
+      extra_champion_points: parseInt(extraQ1Points) || 0,
+      extra_golden_ball_enabled: extraQ2Enabled,
+      extra_golden_ball_points: parseInt(extraQ2Points) || 0,
+      extra_top_scorer_enabled: extraQ3Enabled,
+      extra_top_scorer_points: parseInt(extraQ3Points) || 0,
+    }).eq('id', bolao.id);
     toast.success(t('manage.settingsSaved')); fetchAll();
   };
 
@@ -146,7 +168,6 @@ const BolaoManage = () => {
               </SelectContent>
             </Select>
           </div>
-
           <TabsContent value="settings">
             <Card>
               <CardHeader><CardTitle className="font-display text-sm tracking-wider">{t('manage.poolSettings')}</CardTitle></CardHeader>
@@ -154,6 +175,26 @@ const BolaoManage = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2"><label className="text-sm font-medium">{t('manage.nickname')}</label><Input value={nickname} onChange={e => setNickname(e.target.value)} /></div>
                   <div className="space-y-2"><label className="text-sm font-medium">{t('manage.betValue')}</label><Input type="number" min="0" step="0.01" value={betValue} onChange={e => setBetValue(e.target.value)} /></div>
+                </div>
+
+                <div className="space-y-3 border border-border/50 rounded-lg p-3">
+                  <p className="text-sm font-medium font-display tracking-wider text-primary">{t('manage.extraQuestions')}</p>
+                  {[
+                    { label: t('manage.extraQ1'), enabled: extraQ1Enabled, setEnabled: setExtraQ1Enabled, points: extraQ1Points, setPoints: setExtraQ1Points, key: 'q1' },
+                    { label: t('manage.extraQ2'), enabled: extraQ2Enabled, setEnabled: setExtraQ2Enabled, points: extraQ2Points, setPoints: setExtraQ2Points, key: 'q2' },
+                    { label: t('manage.extraQ3'), enabled: extraQ3Enabled, setEnabled: setExtraQ3Enabled, points: extraQ3Points, setPoints: setExtraQ3Points, key: 'q3' },
+                  ].map(q => (
+                    <div key={q.key} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                      <label className="flex items-center gap-2 flex-1 text-sm cursor-pointer">
+                        <Checkbox checked={q.enabled} onCheckedChange={(v) => q.setEnabled(!!v)} />
+                        <span>{q.label}</span>
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">{t('manage.extraPoints')}:</span>
+                        <Input type="number" min="0" value={q.points} onChange={e => q.setPoints(e.target.value)} disabled={!q.enabled} className="w-20 h-8" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-medium">{t('manage.inviteCode')}</span>

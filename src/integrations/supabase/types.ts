@@ -55,6 +55,12 @@ export type Database = {
           competition_id: string
           created_at: string
           created_by: string
+          extra_champion_enabled: boolean
+          extra_champion_points: number
+          extra_golden_ball_enabled: boolean
+          extra_golden_ball_points: number
+          extra_top_scorer_enabled: boolean
+          extra_top_scorer_points: number
           id: string
           invite_code: string
           nickname: string
@@ -67,6 +73,12 @@ export type Database = {
           competition_id: string
           created_at?: string
           created_by: string
+          extra_champion_enabled?: boolean
+          extra_champion_points?: number
+          extra_golden_ball_enabled?: boolean
+          extra_golden_ball_points?: number
+          extra_top_scorer_enabled?: boolean
+          extra_top_scorer_points?: number
           id?: string
           invite_code: string
           nickname: string
@@ -79,6 +91,12 @@ export type Database = {
           competition_id?: string
           created_at?: string
           created_by?: string
+          extra_champion_enabled?: boolean
+          extra_champion_points?: number
+          extra_golden_ball_enabled?: boolean
+          extra_golden_ball_points?: number
+          extra_top_scorer_enabled?: boolean
+          extra_top_scorer_points?: number
           id?: string
           invite_code?: string
           nickname?: string

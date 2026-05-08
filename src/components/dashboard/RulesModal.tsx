@@ -107,6 +107,13 @@ const RulesModal = ({ open, onOpenChange, bolao }: RulesModalProps) => {
                 </div>
               </div>
             </section>
+
+            <section className="space-y-2 border border-yellow-300/40 bg-yellow-100/40 dark:bg-yellow-900/20 rounded-lg p-3">
+              <h3 className="font-display text-xs tracking-wider text-primary flex items-center gap-2">
+                <Award className="w-4 h-4" /> {t('rules.disclaimerTitle')}
+              </h3>
+              <p className="text-muted-foreground text-xs leading-relaxed">{t('rules.disclaimer')}</p>
+            </section>
           </div>
         </ScrollArea>
       </DialogContent>

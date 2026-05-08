@@ -178,6 +178,8 @@ export const translations = {
   'rules.first': { pt: '1º Lugar — 70% do prêmio', en: '1st Place — 70% of the prize' },
   'rules.second': { pt: '2º Lugar — 20% do prêmio', en: '2nd Place — 20% of the prize' },
   'rules.third': { pt: '3º Lugar — 10% do prêmio', en: '3rd Place — 10% of the prize' },
+  'rules.disclaimerTitle': { pt: 'AVISO IMPORTANTE', en: 'IMPORTANT NOTICE' },
+  'rules.disclaimer': { pt: 'O site não paga premiação aos participantes. O site é apenas uma plataforma que gerencia os bolões e os jogos. Todos os valores de premiação são provenientes exclusivamente das apostas realizadas por cada participante no bolão específico a que ele está associado.', en: 'The site does not pay prizes to participants. The site is only a platform that manages the pools and the matches. All prize amounts come exclusively from the bets placed by each participant in the specific pool they are associated with.' },
 
   // CreateBolaoModal
   'create.title': { pt: '🏆 CRIAR BOLÃO', en: '🏆 CREATE POOL' },
@@ -321,7 +323,13 @@ export const translations = {
   'manage.members': { pt: 'MEMBROS', en: 'MEMBERS' },
   'manage.payments': { pt: 'PAGAMENTOS', en: 'PAYMENTS' },
   'manage.messages': { pt: 'MENSAGENS', en: 'MESSAGES' },
-  'manage.resultsList': { pt: 'LISTA RESULTADOS', en: 'RESULTS LIST' },
+  'manage.resultsList': { pt: 'LISTA DE PALPITES', en: 'GUESSES LIST' },
+  'manage.extraQuestions': { pt: 'Perguntas Extras', en: 'Extra Questions' },
+  'manage.extraQ1': { pt: 'Que equipe será a campeã?', en: 'Which team will be the champion?' },
+  'manage.extraQ2': { pt: 'Quem será a Bola de Ouro?', en: 'Who will be the Golden Ball?' },
+  'manage.extraQ3': { pt: 'Quem será o artilheiro?', en: 'Who will be the top scorer?' },
+  'manage.extraInclude': { pt: 'Incluir no sistema de pontos', en: 'Include in scoring system' },
+  'manage.extraPoints': { pt: 'Pontos', en: 'Points' },
   'manage.poolSettings': { pt: 'CONFIGURAÇÕES DO BOLÃO', en: 'POOL SETTINGS' },
   'manage.nickname': { pt: 'Apelido', en: 'Nickname' },
   'manage.betValue': { pt: 'Valor da Aposta (R$)', en: 'Bet Value ($)' },
@@ -379,7 +387,7 @@ export const translations = {
   'paymentsTab.receivedByLabel': { pt: 'Recebido por:', en: 'Received by:' },
 
   // ResultsReport
-  'report.title': { pt: 'LISTA RESULTADOS', en: 'RESULTS LIST' },
+  'report.title': { pt: 'LISTA DE PALPITES', en: 'GUESSES LIST' },
   'report.noActivePhase': { pt: 'Nenhuma fase ativa encontrada', en: 'No active phase found' },
   'report.exportPdf': { pt: 'Exportar PDF', en: 'Export PDF' },
   'report.participant': { pt: 'Participante', en: 'Participant' },
