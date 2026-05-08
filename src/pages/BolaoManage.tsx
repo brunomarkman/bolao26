@@ -167,6 +167,7 @@ const BolaoManage = () => {
                 <SelectItem value="results">{t('manage.resultsList')}</SelectItem>
               </SelectContent>
             </Select>
+          </div>
           <TabsContent value="settings">
             <Card>
               <CardHeader><CardTitle className="font-display text-sm tracking-wider">{t('manage.poolSettings')}</CardTitle></CardHeader>
@@ -174,6 +175,26 @@ const BolaoManage = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2"><label className="text-sm font-medium">{t('manage.nickname')}</label><Input value={nickname} onChange={e => setNickname(e.target.value)} /></div>
                   <div className="space-y-2"><label className="text-sm font-medium">{t('manage.betValue')}</label><Input type="number" min="0" step="0.01" value={betValue} onChange={e => setBetValue(e.target.value)} /></div>
+                </div>
+
+                <div className="space-y-3 border border-border/50 rounded-lg p-3">
+                  <p className="text-sm font-medium font-display tracking-wider text-primary">{t('manage.extraQuestions')}</p>
+                  {[
+                    { label: t('manage.extraQ1'), enabled: extraQ1Enabled, setEnabled: setExtraQ1Enabled, points: extraQ1Points, setPoints: setExtraQ1Points, key: 'q1' },
+                    { label: t('manage.extraQ2'), enabled: extraQ2Enabled, setEnabled: setExtraQ2Enabled, points: extraQ2Points, setPoints: setExtraQ2Points, key: 'q2' },
+                    { label: t('manage.extraQ3'), enabled: extraQ3Enabled, setEnabled: setExtraQ3Enabled, points: extraQ3Points, setPoints: setExtraQ3Points, key: 'q3' },
+                  ].map(q => (
+                    <div key={q.key} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                      <label className="flex items-center gap-2 flex-1 text-sm cursor-pointer">
+                        <Checkbox checked={q.enabled} onCheckedChange={(v) => q.setEnabled(!!v)} />
+                        <span>{q.label}</span>
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">{t('manage.extraPoints')}:</span>
+                        <Input type="number" min="0" value={q.points} onChange={e => q.setPoints(e.target.value)} disabled={!q.enabled} className="w-20 h-8" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-medium">{t('manage.inviteCode')}</span>
