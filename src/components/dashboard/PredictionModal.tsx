@@ -169,9 +169,9 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
         const payload = {
           user_id: user.id,
           bolao_id: bolaoId,
-          champion: extraChampion || null,
-          golden_ball: extraGoldenBall ? extraGoldenBall.toUpperCase().trim() : null,
-          top_scorer: extraTopScorer ? extraTopScorer.toUpperCase().trim() : null,
+          champion: extraConfig.q1Enabled ? (extraChampion || null) : null,
+          golden_ball: extraConfig.q2Enabled ? (extraGoldenBall ? extraGoldenBall.toUpperCase().trim() : null) : null,
+          top_scorer: extraConfig.q3Enabled ? (extraTopScorer ? extraTopScorer.toUpperCase().trim() : null) : null,
         };
         if (extraId) {
           const { error } = await (supabase as any).from('extra_predictions').update(payload).eq('id', extraId);
