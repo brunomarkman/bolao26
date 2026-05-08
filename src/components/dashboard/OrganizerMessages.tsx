@@ -113,12 +113,10 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
   };
 
   const getMsgBg = (msg: any) => {
-    if (msg.source === 'admin') return 'bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300/50';
-    if (msg.source === 'manage') return 'bg-blue-100 dark:bg-blue-900/30 border-blue-300/50';
-    const author = profilesMap[msg.created_by];
-    if (author?.is_admin) return 'bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300/50';
-    if (msg.created_by === creatorId) return 'bg-blue-100 dark:bg-blue-900/30 border-blue-300/50';
-    return 'bg-muted/50 border-border/50';
+    if (msg.tipo === 'A' || msg.source === 'admin') return 'bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300/50';
+    if (msg.tipo === 'G' || msg.source === 'manage') return 'bg-blue-100 dark:bg-blue-900/30 border-blue-300/50';
+    // Dashboard messages: light gray background
+    return 'bg-muted border-border/50';
   };
 
   const getAuthorLabel = (msg: any) => {
