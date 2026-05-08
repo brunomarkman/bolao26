@@ -178,6 +178,8 @@ export const translations = {
   'rules.first': { pt: '1º Lugar — 70% do prêmio', en: '1st Place — 70% of the prize' },
   'rules.second': { pt: '2º Lugar — 20% do prêmio', en: '2nd Place — 20% of the prize' },
   'rules.third': { pt: '3º Lugar — 10% do prêmio', en: '3rd Place — 10% of the prize' },
+  'rules.disclaimerTitle': { pt: 'AVISO IMPORTANTE', en: 'IMPORTANT NOTICE' },
+  'rules.disclaimer': { pt: 'O site não paga premiação aos participantes. O site é apenas uma plataforma que gerencia os bolões e os jogos. Todos os valores de premiação são provenientes exclusivamente das apostas realizadas por cada participante no bolão específico a que ele está associado.', en: 'The site does not pay prizes to participants. The site is only a platform that manages the pools and the matches. All prize amounts come exclusively from the bets placed by each participant in the specific pool they are associated with.' },
 
   // CreateBolaoModal
   'create.title': { pt: '🏆 CRIAR BOLÃO', en: '🏆 CREATE POOL' },
