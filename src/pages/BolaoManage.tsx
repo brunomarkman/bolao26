@@ -40,6 +40,12 @@ const BolaoManage = () => {
   const [receivedBy, setReceivedBy] = useState('');
   const [betValue, setBetValue] = useState('');
   const [nickname, setNickname] = useState('');
+  const [extraQ1Enabled, setExtraQ1Enabled] = useState(true);
+  const [extraQ1Points, setExtraQ1Points] = useState('30');
+  const [extraQ2Enabled, setExtraQ2Enabled] = useState(true);
+  const [extraQ2Points, setExtraQ2Points] = useState('25');
+  const [extraQ3Enabled, setExtraQ3Enabled] = useState(true);
+  const [extraQ3Points, setExtraQ3Points] = useState('25');
   const [activeTab, setActiveTab] = useState('settings');
 
   useEffect(() => { if (bolaoId && user) fetchAll(); }, [bolaoId, user]);
