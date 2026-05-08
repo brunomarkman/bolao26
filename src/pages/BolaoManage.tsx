@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { ArrowLeft, Copy, Users, DollarSign, Save, Trash2, MessageSquare, Settings, Play, Square, FileText } from 'lucide-react';
 import { format } from 'date-fns';
