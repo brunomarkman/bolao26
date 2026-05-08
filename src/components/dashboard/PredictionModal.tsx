@@ -41,6 +41,7 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
   const [extraTopScorer, setExtraTopScorer] = useState('');
   const [extrasLocked, setExtrasLocked] = useState(false);
   const [extraId, setExtraId] = useState<string | null>(null);
+  const [extraConfig, setExtraConfig] = useState({ q1Enabled: true, q1Points: 30, q2Enabled: true, q2Points: 25, q3Enabled: true, q3Points: 25 });
   const dateLocale = language === 'en' ? enUS : ptBR;
 
   useEffect(() => {
