@@ -65,10 +65,10 @@ const PaymentsTab = () => {
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-muted-foreground">R$</span>
-            <Input type="number" min="0" step="0.01" placeholder="0,00" value={betValue} onChange={e => setBetValue(e.target.value)} className="w-32" />
+            <span className="text-sm font-medium text-muted-foreground">$</span>
+            <Input type="number" min="0" step="0.01" placeholder="0.00" value={betValue} onChange={e => setBetValue(e.target.value)} className="w-32" />
             <Button onClick={saveBetValue} size="sm" className="gap-1"><Save className="w-4 h-4" /> {t('paymentsTab.save')}</Button>
-            {savedBetValue !== '0' && <span className="text-sm text-muted-foreground">{t('paymentsTab.currentValue')} <span className="font-bold text-foreground">R$ {parseFloat(savedBetValue).toFixed(2)}</span></span>}
+            {savedBetValue !== '0' && <span className="text-sm text-muted-foreground">{t('paymentsTab.currentValue')} <span className="font-bold text-foreground">$ {parseFloat(savedBetValue).toFixed(2)}</span></span>}
           </div>
         </CardContent>
       </Card>
