@@ -327,26 +327,76 @@ const Admin = () => {
       <main className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="hidden md:grid w-full grid-cols-6">
+            <TabsTrigger value="boloes" className="font-display text-xs tracking-wider">{t('admin.boloes')}</TabsTrigger>
             <TabsTrigger value="competitions" className="font-display text-xs tracking-wider">{t('admin.competitions')}</TabsTrigger>
             <TabsTrigger value="phases" className="font-display text-xs tracking-wider">{t('admin.phases')}</TabsTrigger>
             <TabsTrigger value="results" className="font-display text-xs tracking-wider">{t('admin.results')}</TabsTrigger>
             <TabsTrigger value="messages" className="font-display text-xs tracking-wider">{t('admin.messages')}</TabsTrigger>
-            <TabsTrigger value="payments" className="font-display text-xs tracking-wider">{t('admin.payments')}</TabsTrigger>
             <TabsTrigger value="preferences" className="font-display text-xs tracking-wider uppercase">{t('admin.preferences')}</TabsTrigger>
           </TabsList>
           <div className="md:hidden">
             <Select value={activeTab} onValueChange={setActiveTab}>
               <SelectTrigger className="font-display tracking-wider"><SelectValue /></SelectTrigger>
               <SelectContent>
+                <SelectItem value="boloes">{t('admin.boloes')}</SelectItem>
                 <SelectItem value="competitions">{t('admin.competitions')}</SelectItem>
                 <SelectItem value="phases">{t('admin.phases')}</SelectItem>
                 <SelectItem value="results">{t('admin.results')}</SelectItem>
                 <SelectItem value="messages">{t('admin.messages')}</SelectItem>
-                <SelectItem value="payments">{t('admin.payments')}</SelectItem>
                 <SelectItem value="preferences">{t('admin.preferences')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          <TabsContent value="boloes" className="space-y-6">
+            <Card>
+              <CardHeader><CardTitle className="font-display text-sm tracking-wider">{t('admin.boloesTitle')}</CardTitle></CardHeader>
+              <CardContent>
+                {allBoloes.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">{t('admin.noBoloes')}</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-border">
+                          <th className="text-left p-2 font-display text-xs tracking-wider text-muted-foreground">{t('admin.colCreatedAt')}</th>
+                          <th className="text-left p-2 font-display text-xs tracking-wider text-muted-foreground">{t('admin.colCompetition')}</th>
+                          <th className="text-left p-2 font-display text-xs tracking-wider text-muted-foreground">{t('admin.colPoolName')}</th>
+                          <th className="text-left p-2 font-display text-xs tracking-wider text-muted-foreground">{t('admin.colCreator')}</th>
+                          <th className="text-left p-2 font-display text-xs tracking-wider text-muted-foreground">{t('admin.colEmail')}</th>
+                          <th className="text-left p-2 font-display text-xs tracking-wider text-muted-foreground">{t('admin.colCity')}</th>
+                          <th className="text-left p-2 font-display text-xs tracking-wider text-muted-foreground">{t('admin.colCountry')}</th>
+                          <th className="text-right p-2 font-display text-xs tracking-wider text-muted-foreground">{t('admin.colBetValue')}</th>
+                          <th className="text-center p-2 font-display text-xs tracking-wider text-muted-foreground">{t('admin.colPaidParticipants')}</th>
+                          <th className="text-right p-2 font-display text-xs tracking-wider text-muted-foreground">{t('admin.colTotalCollected')}</th>
+                          <th className="text-left p-2 font-display text-xs tracking-wider text-muted-foreground">{t('admin.colWinner')}</th>
+                          <th className="text-center p-2 font-display text-xs tracking-wider text-muted-foreground">{t('admin.colStatus')}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {allBoloes.map(b => (
+                          <tr key={b.id} className="border-b border-border/50 hover:bg-muted/30">
+                            <td className="p-2 text-xs">{format(new Date(b.created_at), "dd MMM yyyy", { locale: dateLocale })}</td>
+                            <td className="p-2">{b.competitionName}</td>
+                            <td className="p-2 font-medium">{b.nickname}</td>
+                            <td className="p-2">{b.creatorName}</td>
+                            <td className="p-2 text-xs">{b.creatorEmail}</td>
+                            <td className="p-2">{b.creatorCity}</td>
+                            <td className="p-2">{b.creatorCountry}</td>
+                            <td className="p-2 text-right font-medium">$ {Number(b.bet_value || 0).toFixed(2)}</td>
+                            <td className="p-2 text-center font-medium">{b.paidCount}</td>
+                            <td className="p-2 text-right font-medium">$ {b.totalCollected.toFixed(2)}</td>
+                            <td className="p-2">{b.winnerName}</td>
+                            <td className="p-2 text-center"><Badge variant="outline">{t(`status.${b.status}` as any)}</Badge></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="competitions" className="space-y-6">
             <Card>
