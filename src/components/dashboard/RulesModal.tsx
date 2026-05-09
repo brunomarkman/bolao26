@@ -85,7 +85,7 @@ const RulesModal = ({ open, onOpenChange, bolao }: RulesModalProps) => {
                 <DollarSign className="w-4 h-4" /> {t('rules.betTitle')}
               </h3>
               <p className="text-muted-foreground">
-                {bolao ? <>{t('rules.betDesc')} <span className="font-semibold text-foreground">R$ {Number(bolao.bet_value).toFixed(2)}</span>. </> : null}
+                {bolao ? <>{t('rules.betDesc')} <span className="font-semibold text-foreground">$ {Number(bolao.bet_value).toFixed(2)}</span>. </> : null}
                 {t('rules.totalPrize')}
               </p>
             </section>

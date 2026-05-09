@@ -155,7 +155,7 @@ const InvitePage = () => {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">{t('invite.betValue')}</span>
-              <Badge variant="secondary" className="font-display">R$ {bolaoInfo?.bet_value.toFixed(2)}</Badge>
+              <Badge variant="secondary" className="font-display">$ {bolaoInfo?.bet_value.toFixed(2)}</Badge>
             </div>
           </div>
 
