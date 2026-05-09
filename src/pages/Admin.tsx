@@ -11,7 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { ArrowLeft, Plus, Trash2, Save, CheckCircle, AlertTriangle, Pencil } from 'lucide-react';
-import PaymentsTab from '@/components/admin/PaymentsTab';
+import { Badge } from '@/components/ui/badge';
 import EditMatchModal from '@/components/admin/EditMatchModal';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
@@ -68,7 +68,8 @@ const Admin = () => {
 
   const [resultScoreA, setResultScoreA] = useState<Record<string, string>>({});
   const [resultScoreB, setResultScoreB] = useState<Record<string, string>>({});
-  const [activeTab, setActiveTab] = useState('competitions');
+  const [activeTab, setActiveTab] = useState('boloes');
+  const [allBoloes, setAllBoloes] = useState<any[]>([]);
   const [lockMinutes, setLockMinutes] = useState('10');
   const [lockMinutesLoading, setLockMinutesLoading] = useState(false);
 
@@ -76,8 +77,47 @@ const Admin = () => {
 
   useEffect(() => {
     if (!isSiteAdmin) { navigate('/'); return; }
-    fetchCompetitions(); fetchMessages(); fetchMessageBoloes(); fetchLockMinutes();
+    fetchCompetitions(); fetchMessages(); fetchMessageBoloes(); fetchLockMinutes(); fetchAllBoloes();
   }, [isSiteAdmin]);
+
+  const fetchAllBoloes = async () => {
+    const { data: boloesData } = await (supabase as any)
+      .from('boloes').select('*').order('created_at', { ascending: false });
+    if (!boloesData || boloesData.length === 0) { setAllBoloes([]); return; }
+    const ids = boloesData.map((b: any) => b.id);
+    const creatorIds = [...new Set(boloesData.map((b: any) => b.created_by))];
+    const compIds = [...new Set(boloesData.map((b: any) => b.competition_id))];
+    const [profilesRes, compsRes, partsRes, paysRes] = await Promise.all([
+      supabase.from('profiles').select('user_id, name, email, city, country').in('user_id', creatorIds),
+      (supabase as any).from('competitions').select('id, name').in('id', compIds),
+      (supabase as any).from('bolao_participants').select('bolao_id, user_id, total_score, is_active').in('bolao_id', ids),
+      (supabase as any).from('payments').select('bolao_id').in('bolao_id', ids),
+    ]);
+    const profilesAll = (await supabase.from('profiles').select('user_id, name')).data || [];
+    const rows = boloesData.map((b: any) => {
+      const creator = (profilesRes.data || []).find((p: any) => p.user_id === b.created_by);
+      const comp = (compsRes.data || []).find((c: any) => c.id === b.competition_id);
+      const parts = (partsRes.data || []).filter((p: any) => p.bolao_id === b.id);
+      const paidCount = (paysRes.data || []).filter((p: any) => p.bolao_id === b.id).length;
+      let winnerName: string | undefined;
+      if (b.status === 'finished' && parts.length > 0) {
+        const top = [...parts].sort((a: any, x: any) => x.total_score - a.total_score)[0];
+        winnerName = profilesAll.find((p: any) => p.user_id === top.user_id)?.name;
+      }
+      return {
+        ...b,
+        creatorName: creator?.name || '—',
+        creatorEmail: creator?.email || '—',
+        creatorCity: creator?.city || '—',
+        creatorCountry: creator?.country || '—',
+        competitionName: comp?.name || '—',
+        paidCount,
+        totalCollected: paidCount * Number(b.bet_value || 0),
+        winnerName: winnerName || '—',
+      };
+    });
+    setAllBoloes(rows);
+  };
 
   useEffect(() => {
     if (selectedCompetition) { fetchPhasesAndMatches(); fetchExtraResults(); }
