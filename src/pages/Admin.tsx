@@ -88,7 +88,7 @@ const Admin = () => {
     const creatorIds = Array.from(new Set(boloesData.map((b: any) => String(b.created_by))));
     const compIds = Array.from(new Set(boloesData.map((b: any) => String(b.competition_id))));
     const [profilesRes, compsRes, partsRes, paysRes] = await Promise.all([
-      supabase.from('profiles').select('user_id, name, email, city, country').in('user_id', creatorIds),
+      (supabase as any).from('profiles').select('user_id, name, email, city, country').in('user_id', creatorIds),
       (supabase as any).from('competitions').select('id, name').in('id', compIds),
       (supabase as any).from('bolao_participants').select('bolao_id, user_id, total_score, is_active').in('bolao_id', ids),
       (supabase as any).from('payments').select('bolao_id').in('bolao_id', ids),
