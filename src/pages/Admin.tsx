@@ -666,7 +666,7 @@ const Admin = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="payments"><PaymentsTab /></TabsContent>
+          
 
           <TabsContent value="preferences" className="space-y-6">
             <Card>
