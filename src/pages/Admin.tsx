@@ -84,9 +84,9 @@ const Admin = () => {
     const { data: boloesData } = await (supabase as any)
       .from('boloes').select('*').order('created_at', { ascending: false });
     if (!boloesData || boloesData.length === 0) { setAllBoloes([]); return; }
-    const ids = boloesData.map((b: any) => b.id);
-    const creatorIds = [...new Set(boloesData.map((b: any) => b.created_by))];
-    const compIds = [...new Set(boloesData.map((b: any) => b.competition_id))];
+    const ids = boloesData.map((b: any) => String(b.id));
+    const creatorIds = Array.from(new Set(boloesData.map((b: any) => String(b.created_by))));
+    const compIds = Array.from(new Set(boloesData.map((b: any) => String(b.competition_id))));
     const [profilesRes, compsRes, partsRes, paysRes] = await Promise.all([
       supabase.from('profiles').select('user_id, name, email, city, country').in('user_id', creatorIds),
       (supabase as any).from('competitions').select('id, name').in('id', compIds),
