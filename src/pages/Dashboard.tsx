@@ -59,7 +59,7 @@ const Dashboard = () => {
       }
       const [paymentsRes, participantsRes] = await Promise.all([
         (supabase as any).from('payments').select('id', { count: 'exact', head: true }).eq('bolao_id', bolaoId),
-        (supabase as any).from('bolao_participants').select('id', { count: 'exact', head: true }).eq('bolao_id', bolaoId),
+        (supabase as any).from('bolao_participants').select('id', { count: 'exact', head: true }).eq('bolao_id', bolaoId).eq('is_active', true),
       ]);
       setPaidCount(paymentsRes.count ?? 0);
       setTotalParticipants(participantsRes.count ?? 0);
@@ -100,7 +100,7 @@ const Dashboard = () => {
                 </div>
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   <DollarSign className="w-4 h-4" />
-                  <span className="font-medium text-foreground">R$ {totalReceived.toFixed(2)}</span>
+                  <span className="font-medium text-foreground">$ {totalReceived.toFixed(2)}</span>
                 </div>
                 <Button variant="ghost" size="sm" onClick={copyInviteCode} className="gap-1">
                   <Copy className="w-3 h-3" /> {t('dash.invite')}
@@ -125,7 +125,7 @@ const Dashboard = () => {
               </div>
               <div className="flex items-center gap-1 text-muted-foreground">
                 <DollarSign className="w-4 h-4" />
-                <span className="font-medium text-foreground">R$ {totalReceived.toFixed(2)}</span>
+                <span className="font-medium text-foreground">$ {totalReceived.toFixed(2)}</span>
               </div>
             </div>
             <div className="flex items-center gap-1">

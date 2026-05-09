@@ -17,6 +17,8 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [city, setCity] = useState('');
+  const [country, setCountry] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,7 +42,7 @@ const Auth = () => {
           email,
           password,
           options: {
-            data: { name },
+            data: { name, city, country },
             emailRedirectTo: window.location.origin,
           },
         });
@@ -89,16 +91,30 @@ const Auth = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder={t('auth.name')}
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  className="pl-10"
-                  required
-                />
-              </div>
+              <>
+                <div className="relative">
+                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder={t('auth.name')}
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    className="pl-10"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    placeholder={t('auth.city')}
+                    value={city}
+                    onChange={e => setCity(e.target.value)}
+                  />
+                  <Input
+                    placeholder={t('auth.country')}
+                    value={country}
+                    onChange={e => setCountry(e.target.value)}
+                  />
+                </div>
+              </>
             )}
             <div className="relative">
               <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />

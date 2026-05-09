@@ -269,7 +269,7 @@ const Home = () => {
                         <td className="p-2 text-center">{getStatusBadge(b.status)}</td>
                         <td className="p-2">{b.managerName}</td>
                         <td className="p-2 text-center font-medium">{b.participantCount}</td>
-                        <td className="p-2 text-center font-medium">R$ {b.totalCollected.toFixed(2)}</td>
+                        <td className="p-2 text-center font-medium">$ {b.totalCollected.toFixed(2)}</td>
                         <td className="p-2">{b.winnerName || '—'}</td>
                         <td className="p-2 text-center" onClick={e => e.stopPropagation()}>
                           <div className="flex items-center justify-center gap-1">
