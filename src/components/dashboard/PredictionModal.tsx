@@ -257,7 +257,7 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
                 )}
 
                 {extraConfig.q1Enabled && (
-                  <div className="space-y-2">
+                  <div className="space-y-2 mx-[15px]">
                     <label className="text-xs font-medium">{t('predModal.q1')} <span className="text-primary font-bold">({extraConfig.q1Points} pts)</span></label>
                     <Select value={extraChampion} onValueChange={setExtraChampion} disabled={extrasLocked}>
                       <SelectTrigger><SelectValue placeholder={t('predModal.q1Placeholder')} /></SelectTrigger>
@@ -269,7 +269,7 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
                 )}
 
                 {extraConfig.q2Enabled && (
-                  <div className="space-y-2">
+                  <div className="space-y-2 mx-[15px]">
                     <label className="text-xs font-medium">{t('predModal.q2')} <span className="text-primary font-bold">({extraConfig.q2Points} pts)</span></label>
                     <Input className="uppercase" value={extraGoldenBall} onChange={e => setExtraGoldenBall(e.target.value.toUpperCase())} disabled={extrasLocked} placeholder={t('predModal.q2Placeholder')} />
                     <Alert className="border-0 bg-transparent p-0">
@@ -279,7 +279,7 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
                 )}
 
                 {extraConfig.q3Enabled && (
-                  <div className="space-y-2">
+                  <div className="space-y-2 mx-[15px]">
                     <label className="text-xs font-medium">{t('predModal.q3')} <span className="text-primary font-bold">({extraConfig.q3Points} pts)</span></label>
                     <Input className="uppercase" value={extraTopScorer} onChange={e => setExtraTopScorer(e.target.value.toUpperCase())} disabled={extrasLocked} placeholder={t('predModal.q3Placeholder')} />
                     <Alert className="border-0 bg-transparent p-0">
