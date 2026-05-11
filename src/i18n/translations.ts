@@ -208,6 +208,8 @@ export const translations = {
   'join.cancelled': { pt: 'Este bolão foi cancelado', en: 'This pool has been cancelled' },
   'join.alreadyIn': { pt: 'Você já participa deste bolão', en: 'You already participate in this pool' },
   'join.error': { pt: 'Erro ao ingressar no bolão', en: 'Error joining pool' },
+  'join.alreadyStarted': { pt: 'O bolão já foi iniciado e não aceita novos participantes', en: 'The pool has already started and is not accepting new participants' },
+  'invite.alreadyStarted': { pt: 'O bolão já foi iniciado e não aceita novos participantes', en: 'The pool has already started and is not accepting new participants' },
 
   // Invite Page
   'invite.loading': { pt: 'CARREGANDO CONVITE...', en: 'LOADING INVITE...' },

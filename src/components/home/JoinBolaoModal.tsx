@@ -26,6 +26,18 @@ const JoinBolaoModal = ({ open, onOpenChange, onJoined }: Props) => {
     const { data: bolao } = await (supabase as any).from('boloes').select('*').eq('invite_code', code.trim().toUpperCase()).single();
     if (!bolao) { toast.error(t('join.notFound')); setLoading(false); return; }
     if (bolao.status === 'cancelled') { toast.error(t('join.cancelled')); setLoading(false); return; }
+
+    // Block join once first group-stage match has started
+    const { data: phases } = await (supabase as any).from('phases').select('id').eq('competition_id', bolao.competition_id).eq('number', 1);
+    const phaseIds = (phases || []).map((p: any) => p.id);
+    if (phaseIds.length > 0) {
+      const { data: firstMatch } = await (supabase as any).from('matches').select('match_date').in('phase_id', phaseIds).not('match_date', 'is', null).order('match_date', { ascending: true }).limit(1).maybeSingle();
+      if (firstMatch?.match_date && new Date(firstMatch.match_date).getTime() <= Date.now()) {
+        toast.error(t('join.alreadyStarted'));
+        setLoading(false); return;
+      }
+    }
+
     const { error } = await (supabase as any).from('bolao_participants').insert({ bolao_id: bolao.id, user_id: user.id });
     if (error) {
       if (error.code === '23505') toast.info(t('join.alreadyIn'));

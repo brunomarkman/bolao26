@@ -173,8 +173,8 @@ const BolaoManage = () => {
               <CardHeader><CardTitle className="font-display text-sm tracking-wider">{t('manage.poolSettings')}</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2"><label className="text-sm font-medium">{t('manage.nickname')}</label><Input value={nickname} onChange={e => setNickname(e.target.value)} /></div>
-                  <div className="space-y-2"><label className="text-sm font-medium">{t('manage.betValue')}</label><Input type="number" min="0" step="0.01" value={betValue} onChange={e => setBetValue(e.target.value)} /></div>
+                  <div className="space-y-2"><label className="text-sm font-medium">{t('manage.nickname')}</label><Input value={nickname} onChange={e => setNickname(e.target.value)} disabled={bolao.status === 'active' || bolao.status === 'finished'} /></div>
+                  <div className="space-y-2"><label className="text-sm font-medium">{t('manage.betValue')}</label><Input type="number" min="0" step="0.01" value={betValue} onChange={e => setBetValue(e.target.value)} disabled={bolao.status === 'active' || bolao.status === 'finished'} /></div>
                 </div>
 
                 <div className="space-y-3 border border-border/50 rounded-lg p-3">
@@ -266,7 +266,7 @@ const BolaoManage = () => {
             </Card>
             <Card className="mt-4">
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="font-display text-sm tracking-wider">{t('manage.payments')} ({payments.length}/{participants.length})</CardTitle>
+                <CardTitle className="font-display text-sm tracking-wider">{t('manage.payments')} ({payments.length}/{participants.filter(p => p.is_active !== false).length})</CardTitle>
                 {payments.length > 0 && <Button variant="destructive" size="sm" className="gap-1" onClick={deleteAllPayments}><Trash2 className="w-3 h-3" /> {t('manage.deleteAll')}</Button>}
               </CardHeader>
               <CardContent>

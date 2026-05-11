@@ -200,7 +200,7 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
           <DialogTitle className="font-display tracking-wider text-primary">{t('predModal.title')}</DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className={`grid grid-cols-1 ${(extraConfig.q1Enabled || extraConfig.q2Enabled || extraConfig.q3Enabled) ? 'md:grid-cols-2' : ''} gap-6`}>
           {/* LEFT: match predictions */}
           <div className="space-y-3">
             <h3 className="font-display tracking-wider text-sm text-primary">{t('predModal.matchesTitle')}</h3>
@@ -241,7 +241,8 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
           </div>
 
           {/* RIGHT: extra questions */}
-          <div className="space-y-4">
+          {(extraConfig.q1Enabled || extraConfig.q2Enabled || extraConfig.q3Enabled) && (
+          <div className="space-y-4 px-[15px]">
             <div className="flex items-center justify-between">
               <h3 className="font-display tracking-wider text-sm text-primary">{t('predModal.extrasTitle')}</h3>
               {extrasLocked && <span className="flex items-center gap-1 text-xs text-destructive font-bold"><Lock className="w-3 h-3" /> {t('predModal.lockedLabel')}</span>}
@@ -271,9 +272,8 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
                   <div className="space-y-2">
                     <label className="text-xs font-medium">{t('predModal.q2')} <span className="text-primary font-bold">({extraConfig.q2Points} pts)</span></label>
                     <Input className="uppercase" value={extraGoldenBall} onChange={e => setExtraGoldenBall(e.target.value.toUpperCase())} disabled={extrasLocked} placeholder={t('predModal.q2Placeholder')} />
-                    <Alert>
-                      <AlertTriangle className="h-4 w-4" />
-                      <AlertDescription className="text-xs">{t('predModal.playerNameWarning')}</AlertDescription>
+                    <Alert className="border-0 bg-transparent p-0">
+                      <AlertDescription className="text-xs text-muted-foreground">{t('predModal.playerNameWarning')}</AlertDescription>
                     </Alert>
                   </div>
                 )}
@@ -282,15 +282,15 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
                   <div className="space-y-2">
                     <label className="text-xs font-medium">{t('predModal.q3')} <span className="text-primary font-bold">({extraConfig.q3Points} pts)</span></label>
                     <Input className="uppercase" value={extraTopScorer} onChange={e => setExtraTopScorer(e.target.value.toUpperCase())} disabled={extrasLocked} placeholder={t('predModal.q3Placeholder')} />
-                    <Alert>
-                      <AlertTriangle className="h-4 w-4" />
-                      <AlertDescription className="text-xs">{t('predModal.playerNameWarning')}</AlertDescription>
+                    <Alert className="border-0 bg-transparent p-0">
+                      <AlertDescription className="text-xs text-muted-foreground">{t('predModal.playerNameWarning')}</AlertDescription>
                     </Alert>
                   </div>
                 )}
               </div>
             </ScrollArea>
           </div>
+          )}
         </div>
 
         <Button onClick={handleSave} disabled={loading} className="w-full font-display tracking-wider">

@@ -48,6 +48,21 @@ const InvitePage = () => {
   const handleJoin = async () => {
     if (!user || !bolaoInfo) return;
     setJoining(true);
+
+    // Block join once first group-stage match has started
+    const { data: bolaoRow } = await (supabase as any).from('boloes').select('competition_id').eq('id', bolaoInfo.id).single();
+    if (bolaoRow?.competition_id) {
+      const { data: phases } = await (supabase as any).from('phases').select('id').eq('competition_id', bolaoRow.competition_id).eq('number', 1);
+      const phaseIds = (phases || []).map((p: any) => p.id);
+      if (phaseIds.length > 0) {
+        const { data: firstMatch } = await (supabase as any).from('matches').select('match_date').in('phase_id', phaseIds).not('match_date', 'is', null).order('match_date', { ascending: true }).limit(1).maybeSingle();
+        if (firstMatch?.match_date && new Date(firstMatch.match_date).getTime() <= Date.now()) {
+          toast.error(t('invite.alreadyStarted'));
+          setJoining(false); return;
+        }
+      }
+    }
+
     const { error } = await (supabase as any).from('bolao_participants').insert({ bolao_id: bolaoInfo.id, user_id: user.id });
     if (error?.code === '23505') toast.info(t('invite.alreadyIn'));
     else if (error) toast.error(t('invite.joinError'));
