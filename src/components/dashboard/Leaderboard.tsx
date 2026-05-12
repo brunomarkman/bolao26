@@ -106,7 +106,12 @@ const Leaderboard = ({ bolaoId, competitionId, onOpenPredictions, onOpenBracket,
                 }`}>
                   <div className="flex items-center gap-3">
                     {getRankIcon(i)}
-                    <p className="text-sm font-medium">{p.name}</p>
+                    <p className="text-sm font-medium">
+                      {p.name}
+                      {isFinished && i < 3 && prizes[i] > 0 && (
+                        <span className="ml-1 text-accent font-semibold"> - $ {prizes[i].toFixed(2)}</span>
+                      )}
+                    </p>
                   </div>
                   <span className={`font-display text-lg font-bold ${i === 0 ? 'text-accent' : 'text-foreground'}`}>{p.total_score}</span>
                 </div>
