@@ -209,9 +209,26 @@ const Admin = () => {
 
   const addCompetition = async () => {
     if (!newCompName.trim() || !newCompYear) { toast.error(t('admin.fillNameYear')); return; }
-    await (supabase as any).from('competitions').insert({ name: newCompName.trim(), year: parseInt(newCompYear), start_date: newCompStart || null, end_date: newCompEnd || null, total_clubs: parseInt(newCompClubs) || 32, format: newCompFormat });
-    setNewCompName(''); setNewCompYear(''); setNewCompStart(''); setNewCompEnd(''); setNewCompClubs('32'); setNewCompFormat('Grupo + Mata-mata');
+    await (supabase as any).from('competitions').insert({ name: newCompName.trim(), year: parseInt(newCompYear), start_date: newCompStart || null, end_date: newCompEnd || null, total_clubs: parseInt(newCompClubs) || 32, format: newCompFormat, fee: parseFloat(newCompFee) || 0 });
+    setNewCompName(''); setNewCompYear(''); setNewCompStart(''); setNewCompEnd(''); setNewCompClubs('32'); setNewCompFormat('Grupo + Mata-mata'); setNewCompFee('0');
     toast.success(t('admin.compCreated')); fetchCompetitions();
+  };
+
+  const finalizeCompetition = async (competitionId: string) => {
+    if (!confirm(t('admin.confirmFinalize'))) return;
+    // Mark all bolões using this competition as finished
+    await (supabase as any).from('boloes').update({ status: 'finished' }).eq('competition_id', competitionId);
+    // Deactivate all phases
+    await (supabase as any).from('phases').update({ is_active: false }).eq('competition_id', competitionId);
+    toast.success(t('admin.competitionFinalized'));
+    fetchCompetitions();
+    if (selectedCompetition === competitionId) fetchPhasesAndMatches();
+  };
+
+  const canFinalize = (competitionId: string): boolean => {
+    // Need to check matches/extras synchronously from state — only works if user selected the comp
+    // We allow click anytime; the criteria are evaluated via finalizeReady map below
+    return finalizeReady[competitionId] === true;
   };
 
   const deleteCompetition = async (id: string) => {
