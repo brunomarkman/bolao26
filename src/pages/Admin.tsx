@@ -41,6 +41,7 @@ const Admin = () => {
   const [newCompEnd, setNewCompEnd] = useState('');
   const [newCompClubs, setNewCompClubs] = useState('32');
   const [newCompFormat, setNewCompFormat] = useState<string>('Grupo + Mata-mata');
+  const [newCompFee, setNewCompFee] = useState('0');
 
   // Extra questions (admin)
   const [extraChampionOptions, setExtraChampionOptions] = useState<string[]>([]);
