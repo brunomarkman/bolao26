@@ -468,6 +468,7 @@ const Admin = () => {
                     <SelectTrigger><SelectValue placeholder={t('admin.compFormat')} /></SelectTrigger>
                     <SelectContent>{COMPETITION_FORMATS.map(f => (<SelectItem key={f} value={f}>{f}</SelectItem>))}</SelectContent>
                   </Select>
+                  <Input type="number" step="0.01" placeholder={t('admin.compFee')} value={newCompFee} onChange={e => setNewCompFee(e.target.value)} />
                 </div>
                 <Button onClick={addCompetition} className="gap-2"><Plus className="w-4 h-4" /> {t('admin.createComp')}</Button>
               </CardContent>
