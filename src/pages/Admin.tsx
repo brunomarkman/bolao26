@@ -126,6 +126,43 @@ const Admin = () => {
     else { setPhases([]); setMatches([]); setSelectedPhase(''); setExtraChampion(''); setExtraGoldenBall(''); setExtraTopScorer(''); setExtraChampionOptions([]); }
   }, [selectedCompetition]);
 
+  useEffect(() => { if (competitions.length > 0) computeFinalizeReady(); }, [competitions]);
+
+  const computeFinalizeReady = async () => {
+    const result: Record<string, boolean> = {};
+    const compIds = competitions.map(c => c.id);
+    if (compIds.length === 0) { setFinalizeReady({}); return; }
+    const [phasesRes, boloesRes, extrasRes] = await Promise.all([
+      (supabase as any).from('phases').select('id, competition_id, number').in('competition_id', compIds),
+      (supabase as any).from('boloes').select('id, competition_id, extra_champion_enabled, extra_golden_ball_enabled, extra_top_scorer_enabled').in('competition_id', compIds),
+      (supabase as any).from('competition_extra_results').select('competition_id, champion, golden_ball, top_scorer').in('competition_id', compIds),
+    ]);
+    const allPhases = phasesRes.data || [];
+    const phaseIds = allPhases.map((p: any) => p.id);
+    const matchesRes = phaseIds.length > 0
+      ? await supabase.from('matches').select('phase_id, is_finished').in('phase_id', phaseIds)
+      : { data: [] as any[] };
+    const allMatches = matchesRes.data || [];
+    for (const c of competitions) {
+      const cPhases = allPhases.filter((p: any) => p.competition_id === c.id);
+      if (cPhases.length === 0) { result[c.id] = false; continue; }
+      const finalPhase = cPhases.reduce((a: any, b: any) => (a.number > b.number ? a : b));
+      const finalMatches = allMatches.filter((m: any) => m.phase_id === finalPhase.id);
+      const finalDone = finalMatches.length > 0 && finalMatches.every((m: any) => m.is_finished);
+      const cBoloes = (boloesRes.data || []).filter((b: any) => b.competition_id === c.id);
+      const champEnabled = cBoloes.some((b: any) => b.extra_champion_enabled);
+      const gbEnabled = cBoloes.some((b: any) => b.extra_golden_ball_enabled);
+      const tsEnabled = cBoloes.some((b: any) => b.extra_top_scorer_enabled);
+      const er = (extrasRes.data || []).find((e: any) => e.competition_id === c.id);
+      const extrasOk =
+        (!champEnabled || (er?.champion && String(er.champion).trim())) &&
+        (!gbEnabled || (er?.golden_ball && String(er.golden_ball).trim())) &&
+        (!tsEnabled || (er?.top_scorer && String(er.top_scorer).trim()));
+      result[c.id] = finalDone && !!extrasOk;
+    }
+    setFinalizeReady(result);
+  };
+
   const fetchExtraResults = async () => {
     if (!selectedCompetition) return;
     // Champion options from group phase (number=1)
