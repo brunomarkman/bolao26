@@ -1,0 +1,1 @@
+ALTER TABLE public.competitions ADD COLUMN IF NOT EXISTS fee numeric NOT NULL DEFAULT 0;

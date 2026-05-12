@@ -41,6 +41,7 @@ const Admin = () => {
   const [newCompEnd, setNewCompEnd] = useState('');
   const [newCompClubs, setNewCompClubs] = useState('32');
   const [newCompFormat, setNewCompFormat] = useState<string>('Grupo + Mata-mata');
+  const [newCompFee, setNewCompFee] = useState('0');
 
   // Extra questions (admin)
   const [extraChampionOptions, setExtraChampionOptions] = useState<string[]>([]);
@@ -72,6 +73,7 @@ const Admin = () => {
   const [allBoloes, setAllBoloes] = useState<any[]>([]);
   const [lockMinutes, setLockMinutes] = useState('10');
   const [lockMinutesLoading, setLockMinutesLoading] = useState(false);
+  const [finalizeReady, setFinalizeReady] = useState<Record<string, boolean>>({});
 
   const isSiteAdmin = profile?.email === 'brunomarkman@gmail.com';
 
@@ -123,6 +125,43 @@ const Admin = () => {
     if (selectedCompetition) { fetchPhasesAndMatches(); fetchExtraResults(); }
     else { setPhases([]); setMatches([]); setSelectedPhase(''); setExtraChampion(''); setExtraGoldenBall(''); setExtraTopScorer(''); setExtraChampionOptions([]); }
   }, [selectedCompetition]);
+
+  useEffect(() => { if (competitions.length > 0) computeFinalizeReady(); }, [competitions]);
+
+  const computeFinalizeReady = async () => {
+    const result: Record<string, boolean> = {};
+    const compIds = competitions.map(c => c.id);
+    if (compIds.length === 0) { setFinalizeReady({}); return; }
+    const [phasesRes, boloesRes, extrasRes] = await Promise.all([
+      (supabase as any).from('phases').select('id, competition_id, number').in('competition_id', compIds),
+      (supabase as any).from('boloes').select('id, competition_id, extra_champion_enabled, extra_golden_ball_enabled, extra_top_scorer_enabled').in('competition_id', compIds),
+      (supabase as any).from('competition_extra_results').select('competition_id, champion, golden_ball, top_scorer').in('competition_id', compIds),
+    ]);
+    const allPhases = phasesRes.data || [];
+    const phaseIds = allPhases.map((p: any) => p.id);
+    const matchesRes = phaseIds.length > 0
+      ? await supabase.from('matches').select('phase_id, is_finished').in('phase_id', phaseIds)
+      : { data: [] as any[] };
+    const allMatches = matchesRes.data || [];
+    for (const c of competitions) {
+      const cPhases = allPhases.filter((p: any) => p.competition_id === c.id);
+      if (cPhases.length === 0) { result[c.id] = false; continue; }
+      const finalPhase = cPhases.reduce((a: any, b: any) => (a.number > b.number ? a : b));
+      const finalMatches = allMatches.filter((m: any) => m.phase_id === finalPhase.id);
+      const finalDone = finalMatches.length > 0 && finalMatches.every((m: any) => m.is_finished);
+      const cBoloes = (boloesRes.data || []).filter((b: any) => b.competition_id === c.id);
+      const champEnabled = cBoloes.some((b: any) => b.extra_champion_enabled);
+      const gbEnabled = cBoloes.some((b: any) => b.extra_golden_ball_enabled);
+      const tsEnabled = cBoloes.some((b: any) => b.extra_top_scorer_enabled);
+      const er = (extrasRes.data || []).find((e: any) => e.competition_id === c.id);
+      const extrasOk =
+        (!champEnabled || (er?.champion && String(er.champion).trim())) &&
+        (!gbEnabled || (er?.golden_ball && String(er.golden_ball).trim())) &&
+        (!tsEnabled || (er?.top_scorer && String(er.top_scorer).trim()));
+      result[c.id] = finalDone && !!extrasOk;
+    }
+    setFinalizeReady(result);
+  };
 
   const fetchExtraResults = async () => {
     if (!selectedCompetition) return;
@@ -208,10 +247,22 @@ const Admin = () => {
 
   const addCompetition = async () => {
     if (!newCompName.trim() || !newCompYear) { toast.error(t('admin.fillNameYear')); return; }
-    await (supabase as any).from('competitions').insert({ name: newCompName.trim(), year: parseInt(newCompYear), start_date: newCompStart || null, end_date: newCompEnd || null, total_clubs: parseInt(newCompClubs) || 32, format: newCompFormat });
-    setNewCompName(''); setNewCompYear(''); setNewCompStart(''); setNewCompEnd(''); setNewCompClubs('32'); setNewCompFormat('Grupo + Mata-mata');
+    await (supabase as any).from('competitions').insert({ name: newCompName.trim(), year: parseInt(newCompYear), start_date: newCompStart || null, end_date: newCompEnd || null, total_clubs: parseInt(newCompClubs) || 32, format: newCompFormat, fee: parseFloat(newCompFee) || 0 });
+    setNewCompName(''); setNewCompYear(''); setNewCompStart(''); setNewCompEnd(''); setNewCompClubs('32'); setNewCompFormat('Grupo + Mata-mata'); setNewCompFee('0');
     toast.success(t('admin.compCreated')); fetchCompetitions();
   };
+
+  const finalizeCompetition = async (competitionId: string) => {
+    if (!confirm(t('admin.confirmFinalize'))) return;
+    // Mark all bolões using this competition as finished
+    await (supabase as any).from('boloes').update({ status: 'finished' }).eq('competition_id', competitionId);
+    // Deactivate all phases
+    await (supabase as any).from('phases').update({ is_active: false }).eq('competition_id', competitionId);
+    toast.success(t('admin.competitionFinalized'));
+    fetchCompetitions();
+    if (selectedCompetition === competitionId) fetchPhasesAndMatches();
+  };
+
 
   const deleteCompetition = async (id: string) => {
     if (!confirm(t('admin.deleteComp'))) return;
@@ -412,6 +463,7 @@ const Admin = () => {
                     <SelectTrigger><SelectValue placeholder={t('admin.compFormat')} /></SelectTrigger>
                     <SelectContent>{COMPETITION_FORMATS.map(f => (<SelectItem key={f} value={f}>{f}</SelectItem>))}</SelectContent>
                   </Select>
+                  <Input type="number" step="0.01" placeholder={t('admin.compFee')} value={newCompFee} onChange={e => setNewCompFee(e.target.value)} />
                 </div>
                 <Button onClick={addCompetition} className="gap-2"><Plus className="w-4 h-4" /> {t('admin.createComp')}</Button>
               </CardContent>
@@ -422,12 +474,23 @@ const Admin = () => {
                 <div className="h-[40vh] min-h-[18rem] overflow-y-auto pr-2">
                   <div className="space-y-2">
                     {competitions.map(c => (
-                      <div key={c.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
-                        <div>
+                      <div key={c.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50 gap-2">
+                        <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium">{c.name} ({c.year})</p>
-                          <p className="text-xs text-muted-foreground">{c.start_date || '—'} a {c.end_date || '—'} • {c.total_clubs || '—'} clubes • {c.format || '—'}</p>
+                          <p className="text-xs text-muted-foreground">{c.start_date || '—'} a {c.end_date || '—'} • {c.total_clubs || '—'} clubes • {c.format || '—'} • {t('admin.compFee')}: $ {Number((c as any).fee || 0).toFixed(2)}</p>
                         </div>
-                        <Button variant="ghost" size="icon" onClick={() => deleteCompetition(c.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={!finalizeReady[c.id]}
+                            onClick={() => finalizeCompetition(c.id)}
+                            className="text-xs"
+                          >
+                            {t('admin.showFinalResult')}
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => deleteCompetition(c.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
+                        </div>
                       </div>
                     ))}
                     {competitions.length === 0 && <p className="text-center text-muted-foreground py-8">{t('admin.noCompetitions')}</p>}

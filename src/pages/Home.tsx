@@ -65,7 +65,7 @@ const Home = () => {
 
     const rows: BolaoRow[] = (boloesData || []).map((b: Bolao) => {
       const comp = (competitions || []).find((c: Competition) => c.id === b.competition_id);
-      const participants = (allParticipants || []).filter((p: BolaoParticipant) => p.bolao_id === b.id);
+      const participants = (allParticipants || []).filter((p: BolaoParticipant) => p.bolao_id === b.id && p.is_active !== false);
       const payments = (allPayments || []).filter((p: any) => p.bolao_id === b.id);
       const manager = (profiles || []).find((p: Profile) => p.user_id === b.created_by);
 
