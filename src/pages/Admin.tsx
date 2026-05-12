@@ -73,6 +73,7 @@ const Admin = () => {
   const [allBoloes, setAllBoloes] = useState<any[]>([]);
   const [lockMinutes, setLockMinutes] = useState('10');
   const [lockMinutesLoading, setLockMinutesLoading] = useState(false);
+  const [finalizeReady, setFinalizeReady] = useState<Record<string, boolean>>({});
 
   const isSiteAdmin = profile?.email === 'brunomarkman@gmail.com';
 
