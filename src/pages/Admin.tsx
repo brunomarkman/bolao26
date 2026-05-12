@@ -479,12 +479,23 @@ const Admin = () => {
                 <div className="h-[40vh] min-h-[18rem] overflow-y-auto pr-2">
                   <div className="space-y-2">
                     {competitions.map(c => (
-                      <div key={c.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
-                        <div>
+                      <div key={c.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50 gap-2">
+                        <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium">{c.name} ({c.year})</p>
-                          <p className="text-xs text-muted-foreground">{c.start_date || '—'} a {c.end_date || '—'} • {c.total_clubs || '—'} clubes • {c.format || '—'}</p>
+                          <p className="text-xs text-muted-foreground">{c.start_date || '—'} a {c.end_date || '—'} • {c.total_clubs || '—'} clubes • {c.format || '—'} • {t('admin.compFee')}: $ {Number((c as any).fee || 0).toFixed(2)}</p>
                         </div>
-                        <Button variant="ghost" size="icon" onClick={() => deleteCompetition(c.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={!finalizeReady[c.id]}
+                            onClick={() => finalizeCompetition(c.id)}
+                            className="text-xs"
+                          >
+                            {t('admin.showFinalResult')}
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => deleteCompetition(c.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
+                        </div>
                       </div>
                     ))}
                     {competitions.length === 0 && <p className="text-center text-muted-foreground py-8">{t('admin.noCompetitions')}</p>}
