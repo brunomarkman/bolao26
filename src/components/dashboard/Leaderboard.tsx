@@ -28,6 +28,8 @@ interface RankedUser {
 const Leaderboard = ({ bolaoId, competitionId, onOpenPredictions, onOpenBracket, onOpenRules, onOpenResults }: LeaderboardProps) => {
   const [rankings, setRankings] = useState<RankedUser[]>([]);
   const [hasActivePhase, setHasActivePhase] = useState(false);
+  const [prizes, setPrizes] = useState<number[]>([0, 0, 0]);
+  const [isFinished, setIsFinished] = useState(false);
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -44,10 +46,22 @@ const Leaderboard = ({ bolaoId, competitionId, onOpenPredictions, onOpenBracket,
         });
         setRankings(ranked);
       }
+      // Check pool finished and compute prize pool
+      const { data: bolao } = await (supabase as any).from('boloes').select('status, bet_value').eq('id', bolaoId).maybeSingle();
+      if (bolao?.status === 'finished') {
+        setIsFinished(true);
+        const { count } = await (supabase as any).from('payments').select('id', { count: 'exact', head: true }).eq('bolao_id', bolaoId);
+        const total = (count || 0) * Number(bolao.bet_value || 0);
+        setPrizes([total * 0.7, total * 0.2, total * 0.1]);
+      } else {
+        setIsFinished(false);
+        setPrizes([0, 0, 0]);
+      }
     };
     fetchRankings();
     const channel = supabase.channel('bolao-participants-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'bolao_participants' }, () => fetchRankings())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'boloes', filter: `id=eq.${bolaoId}` }, () => fetchRankings())
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [bolaoId]);
