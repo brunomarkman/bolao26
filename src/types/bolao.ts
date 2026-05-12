@@ -16,6 +16,7 @@ export interface Competition {
   end_date: string | null;
   total_clubs: number | null;
   format: string | null;
+  fee?: number;
   created_at: string;
 }
 
