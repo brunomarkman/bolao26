@@ -263,11 +263,6 @@ const Admin = () => {
     if (selectedCompetition === competitionId) fetchPhasesAndMatches();
   };
 
-  const canFinalize = (competitionId: string): boolean => {
-    // Need to check matches/extras synchronously from state — only works if user selected the comp
-    // We allow click anytime; the criteria are evaluated via finalizeReady map below
-    return finalizeReady[competitionId] === true;
-  };
 
   const deleteCompetition = async (id: string) => {
     if (!confirm(t('admin.deleteComp'))) return;
