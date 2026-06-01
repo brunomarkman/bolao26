@@ -43,10 +43,19 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
   useEffect(() => {
     if (!competitionId) return;
     const fetchMatches = async () => {
-      const { data: phases } = await (supabase as any).from('phases').select('id').eq('competition_id', competitionId).eq('is_active', true);
-      if (!phases || phases.length === 0) { setMatches([]); return; }
-      const phaseIds = phases.map((p: any) => p.id);
-      const { data } = await supabase.from('matches').select('*').in('phase_id', phaseIds).eq('is_finished', false).order('match_date', { ascending: true });
+      const { data: allPhases } = await (supabase as any).from('phases').select('id, is_active').eq('competition_id', competitionId);
+      if (!allPhases || allPhases.length === 0) { setMatches([]); return; }
+      const activePhases = allPhases.filter((p: any) => p.is_active);
+      let phaseIds: string[];
+      let query = supabase.from('matches').select('*');
+      if (activePhases.length > 0) {
+        phaseIds = activePhases.map((p: any) => p.id);
+        query = query.in('phase_id', phaseIds).eq('is_finished', false);
+      } else {
+        phaseIds = allPhases.map((p: any) => p.id);
+        query = query.in('phase_id', phaseIds);
+      }
+      const { data } = await query.order('match_date', { ascending: true });
       if (data) {
         setMatches(data);
         if (data.length > 0 && !selectedMatch) setSelectedMatch(data[0].id);
@@ -104,7 +113,7 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
 
 
         <ScrollArea className="h-[calc((100vh-26rem)*0.9)]">
-          {hasActivePhase ? null : predictions.length === 0 && selectedMatch ? (
+          {predictions.length === 0 && selectedMatch ? (
             <p className="text-sm text-muted-foreground text-center py-4">{t('predictions.noRegistered')}</p>
           ) : (
             <div className="space-y-2">
