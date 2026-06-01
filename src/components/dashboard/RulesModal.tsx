@@ -78,7 +78,9 @@ const RulesModal = ({ open, onOpenChange, bolao }: RulesModalProps) => {
                 <span className="text-muted-foreground">{t('rules.semis')}:</span><span className="font-semibold">×5</span>
                 <span className="text-muted-foreground">{t('rules.thirdPlace')} / {t('rules.final')}:</span><span className="font-semibold">×6</span>
               </div>
+              <p className="text-xs text-muted-foreground italic mt-2">{t('rules.scoringDuration')}</p>
             </section>
+
 
             <section className="space-y-2">
               <h3 className="font-display text-xs tracking-wider text-primary flex items-center gap-2">
