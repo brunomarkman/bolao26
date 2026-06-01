@@ -13,7 +13,7 @@ type Mode = 'login' | 'signup' | 'forgot';
 
 const Auth = () => {
   const { t } = useLanguage();
-  const [mode, setMode] = useState<Mode>('login');
+  const [mode, setMode] = useState<Mode>(() => (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('signup') === '1') ? 'signup' : 'login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');

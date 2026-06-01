@@ -193,12 +193,25 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
     setPredictions(prev => prev.map(p => p.matchId === matchId ? { ...p, [field]: value } : p));
   };
 
+  const ActionButtons = ({ idSuffix }: { idSuffix: string }) => (
+    <div className="flex gap-2" key={idSuffix}>
+      <Button onClick={() => onOpenChange(false)} variant="outline" disabled={loading} className="flex-1 font-display tracking-wider">
+        {t('predModal.cancel')}
+      </Button>
+      <Button onClick={handleSave} disabled={loading} className="flex-1 font-display tracking-wider">
+        {loading ? t('predModal.saving') : t('predModal.save')}
+      </Button>
+    </div>
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[90vh]">
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-display tracking-wider text-primary">{t('predModal.title')}</DialogTitle>
         </DialogHeader>
+
+        <ActionButtons idSuffix="top" />
 
         <div className={`grid grid-cols-1 ${(extraConfig.q1Enabled || extraConfig.q2Enabled || extraConfig.q3Enabled) ? 'md:grid-cols-2' : ''} gap-6`}>
           {/* LEFT: match predictions */}
@@ -247,7 +260,7 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
               <h3 className="font-display tracking-wider text-sm text-primary">{t('predModal.extrasTitle')}</h3>
               {extrasLocked && <span className="flex items-center gap-1 text-xs text-destructive font-bold"><Lock className="w-3 h-3" /> {t('predModal.lockedLabel')}</span>}
             </div>
-            <ScrollArea className="h-[55vh] pr-4">
+            <div className="max-h-[55vh] overflow-y-auto pr-2">
               <div className="space-y-5">
                 {extrasLocked && (
                   <Alert>
@@ -287,15 +300,17 @@ const PredictionModal = ({ open, onOpenChange, bolaoId, competitionId }: Predict
                     </Alert>
                   </div>
                 )}
+
+                <div className="pt-2 mx-[15px]">
+                  <ActionButtons idSuffix="extras" />
+                </div>
               </div>
-            </ScrollArea>
+            </div>
           </div>
           )}
         </div>
 
-        <Button onClick={handleSave} disabled={loading} className="w-full font-display tracking-wider">
-          {loading ? t('predModal.saving') : t('predModal.save')}
-        </Button>
+        <ActionButtons idSuffix="bottom" />
       </DialogContent>
     </Dialog>
   );
