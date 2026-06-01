@@ -25,10 +25,20 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
   const [selectedMatch, setSelectedMatch] = useState<string>('');
   const [predictions, setPredictions] = useState<(Prediction & { profile?: Profile })[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [hasActivePhase, setHasActivePhase] = useState(false);
   const { t, language } = useLanguage();
 
   const handleRefresh = () => setRefreshKey(k => k + 1);
   const dateLocale = language === 'en' ? enUS : ptBR;
+
+  useEffect(() => {
+    if (!competitionId) { setHasActivePhase(false); return; }
+    (async () => {
+      const { data } = await (supabase as any).from('phases').select('id').eq('competition_id', competitionId).eq('is_active', true);
+      setHasActivePhase((data || []).length > 0);
+    })();
+  }, [competitionId, refreshKey]);
+
 
   useEffect(() => {
     if (!competitionId) return;
