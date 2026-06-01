@@ -113,7 +113,7 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
 
 
         <ScrollArea className="h-[calc((100vh-26rem)*0.9)]">
-          {hasActivePhase ? null : predictions.length === 0 && selectedMatch ? (
+          {predictions.length === 0 && selectedMatch ? (
             <p className="text-sm text-muted-foreground text-center py-4">{t('predictions.noRegistered')}</p>
           ) : (
             <div className="space-y-2">
