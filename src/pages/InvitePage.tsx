@@ -76,6 +76,12 @@ const InvitePage = () => {
     navigate('/');
   };
 
+  const handleGoToSignup = () => {
+    if (code) localStorage.setItem('pending_invite_code', code);
+    navigate('/?signup=1');
+  };
+
+
   if (authLoading || loadingInfo) {
     return (
       <div className="min-h-screen flex items-center justify-center">
