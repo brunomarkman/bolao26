@@ -120,7 +120,7 @@ const Leaderboard = ({ bolaoId, competitionId, onOpenPredictions, onOpenBracket,
           )}
         </ScrollArea>
         <div className="p-4 border-t border-border space-y-2">
-          <Button onClick={onOpenPredictions} className="w-full font-display tracking-wider" disabled={!hasActivePhase} title={!hasActivePhase ? t('leaderboard.noActivePhase') : ''}>{t('leaderboard.launchPredictions')}</Button>
+          <Button onClick={onOpenPredictions} className="w-full font-display tracking-wider" disabled={hasActivePhase} title={hasActivePhase ? t('leaderboard.activePhaseDisabled') : ''}>{t('leaderboard.launchPredictions')}</Button>
           <Button onClick={onOpenBracket} variant="outline" className="w-full font-display tracking-wider">{t('leaderboard.matchTable')}</Button>
           <Button onClick={onOpenRules} variant="outline" className="w-full font-display tracking-wider">{t('leaderboard.rules')}</Button>
           <Button onClick={onOpenResults} variant="outline" className="w-full font-display tracking-wider"><FileText className="w-4 h-4 mr-2" />{t('report.title')}</Button>
