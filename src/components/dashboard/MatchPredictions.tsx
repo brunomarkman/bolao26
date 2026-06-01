@@ -82,10 +82,10 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Button onClick={handleRefresh} variant="outline" size="sm" className="w-full font-display tracking-wider gap-2">
+        <Button onClick={handleRefresh} variant="outline" size="sm" className="w-full font-display tracking-wider gap-2" disabled={hasActivePhase}>
           <RefreshCw className="w-4 h-4" /> {t('predictions.refresh')}
         </Button>
-        <Select value={selectedMatch} onValueChange={setSelectedMatch}>
+        <Select value={selectedMatch} onValueChange={setSelectedMatch} disabled={hasActivePhase}>
           <SelectTrigger><SelectValue placeholder={t('predictions.selectMatch')} /></SelectTrigger>
           <SelectContent>
             {matches.map(m => (
@@ -99,11 +99,12 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
           </SelectContent>
         </Select>
 
-        {matches.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">{t('predictions.noPending')}</p>}
+        {hasActivePhase && <p className="text-xs text-muted-foreground text-center py-2">{t('predictions.disabledWhileActive')}</p>}
+        {!hasActivePhase && matches.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">{t('predictions.noPending')}</p>}
 
 
         <ScrollArea className="h-[calc((100vh-26rem)*0.9)]">
-          {predictions.length === 0 && selectedMatch ? (
+          {hasActivePhase ? null : predictions.length === 0 && selectedMatch ? (
             <p className="text-sm text-muted-foreground text-center py-4">{t('predictions.noRegistered')}</p>
           ) : (
             <div className="space-y-2">
@@ -117,6 +118,7 @@ const MatchPredictions = ({ bolaoId, competitionId }: MatchPredictionsProps) => 
           )}
         </ScrollArea>
       </CardContent>
+
     </Card>
   );
 };
