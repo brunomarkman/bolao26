@@ -6,7 +6,9 @@ import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trophy, Users, Calendar, UserPlus, LogIn, UserCheck } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Trophy, Users, Calendar, UserPlus, Mail, Lock, User as UserIcon, UserCheck } from 'lucide-react';
 import trophyImg from '@/assets/trophy.png';
 import LanguageSelector from '@/components/LanguageSelector';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -26,6 +28,15 @@ const InvitePage = () => {
   const [loadingInfo, setLoadingInfo] = useState(true);
   const [joining, setJoining] = useState(false);
   const [notFound, setNotFound] = useState(false);
+
+  // Signup form
+  const [name, setName] = useState('');
+  const [city, setCity] = useState('');
+  const [country, setCountry] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [signingUp, setSigningUp] = useState(false);
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
 
   useEffect(() => {
     const fetchBolaoInfo = async () => {
@@ -49,7 +60,6 @@ const InvitePage = () => {
     if (!user || !bolaoInfo) return;
     setJoining(true);
 
-    // Block join once first group-stage match has started
     const { data: bolaoRow } = await (supabase as any).from('boloes').select('competition_id').eq('id', bolaoInfo.id).single();
     if (bolaoRow?.competition_id) {
       const { data: phases } = await (supabase as any).from('phases').select('id').eq('competition_id', bolaoRow.competition_id).eq('number', 1);
@@ -71,16 +81,40 @@ const InvitePage = () => {
     navigate('/home');
   };
 
-  const handleGoToLogin = () => {
-    if (code) localStorage.setItem('pending_invite_code', code);
-    navigate('/');
-  };
+  const allFilled = name.trim() && city.trim() && country.trim() && email.trim() && password.length >= 6;
 
-  const handleGoToSignup = () => {
-    if (code) localStorage.setItem('pending_invite_code', code);
-    navigate('/?signup=1');
+  const handleSignup = async () => {
+    if (!bolaoInfo || !allFilled) {
+      toast.error(t('invite.fillAll'));
+      return;
+    }
+    setSigningUp(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: {
+          data: { name: name.trim(), city: city.trim(), country: country.trim() },
+          emailRedirectTo: window.location.origin,
+        },
+      });
+      if (error) throw error;
+      const newUserId = data.user?.id;
+      if (newUserId) {
+        // Join via edge function (service role) since email may not be confirmed yet
+        const { error: fnErr } = await supabase.functions.invoke('invite-join', {
+          body: { user_id: newUserId, bolao_id: bolaoInfo.id },
+        });
+        if (fnErr) console.error('join error', fnErr);
+      }
+      if (code) localStorage.setItem('pending_invite_code', code);
+      setShowVerifyModal(true);
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setSigningUp(false);
+    }
   };
-
 
   if (authLoading || loadingInfo) {
     return (
@@ -192,30 +226,52 @@ const InvitePage = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-2">
-                <h3 className="font-display text-sm tracking-wider text-primary font-bold">{t('invite.howTo')}</h3>
-                <ol className="text-sm text-muted-foreground space-y-1.5 list-decimal list-inside">
-                  <li>{t('invite.step1')} <strong>{t('invite.step1Bold')}</strong> {t('invite.step1After')}</li>
-                  <li>{t('invite.step2')} <strong>{t('invite.step2Bold')}</strong></li>
-                  <li>{t('invite.step3')} <strong>{t('invite.step3Bold')}</strong> {t('invite.step3After')}</li>
-                  <li>{t('invite.step4')} <strong>{t('invite.step4Bold')}</strong> {t('invite.step4After')}
-                    <span className="font-display font-bold text-primary ml-1 tracking-widest">{code?.toUpperCase()}</span>
-                  </li>
-                </ol>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <Button onClick={handleGoToLogin} variant="outline" className="w-full font-display tracking-wider text-lg h-12 gap-2">
-                  <LogIn className="w-5 h-5" /> {t('invite.loginBtn')}
+              <h3 className="font-display text-sm tracking-wider text-primary font-bold text-center">{t('invite.signupTitle')}</h3>
+              <form onSubmit={(e) => { e.preventDefault(); handleSignup(); }} className="space-y-3">
+                <div className="relative">
+                  <UserIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input placeholder={t('auth.name')} value={name} onChange={e => setName(e.target.value)} className="pl-10" required />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input placeholder={t('auth.city')} value={city} onChange={e => setCity(e.target.value)} required />
+                  <Input placeholder={t('auth.country')} value={country} onChange={e => setCountry(e.target.value)} required />
+                </div>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input type="email" placeholder={t('auth.email')} value={email} onChange={e => setEmail(e.target.value)} className="pl-10" required />
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input type="password" placeholder={t('auth.password')} value={password} onChange={e => setPassword(e.target.value)} className="pl-10" required minLength={6} />
+                </div>
+                <Button type="submit" disabled={!allFilled || signingUp} className="w-full font-display tracking-wider text-lg h-12 gap-2">
+                  <UserPlus className="w-5 h-5" /> {signingUp ? t('invite.creating') : t('invite.signupBtn')}
                 </Button>
-                <Button onClick={handleGoToSignup} className="w-full font-display tracking-wider text-lg h-12 gap-2">
-                  <UserPlus className="w-5 h-5" /> {t('invite.signupBtn')}
-                </Button>
-              </div>
+              </form>
             </div>
           )}
 
         </CardContent>
       </Card>
+
+      <Dialog open={showVerifyModal} onOpenChange={(open) => { if (!open) { setShowVerifyModal(false); navigate('/'); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display tracking-wider text-primary flex items-center gap-2">
+              <Mail className="w-5 h-5" /> {t('invite.verifyTitle')}
+            </DialogTitle>
+            <DialogDescription className="pt-2">
+              {t('invite.verifyDesc')}
+              <div className="mt-3 font-medium text-foreground">{email}</div>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => { setShowVerifyModal(false); navigate('/'); }} className="font-display tracking-wider">
+              {t('invite.verifyOk')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
