@@ -76,11 +76,6 @@ const InvitePage = () => {
     navigate('/');
   };
 
-  const handleGoToSignup = () => {
-    if (code) localStorage.setItem('pending_invite_code', code);
-    navigate('/?signup=1');
-  };
-
 
   if (authLoading || loadingInfo) {
     return (
@@ -205,9 +200,6 @@ const InvitePage = () => {
               </div>
               <Button onClick={handleGoToLogin} className="w-full font-display tracking-wider text-lg h-12 gap-2">
                 <LogIn className="w-5 h-5" /> {t('invite.loginBtn')}
-              </Button>
-              <Button onClick={handleGoToSignup} variant="outline" className="w-full font-display tracking-wider text-lg h-12 gap-2">
-                <UserPlus className="w-5 h-5" /> {t('invite.signupBtn')}
               </Button>
             </div>
           )}
