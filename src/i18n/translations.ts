@@ -6,7 +6,7 @@ export const translations = {
   'auth.login.title': { pt: 'Entre na competição', en: 'Join the competition' },
   'auth.signup.title': { pt: 'Crie sua conta e participe', en: 'Create your account and join' },
   'auth.forgot.title': { pt: 'Recuperar sua senha', en: 'Recover your password' },
-  'auth.name': { pt: 'Seu nome', en: 'Your name' },
+  'auth.name': { pt: 'Seu nome completo', en: 'Your full name' },
   'auth.city': { pt: 'Cidade', en: 'City' },
   'auth.country': { pt: 'País', en: 'Country' },
   'auth.email': { pt: 'E-mail', en: 'Email' },
