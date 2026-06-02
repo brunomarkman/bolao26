@@ -248,7 +248,7 @@ export const translations = {
   'invite.step4': { pt: 'Após o login, caso não tenha sido vinculado ao Bolão, clique em', en: "After login, if you haven't been linked to the Pool, click on" },
   'invite.step4Bold': { pt: '"Ingressar Bolão"', en: '"Join Pool"' },
   'invite.step4After': { pt: 'e informe o código:', en: 'and enter the code:' },
-  'invite.loginBtn': { pt: 'ENTRAR / CRIAR CONTA', en: 'LOG IN / CREATE ACCOUNT' },
+  'invite.loginBtn': { pt: 'ENTRAR', en: 'LOG IN' },
   'invite.joinedSuccess': { pt: 'Você entrou no bolão', en: 'You joined the pool' },
   'invite.alreadyIn': { pt: 'Você já participa deste bolão!', en: 'You already participate in this pool!' },
   'invite.joinError': { pt: 'Erro ao ingressar no bolão', en: 'Error joining pool' },
