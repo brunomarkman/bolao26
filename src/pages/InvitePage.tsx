@@ -206,9 +206,6 @@ const InvitePage = () => {
               <Button onClick={handleGoToLogin} className="w-full font-display tracking-wider text-lg h-12 gap-2">
                 <LogIn className="w-5 h-5" /> {t('invite.loginBtn')}
               </Button>
-              <Button onClick={handleGoToSignup} variant="outline" className="w-full font-display tracking-wider text-lg h-12 gap-2">
-                <UserPlus className="w-5 h-5" /> {t('invite.signupBtn')}
-              </Button>
             </div>
           )}
 
