@@ -252,6 +252,12 @@ export const translations = {
   'invite.joinedSuccess': { pt: 'Você entrou no bolão', en: 'You joined the pool' },
   'invite.alreadyIn': { pt: 'Você já participa deste bolão!', en: 'You already participate in this pool!' },
   'invite.joinError': { pt: 'Erro ao ingressar no bolão', en: 'Error joining pool' },
+  'invite.signupTitle': { pt: 'CRIAR SUA CONTA', en: 'CREATE YOUR ACCOUNT' },
+  'invite.fillAll': { pt: 'Preencha todos os campos para continuar', en: 'Fill in all fields to continue' },
+  'invite.creating': { pt: 'CRIANDO CONTA...', en: 'CREATING ACCOUNT...' },
+  'invite.verifyTitle': { pt: 'VERIFIQUE SEU E-MAIL', en: 'VERIFY YOUR EMAIL' },
+  'invite.verifyDesc': { pt: 'Sua conta foi criada e você já está vinculado ao bolão. Acesse o e-mail informado no cadastro para confirmar sua conta antes de fazer login.', en: 'Your account was created and you are already linked to the pool. Check the email you used to sign up and confirm your account before logging in.' },
+  'invite.verifyOk': { pt: 'ENTENDI', en: 'OK' },
 
   // Admin
   'admin.title': { pt: 'ÁREA DE ADMINISTRAÇÃO DO SITE', en: 'SITE ADMINISTRATION' },
