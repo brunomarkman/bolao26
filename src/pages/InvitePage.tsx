@@ -203,9 +203,14 @@ const InvitePage = () => {
                   </li>
                 </ol>
               </div>
-              <Button onClick={handleGoToLogin} className="w-full font-display tracking-wider text-lg h-12 gap-2">
-                <LogIn className="w-5 h-5" /> {t('invite.loginBtn')}
-              </Button>
+              <div className="grid grid-cols-2 gap-3">
+                <Button onClick={handleGoToLogin} variant="outline" className="w-full font-display tracking-wider text-lg h-12 gap-2">
+                  <LogIn className="w-5 h-5" /> {t('invite.loginBtn')}
+                </Button>
+                <Button onClick={handleGoToSignup} className="w-full font-display tracking-wider text-lg h-12 gap-2">
+                  <UserPlus className="w-5 h-5" /> {t('invite.signupBtn')}
+                </Button>
+              </div>
             </div>
           )}
 
