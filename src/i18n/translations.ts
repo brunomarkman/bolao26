@@ -397,6 +397,12 @@ export const translations = {
   'manage.messageSent': { pt: 'Mensagem enviada', en: 'Message sent' },
   'manage.messageRemoved': { pt: 'Mensagem removida', en: 'Message removed' },
   'manage.inviteCopied': { pt: 'Link de convite copiado!', en: 'Invite link copied!' },
+  'manage.emailList': { pt: 'Lista de Emails', en: 'Email List' },
+  'manage.emailListTitle': { pt: 'Lista de Emails dos Participantes Ativos', en: 'Active Participants Email List' },
+  'manage.copy': { pt: 'Copiar', en: 'Copy' },
+  'manage.close': { pt: 'Fechar', en: 'Close' },
+  'manage.emailsCopied': { pt: 'Emails copiados!', en: 'Emails copied!' },
+  'manage.pts': { pt: 'pts', en: 'pts' },
 
   // PaymentsTab (admin)
   'paymentsTab.betValue': { pt: 'VALOR DA APOSTA', en: 'BET VALUE' },
