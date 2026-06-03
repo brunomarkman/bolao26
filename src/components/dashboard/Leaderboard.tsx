@@ -23,6 +23,7 @@ interface RankedUser {
   name: string;
   total_score: number;
   user_id: string;
+  paid: boolean;
 }
 
 const Leaderboard = ({ bolaoId, competitionId, onOpenPredictions, onOpenBracket, onOpenRules, onOpenResults }: LeaderboardProps) => {
