@@ -325,6 +325,40 @@ const BolaoManage = () => {
           </TabsContent>
         </Tabs>
       </main>
+
+      <Dialog open={emailListOpen} onOpenChange={setEmailListOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display tracking-wider">{t('manage.emailListTitle')}</DialogTitle>
+          </DialogHeader>
+          {(() => {
+            const emails = participants
+              .filter(p => p.is_active !== false)
+              .map(p => p.profile?.email)
+              .filter(Boolean)
+              .join(', ');
+            return (
+              <>
+                <Textarea readOnly value={emails} className="min-h-[200px]" />
+                <DialogFooter className="gap-2 sm:gap-2">
+                  <Button
+                    onClick={() => {
+                      navigator.clipboard.writeText(emails);
+                      toast.success(t('manage.emailsCopied'));
+                    }}
+                    className="gap-1"
+                  >
+                    <Copy className="w-4 h-4" /> {t('manage.copy')}
+                  </Button>
+                  <Button variant="outline" onClick={() => setEmailListOpen(false)}>
+                    {t('manage.close')}
+                  </Button>
+                </DialogFooter>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
