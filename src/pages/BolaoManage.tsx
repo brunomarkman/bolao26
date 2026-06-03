@@ -47,6 +47,7 @@ const BolaoManage = () => {
   const [extraQ3Enabled, setExtraQ3Enabled] = useState(true);
   const [extraQ3Points, setExtraQ3Points] = useState('25');
   const [activeTab, setActiveTab] = useState('settings');
+  const [emailListOpen, setEmailListOpen] = useState(false);
 
   useEffect(() => { if (bolaoId && user) fetchAll(); }, [bolaoId, user]);
 
