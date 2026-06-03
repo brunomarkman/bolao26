@@ -23,6 +23,7 @@ interface RankedUser {
   name: string;
   total_score: number;
   user_id: string;
+  paid: boolean;
 }
 
 const Leaderboard = ({ bolaoId, competitionId, onOpenPredictions, onOpenBracket, onOpenRules, onOpenResults }: LeaderboardProps) => {
@@ -39,10 +40,12 @@ const Leaderboard = ({ bolaoId, competitionId, onOpenPredictions, onOpenBracket,
         .from('bolao_participants').select('*').eq('bolao_id', bolaoId).order('total_score', { ascending: false });
       const participants = (participantsRaw || []).filter((p: any) => p.is_active !== false);
       const { data: profiles } = await supabase.from('profiles').select('*');
+      const { data: paymentsData } = await (supabase as any).from('payments').select('user_id').eq('bolao_id', bolaoId);
+      const paidIds = new Set<string>((paymentsData || []).map((p: any) => p.user_id));
       if (participants && profiles) {
         const ranked = participants.map((p: BolaoParticipant) => {
           const profile = profiles.find((pr: Profile) => pr.user_id === p.user_id);
-          return { name: profile?.name || t('home.unknown'), total_score: p.total_score, user_id: p.user_id };
+          return { name: profile?.name || t('home.unknown'), total_score: p.total_score, user_id: p.user_id, paid: paidIds.has(p.user_id) };
         });
         setRankings(ranked);
       }
@@ -108,6 +111,9 @@ const Leaderboard = ({ bolaoId, competitionId, onOpenPredictions, onOpenBracket,
                     {getRankIcon(i)}
                     <p className="text-sm font-medium">
                       {p.name}
+                      {!p.paid && (
+                        <span className="ml-1 text-destructive font-semibold">(Não pago)</span>
+                      )}
                       {isFinished && i < 3 && prizes[i] > 0 && (
                         <span className="ml-1 text-accent font-semibold"> - $ {prizes[i].toFixed(2)}</span>
                       )}
@@ -123,7 +129,7 @@ const Leaderboard = ({ bolaoId, competitionId, onOpenPredictions, onOpenBracket,
           <Button onClick={onOpenPredictions} className="w-full font-display tracking-wider" disabled={!hasActivePhase} title={!hasActivePhase ? t('leaderboard.noActivePhase') : ''}>{t('leaderboard.launchPredictions')}</Button>
           <Button onClick={onOpenBracket} variant="outline" className="w-full font-display tracking-wider">{t('leaderboard.matchTable')}</Button>
           <Button onClick={onOpenRules} variant="outline" className="w-full font-display tracking-wider">{t('leaderboard.rules')}</Button>
-          <Button onClick={onOpenResults} variant="outline" className="w-full font-display tracking-wider"><FileText className="w-4 h-4 mr-2" />{t('report.title')}</Button>
+          <Button onClick={onOpenResults} variant="outline" className="w-full font-display tracking-wider" disabled={hasActivePhase} title={hasActivePhase ? t('leaderboard.noActivePhase') : ''}><FileText className="w-4 h-4 mr-2" />{t('report.title')}</Button>
         </div>
       </CardContent>
     </Card>
