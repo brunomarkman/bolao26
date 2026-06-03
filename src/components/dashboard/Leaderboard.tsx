@@ -40,10 +40,12 @@ const Leaderboard = ({ bolaoId, competitionId, onOpenPredictions, onOpenBracket,
         .from('bolao_participants').select('*').eq('bolao_id', bolaoId).order('total_score', { ascending: false });
       const participants = (participantsRaw || []).filter((p: any) => p.is_active !== false);
       const { data: profiles } = await supabase.from('profiles').select('*');
+      const { data: paymentsData } = await (supabase as any).from('payments').select('user_id').eq('bolao_id', bolaoId);
+      const paidIds = new Set<string>((paymentsData || []).map((p: any) => p.user_id));
       if (participants && profiles) {
         const ranked = participants.map((p: BolaoParticipant) => {
           const profile = profiles.find((pr: Profile) => pr.user_id === p.user_id);
-          return { name: profile?.name || t('home.unknown'), total_score: p.total_score, user_id: p.user_id };
+          return { name: profile?.name || t('home.unknown'), total_score: p.total_score, user_id: p.user_id, paid: paidIds.has(p.user_id) };
         });
         setRankings(ranked);
       }
