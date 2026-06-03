@@ -111,6 +111,9 @@ const Leaderboard = ({ bolaoId, competitionId, onOpenPredictions, onOpenBracket,
                     {getRankIcon(i)}
                     <p className="text-sm font-medium">
                       {p.name}
+                      {!p.paid && (
+                        <span className="ml-1 text-destructive font-semibold">(Não pago)</span>
+                      )}
                       {isFinished && i < 3 && prizes[i] > 0 && (
                         <span className="ml-1 text-accent font-semibold"> - $ {prizes[i].toFixed(2)}</span>
                       )}
