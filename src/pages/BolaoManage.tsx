@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
@@ -47,6 +48,7 @@ const BolaoManage = () => {
   const [extraQ3Enabled, setExtraQ3Enabled] = useState(true);
   const [extraQ3Points, setExtraQ3Points] = useState('25');
   const [activeTab, setActiveTab] = useState('settings');
+  const [emailListOpen, setEmailListOpen] = useState(false);
 
   useEffect(() => { if (bolaoId && user) fetchAll(); }, [bolaoId, user]);
 
@@ -214,7 +216,14 @@ const BolaoManage = () => {
 
           <TabsContent value="participants">
             <Card>
-              <CardHeader><CardTitle className="font-display text-sm tracking-wider">{t('manage.participants')} ({participants.length})</CardTitle></CardHeader>
+              <CardHeader>
+                <div className="flex items-center justify-between gap-2">
+                  <CardTitle className="font-display text-sm tracking-wider">{t('manage.participants')} ({participants.length})</CardTitle>
+                  <Button variant="outline" size="sm" onClick={() => setEmailListOpen(true)} className="gap-1">
+                    <Copy className="w-3 h-3" /> {t('manage.emailList')}
+                  </Button>
+                </div>
+              </CardHeader>
               <CardContent>
                 <div className="h-[50vh] overflow-y-auto pr-2 space-y-2">
                   {participants.map(p => {
@@ -227,7 +236,7 @@ const BolaoManage = () => {
                           <span className="text-xs text-muted-foreground ml-2">{p.profile?.email || ''}</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="font-display font-bold text-primary">{p.total_score} pts</span>
+                          <span className="font-display font-bold text-primary">{p.total_score} {t('manage.pts')}</span>
                           <div className="flex items-center gap-2">
                             <Switch
                               checked={isActive}
@@ -249,6 +258,7 @@ const BolaoManage = () => {
               </CardContent>
             </Card>
           </TabsContent>
+
 
           <TabsContent value="payments">
             <Card>
@@ -315,6 +325,40 @@ const BolaoManage = () => {
           </TabsContent>
         </Tabs>
       </main>
+
+      <Dialog open={emailListOpen} onOpenChange={setEmailListOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display tracking-wider">{t('manage.emailListTitle')}</DialogTitle>
+          </DialogHeader>
+          {(() => {
+            const emails = participants
+              .filter(p => p.is_active !== false)
+              .map(p => p.profile?.email)
+              .filter(Boolean)
+              .join(', ');
+            return (
+              <>
+                <Textarea readOnly value={emails} className="min-h-[200px]" />
+                <DialogFooter className="gap-2 sm:gap-2">
+                  <Button
+                    onClick={() => {
+                      navigator.clipboard.writeText(emails);
+                      toast.success(t('manage.emailsCopied'));
+                    }}
+                    className="gap-1"
+                  >
+                    <Copy className="w-4 h-4" /> {t('manage.copy')}
+                  </Button>
+                  <Button variant="outline" onClick={() => setEmailListOpen(false)}>
+                    {t('manage.close')}
+                  </Button>
+                </DialogFooter>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
