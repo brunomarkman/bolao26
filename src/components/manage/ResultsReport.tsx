@@ -45,9 +45,9 @@ const ResultsReport = ({ bolaoId, bolaoNickname, competitionId }: Props) => {
     // Bolão extra-question flags
     const { data: bolao } = await (supabase as any).from('boloes').select('extra_champion_enabled, extra_golden_ball_enabled, extra_top_scorer_enabled').eq('id', bolaoId).maybeSingle();
     const cols: ExtraCol[] = [];
-    if (bolao?.extra_champion_enabled) cols.push({ key: 'champion', label: t('extra.champion') || 'Campeão' });
-    if (bolao?.extra_golden_ball_enabled) cols.push({ key: 'golden_ball', label: t('extra.goldenBall') || 'Bola de Ouro' });
-    if (bolao?.extra_top_scorer_enabled) cols.push({ key: 'top_scorer', label: t('extra.topScorer') || 'Artilheiro' });
+    if (bolao?.extra_champion_enabled) cols.push({ key: 'champion', label: 'Campeão' });
+    if (bolao?.extra_golden_ball_enabled) cols.push({ key: 'golden_ball', label: 'Bola de Ouro' });
+    if (bolao?.extra_top_scorer_enabled) cols.push({ key: 'top_scorer', label: 'Artilheiro' });
     setExtraCols(cols);
 
     const { data: extraRes } = await (supabase as any).from('competition_extra_results').select('*').eq('competition_id', competitionId).maybeSingle();
