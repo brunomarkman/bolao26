@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Mail, Lock, User } from 'lucide-react';
@@ -20,6 +21,7 @@ const Auth = () => {
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('');
   const [loading, setLoading] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +40,11 @@ const Auth = () => {
         if (error) throw error;
         toast.success(t('auth.welcomeBack'));
       } else {
+        if (!acceptTerms) {
+          toast.error(t('auth.mustAcceptTerms'));
+          setLoading(false);
+          return;
+        }
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -142,7 +149,14 @@ const Auth = () => {
               </div>
             )}
 
-            <Button type="submit" className="w-full font-display tracking-wider" disabled={loading}>
+            {mode === 'signup' && (
+              <label className="flex items-start gap-2 text-sm text-muted-foreground cursor-pointer">
+                <Checkbox checked={acceptTerms} onCheckedChange={(v) => setAcceptTerms(v === true)} className="mt-0.5" />
+                <span>{t('auth.acceptTerms')}</span>
+              </label>
+            )}
+
+            <Button type="submit" className="w-full font-display tracking-wider" disabled={loading || (mode === 'signup' && !acceptTerms)}>
               {loading ? t('auth.loading') : mode === 'forgot' ? t('auth.sendLink') : mode === 'login' ? t('auth.login') : t('auth.signup')}
             </Button>
           </form>

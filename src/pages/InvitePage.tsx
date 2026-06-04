@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Trophy, Users, Calendar, UserPlus, Mail, Lock, User as UserIcon, UserCheck } from 'lucide-react';
 import trophyImg from '@/assets/trophy.png';
@@ -36,6 +37,7 @@ const InvitePage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [signingUp, setSigningUp] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
 
   useEffect(() => {
@@ -81,7 +83,7 @@ const InvitePage = () => {
     navigate('/home');
   };
 
-  const allFilled = name.trim() && city.trim() && country.trim() && email.trim() && password.length >= 6;
+  const allFilled = name.trim() && city.trim() && country.trim() && email.trim() && password.length >= 6 && acceptTerms;
 
   const handleSignup = async () => {
     if (!bolaoInfo || !allFilled) {
@@ -244,6 +246,10 @@ const InvitePage = () => {
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input type="password" placeholder={t('auth.password')} value={password} onChange={e => setPassword(e.target.value)} className="pl-10" required minLength={6} />
                 </div>
+                <label className="flex items-start gap-2 text-sm text-muted-foreground cursor-pointer">
+                  <Checkbox checked={acceptTerms} onCheckedChange={(v) => setAcceptTerms(v === true)} className="mt-0.5" />
+                  <span>{t('auth.acceptTerms')}</span>
+                </label>
                 <Button type="submit" disabled={!allFilled || signingUp} className="w-full font-display tracking-wider text-lg h-12 gap-2">
                   <UserPlus className="w-5 h-5" /> {signingUp ? t('invite.creating') : t('invite.signupBtn')}
                 </Button>
