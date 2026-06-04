@@ -246,6 +246,10 @@ const InvitePage = () => {
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input type="password" placeholder={t('auth.password')} value={password} onChange={e => setPassword(e.target.value)} className="pl-10" required minLength={6} />
                 </div>
+                <label className="flex items-start gap-2 text-sm text-muted-foreground cursor-pointer">
+                  <Checkbox checked={acceptTerms} onCheckedChange={(v) => setAcceptTerms(v === true)} className="mt-0.5" />
+                  <span>{t('auth.acceptTerms')}</span>
+                </label>
                 <Button type="submit" disabled={!allFilled || signingUp} className="w-full font-display tracking-wider text-lg h-12 gap-2">
                   <UserPlus className="w-5 h-5" /> {signingUp ? t('invite.creating') : t('invite.signupBtn')}
                 </Button>
