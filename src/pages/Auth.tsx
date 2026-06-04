@@ -40,6 +40,11 @@ const Auth = () => {
         if (error) throw error;
         toast.success(t('auth.welcomeBack'));
       } else {
+        if (!acceptTerms) {
+          toast.error(t('auth.mustAcceptTerms'));
+          setLoading(false);
+          return;
+        }
         const { error } = await supabase.auth.signUp({
           email,
           password,
