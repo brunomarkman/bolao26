@@ -158,7 +158,35 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-4 pt-0 flex-1 min-h-0 overflow-y-auto">
-          {matches.length === 0 ? null : (
+      {/* Today's matches OR Winners (when finished): 25% */}
+      <Card className="border-primary/10 flex flex-col h-[calc(25%-0.75rem)]">
+        <CardHeader className="pb-3 shrink-0">
+          <CardTitle className="text-sm font-display tracking-wider flex items-center gap-2 text-primary">
+            {isFinished ? <Trophy className="w-4 h-4" /> : <CalendarDays className="w-4 h-4" />}
+            {isFinished ? t('messages.winners') : t('messages.todayMatches')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 pt-0 flex-1 min-h-0 overflow-y-auto">
+          {isFinished ? (
+            <div className="space-y-2">
+              {winners.map((w, i) => {
+                const Icon = i === 0 ? Trophy : i === 1 ? Medal : Award;
+                const colorClass = i === 0 ? 'text-gold' : i === 1 ? 'text-silver' : 'text-bronze';
+                return (
+                  <div key={i} className="flex items-center justify-between px-2 py-1.5 rounded-md bg-muted/40 border border-border/40">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Icon className={`w-4 h-4 shrink-0 ${colorClass}`} />
+                      <span className="text-sm font-medium truncate">{w.name}</span>
+                    </div>
+                    <div className="text-xs whitespace-nowrap flex items-center gap-2">
+                      <span className="font-display font-bold text-primary">{w.score} {t('messages.points')}</span>
+                      <span className="text-accent font-semibold">$ {w.prize.toFixed(2)}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : matches.length === 0 ? null : (
             <div className="divide-y divide-border/40">
               {matches.map(m => (
                 <div key={m.id} className="px-2 py-1.5 text-xs flex items-center justify-between gap-2">
@@ -173,6 +201,7 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
           )}
         </CardContent>
       </Card>
+
 
       {/* Messages: 75% */}
       <Card className="border-primary/10 flex flex-col h-[calc(75%-0.75rem)]">
