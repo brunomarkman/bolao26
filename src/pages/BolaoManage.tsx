@@ -71,6 +71,9 @@ const BolaoManage = () => {
       setExtraQ2Points(String(bolaoRes.data.extra_golden_ball_points ?? 25));
       setExtraQ3Enabled(bolaoRes.data.extra_top_scorer_enabled ?? true);
       setExtraQ3Points(String(bolaoRes.data.extra_top_scorer_points ?? 25));
+      setPrize1stPct(String(bolaoRes.data.prize_1st_pct ?? 70));
+      setPrize2ndPct(String(bolaoRes.data.prize_2nd_pct ?? 20));
+      setPrize3rdPct(String(bolaoRes.data.prize_3rd_pct ?? 10));
       if (bolaoRes.data.created_by !== user!.id) { navigate(`/bolao/${bolaoId}`); return; }
     }
     if (participantsRes.data && profilesRes.data) {
@@ -98,6 +101,9 @@ const BolaoManage = () => {
       extra_golden_ball_points: parseInt(extraQ2Points) || 0,
       extra_top_scorer_enabled: extraQ3Enabled,
       extra_top_scorer_points: parseInt(extraQ3Points) || 0,
+      prize_1st_pct: parseInt(prize1stPct) || 70,
+      prize_2nd_pct: parseInt(prize2ndPct) || 20,
+      prize_3rd_pct: parseInt(prize3rdPct) || 10,
     }).eq('id', bolao.id);
     toast.success(t('manage.settingsSaved')); fetchAll();
   };
