@@ -83,7 +83,7 @@ const InvitePage = () => {
     navigate('/home');
   };
 
-  const allFilled = name.trim() && city.trim() && country.trim() && email.trim() && password.length >= 6;
+  const allFilled = name.trim() && city.trim() && country.trim() && email.trim() && password.length >= 6 && acceptTerms;
 
   const handleSignup = async () => {
     if (!bolaoInfo || !allFilled) {
