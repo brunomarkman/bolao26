@@ -36,8 +36,29 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
   useEffect(() => {
     if (!bolaoId) return;
     (async () => {
-      const { data } = await (supabase as any).from('boloes').select('created_by,competition_id').eq('id', bolaoId).single();
-      if (data) { setCreatorId(data.created_by); setCompetitionId(data.competition_id); }
+      const { data } = await (supabase as any).from('boloes').select('created_by,competition_id,status,bet_value').eq('id', bolaoId).single();
+      if (data) {
+        setCreatorId(data.created_by);
+        setCompetitionId(data.competition_id);
+        const finished = data.status === 'finished';
+        setIsFinished(finished);
+        if (finished) {
+          const [partsRes, profsRes, payRes] = await Promise.all([
+            (supabase as any).from('bolao_participants').select('user_id,total_score,is_active').eq('bolao_id', bolaoId).order('total_score', { ascending: false }),
+            supabase.from('profiles').select('user_id,name'),
+            (supabase as any).from('payments').select('id', { count: 'exact', head: true }).eq('bolao_id', bolaoId),
+          ]);
+          const parts = (partsRes.data || []).filter((p: any) => p.is_active !== false).slice(0, 3);
+          const total = (payRes.count || 0) * Number(data.bet_value || 0);
+          const pct = [0.7, 0.2, 0.1];
+          const top = parts.map((p: any, i: number) => ({
+            name: (profsRes.data || []).find((pr: any) => pr.user_id === p.user_id)?.name || '—',
+            score: p.total_score,
+            prize: total * pct[i],
+          }));
+          setWinners(top);
+        }
+      }
     })();
   }, [bolaoId]);
 
