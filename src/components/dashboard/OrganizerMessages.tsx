@@ -36,7 +36,7 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
   useEffect(() => {
     if (!bolaoId) return;
     (async () => {
-      const { data } = await (supabase as any).from('boloes').select('created_by,competition_id,status,bet_value').eq('id', bolaoId).single();
+      const { data } = await (supabase as any).from('boloes').select('created_by,competition_id,status,bet_value,prize_1st_pct,prize_2nd_pct,prize_3rd_pct').eq('id', bolaoId).single();
       if (data) {
         setCreatorId(data.created_by);
         setCompetitionId(data.competition_id);
@@ -50,11 +50,15 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
           ]);
           const parts = (partsRes.data || []).filter((p: any) => p.is_active !== false).slice(0, 3);
           const total = (payRes.count || 0) * Number(data.bet_value || 0);
-          const pct = [0.7, 0.2, 0.1];
+          const pct = [
+            (data.prize_1st_pct ?? 70) / 100,
+            (data.prize_2nd_pct ?? 20) / 100,
+            (data.prize_3rd_pct ?? 10) / 100,
+          ];
           const top = parts.map((p: any, i: number) => ({
             name: (profsRes.data || []).find((pr: any) => pr.user_id === p.user_id)?.name || '—',
             score: p.total_score,
-            prize: total * pct[i],
+            prize: total * (pct[i] || 0),
           }));
           setWinners(top);
         }
