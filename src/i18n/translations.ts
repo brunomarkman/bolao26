@@ -22,6 +22,8 @@ export const translations = {
   'auth.resetSent': { pt: 'E-mail de redefinição enviado! Verifique sua caixa de entrada.', en: 'Reset email sent! Check your inbox.' },
   'auth.welcomeBack': { pt: 'Bem-vindo de volta!', en: 'Welcome back!' },
   'auth.accountCreated': { pt: 'Conta criada! Verifique seu e-mail para confirmar.', en: 'Account created! Check your email to confirm.' },
+  'auth.acceptTerms': { pt: 'Aceito os termos de uso e confidencialidade, como também as Regras da plataforma e do Bolão.', en: 'I accept the terms of use and confidentiality, as well as the Platform and Pool Rules.' },
+  'auth.mustAcceptTerms': { pt: 'Você deve aceitar os termos para criar a conta.', en: 'You must accept the terms to create the account.' },
 
   // Reset Password
   'reset.title': { pt: 'NOVA SENHA', en: 'NEW PASSWORD' },
