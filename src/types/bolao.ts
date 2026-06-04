@@ -37,6 +37,9 @@ export interface Bolao {
   extra_golden_ball_points?: number;
   extra_top_scorer_enabled?: boolean;
   extra_top_scorer_points?: number;
+  prize_1st_pct?: number;
+  prize_2nd_pct?: number;
+  prize_3rd_pct?: number;
 }
 
 export interface BolaoParticipant {

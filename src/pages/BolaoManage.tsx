@@ -47,6 +47,9 @@ const BolaoManage = () => {
   const [extraQ2Points, setExtraQ2Points] = useState('25');
   const [extraQ3Enabled, setExtraQ3Enabled] = useState(true);
   const [extraQ3Points, setExtraQ3Points] = useState('25');
+  const [prize1stPct, setPrize1stPct] = useState('70');
+  const [prize2ndPct, setPrize2ndPct] = useState('20');
+  const [prize3rdPct, setPrize3rdPct] = useState('10');
   const [activeTab, setActiveTab] = useState('settings');
   const [emailListOpen, setEmailListOpen] = useState(false);
 
