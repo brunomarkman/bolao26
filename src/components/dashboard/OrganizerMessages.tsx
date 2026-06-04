@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, CalendarDays, Send } from 'lucide-react';
+import { MessageSquare, CalendarDays, Send, Trophy, Medal, Award } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import type { Tables } from '@/integrations/supabase/types';
@@ -28,14 +28,37 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
   const [competitionId, setCompetitionId] = useState<string | null>(null);
   const [newMsg, setNewMsg] = useState('');
   const [sending, setSending] = useState(false);
+  const [isFinished, setIsFinished] = useState(false);
+  const [winners, setWinners] = useState<{ name: string; score: number; prize: number }[]>([]);
   const { t, language } = useLanguage();
   const { user } = useAuth();
 
   useEffect(() => {
     if (!bolaoId) return;
     (async () => {
-      const { data } = await (supabase as any).from('boloes').select('created_by,competition_id').eq('id', bolaoId).single();
-      if (data) { setCreatorId(data.created_by); setCompetitionId(data.competition_id); }
+      const { data } = await (supabase as any).from('boloes').select('created_by,competition_id,status,bet_value').eq('id', bolaoId).single();
+      if (data) {
+        setCreatorId(data.created_by);
+        setCompetitionId(data.competition_id);
+        const finished = data.status === 'finished';
+        setIsFinished(finished);
+        if (finished) {
+          const [partsRes, profsRes, payRes] = await Promise.all([
+            (supabase as any).from('bolao_participants').select('user_id,total_score,is_active').eq('bolao_id', bolaoId).order('total_score', { ascending: false }),
+            supabase.from('profiles').select('user_id,name'),
+            (supabase as any).from('payments').select('id', { count: 'exact', head: true }).eq('bolao_id', bolaoId),
+          ]);
+          const parts = (partsRes.data || []).filter((p: any) => p.is_active !== false).slice(0, 3);
+          const total = (payRes.count || 0) * Number(data.bet_value || 0);
+          const pct = [0.7, 0.2, 0.1];
+          const top = parts.map((p: any, i: number) => ({
+            name: (profsRes.data || []).find((pr: any) => pr.user_id === p.user_id)?.name || '—',
+            score: p.total_score,
+            prize: total * pct[i],
+          }));
+          setWinners(top);
+        }
+      }
     })();
   }, [bolaoId]);
 
@@ -127,15 +150,35 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
 
   return (
     <div className="h-full flex flex-col gap-6">
-      {/* Today's matches: 25% */}
+      {/* Today's matches OR Winners (when finished): 25% */}
       <Card className="border-primary/10 flex flex-col h-[calc(25%-0.75rem)]">
         <CardHeader className="pb-3 shrink-0">
           <CardTitle className="text-sm font-display tracking-wider flex items-center gap-2 text-primary">
-            <CalendarDays className="w-4 h-4" /> {t('messages.todayMatches')}
+            {isFinished ? <Trophy className="w-4 h-4" /> : <CalendarDays className="w-4 h-4" />}
+            {isFinished ? t('messages.winners') : t('messages.todayMatches')}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-4 pt-0 flex-1 min-h-0 overflow-y-auto">
-          {matches.length === 0 ? null : (
+          {isFinished ? (
+            <div className="space-y-2">
+              {winners.map((w, i) => {
+                const Icon = i === 0 ? Trophy : i === 1 ? Medal : Award;
+                const colorClass = i === 0 ? 'text-gold' : i === 1 ? 'text-silver' : 'text-bronze';
+                return (
+                  <div key={i} className="flex items-center justify-between px-2 py-1.5 rounded-md bg-muted/40 border border-border/40">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Icon className={`w-4 h-4 shrink-0 ${colorClass}`} />
+                      <span className="text-sm font-medium truncate">{w.name}</span>
+                    </div>
+                    <div className="text-xs whitespace-nowrap flex items-center gap-2">
+                      <span className="font-display font-bold text-primary">{w.score} {t('messages.points')}</span>
+                      <span className="text-accent font-semibold">$ {w.prize.toFixed(2)}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : matches.length === 0 ? null : (
             <div className="divide-y divide-border/40">
               {matches.map(m => (
                 <div key={m.id} className="px-2 py-1.5 text-xs flex items-center justify-between gap-2">
@@ -150,6 +193,7 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
           )}
         </CardContent>
       </Card>
+
 
       {/* Messages: 75% */}
       <Card className="border-primary/10 flex flex-col h-[calc(75%-0.75rem)]">
