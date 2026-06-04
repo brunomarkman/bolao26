@@ -150,14 +150,6 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
 
   return (
     <div className="h-full flex flex-col gap-6">
-      {/* Today's matches: 25% */}
-      <Card className="border-primary/10 flex flex-col h-[calc(25%-0.75rem)]">
-        <CardHeader className="pb-3 shrink-0">
-          <CardTitle className="text-sm font-display tracking-wider flex items-center gap-2 text-primary">
-            <CalendarDays className="w-4 h-4" /> {t('messages.todayMatches')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 pt-0 flex-1 min-h-0 overflow-y-auto">
       {/* Today's matches OR Winners (when finished): 25% */}
       <Card className="border-primary/10 flex flex-col h-[calc(25%-0.75rem)]">
         <CardHeader className="pb-3 shrink-0">
