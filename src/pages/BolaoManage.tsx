@@ -188,24 +188,43 @@ const BolaoManage = () => {
                   <div className="space-y-2"><label className="text-sm font-medium">{t('manage.betValue')}</label><Input type="number" min="0" step="0.01" value={betValue} onChange={e => setBetValue(e.target.value)} disabled={bolao.status === 'active' || bolao.status === 'finished'} /></div>
                 </div>
 
-                <div className="space-y-3 border border-border/50 rounded-lg p-3">
-                  <p className="text-sm font-medium font-display tracking-wider text-primary">{t('manage.extraQuestions')}</p>
-                  {[
-                    { label: t('manage.extraQ1'), enabled: extraQ1Enabled, setEnabled: setExtraQ1Enabled, points: extraQ1Points, setPoints: setExtraQ1Points, key: 'q1' },
-                    { label: t('manage.extraQ2'), enabled: extraQ2Enabled, setEnabled: setExtraQ2Enabled, points: extraQ2Points, setPoints: setExtraQ2Points, key: 'q2' },
-                    { label: t('manage.extraQ3'), enabled: extraQ3Enabled, setEnabled: setExtraQ3Enabled, points: extraQ3Points, setPoints: setExtraQ3Points, key: 'q3' },
-                  ].map(q => (
-                    <div key={q.key} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                      <label className="flex items-center gap-2 flex-1 text-sm cursor-pointer">
-                        <Checkbox checked={q.enabled} onCheckedChange={(v) => q.setEnabled(!!v)} />
-                        <span>{q.label}</span>
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">{t('manage.extraPoints')}:</span>
-                        <Input type="number" min="0" value={q.points} onChange={e => q.setPoints(e.target.value)} disabled={!q.enabled} className="w-20 h-8" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3 border border-border/50 rounded-lg p-3">
+                    <p className="text-sm font-medium font-display tracking-wider text-primary">{t('manage.extraQuestions')}</p>
+                    {[
+                      { label: t('manage.extraQ1'), enabled: extraQ1Enabled, setEnabled: setExtraQ1Enabled, points: extraQ1Points, setPoints: setExtraQ1Points, key: 'q1' },
+                      { label: t('manage.extraQ2'), enabled: extraQ2Enabled, setEnabled: setExtraQ2Enabled, points: extraQ2Points, setPoints: setExtraQ2Points, key: 'q2' },
+                      { label: t('manage.extraQ3'), enabled: extraQ3Enabled, setEnabled: setExtraQ3Enabled, points: extraQ3Points, setPoints: setExtraQ3Points, key: 'q3' },
+                    ].map(q => (
+                      <div key={q.key} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                        <label className="flex items-center gap-2 flex-1 text-sm cursor-pointer">
+                          <Checkbox checked={q.enabled} onCheckedChange={(v) => q.setEnabled(!!v)} />
+                          <span>{q.label}</span>
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">{t('manage.extraPoints')}:</span>
+                          <Input type="number" min="0" value={q.points} onChange={e => q.setPoints(e.target.value)} disabled={!q.enabled} className="w-20 h-8" />
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+
+                  <div className="space-y-3 border border-border/50 rounded-lg p-3">
+                    <p className="text-sm font-medium font-display tracking-wider text-primary">{t('manage.prizeConfig')}</p>
+                    {[
+                      { label: t('manage.prize1st'), pct: prize1stPct, setPct: setPrize1stPct, key: 'p1' },
+                      { label: t('manage.prize2nd'), pct: prize2ndPct, setPct: setPrize2ndPct, key: 'p2' },
+                      { label: t('manage.prize3rd'), pct: prize3rdPct, setPct: setPrize3rdPct, key: 'p3' },
+                    ].map(p => (
+                      <div key={p.key} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                        <span className="flex-1 text-sm">{p.label}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">{t('manage.prizePct')}:</span>
+                          <Input type="number" min="0" max="100" value={p.pct} onChange={e => p.setPct(e.target.value)} disabled={bolao.status === 'active' || bolao.status === 'finished'} className="w-20 h-8" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-medium">{t('manage.inviteCode')}</span>
