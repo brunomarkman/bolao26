@@ -37,6 +37,7 @@ const InvitePage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [signingUp, setSigningUp] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
 
   useEffect(() => {
