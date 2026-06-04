@@ -28,6 +28,8 @@ const OrganizerMessages = ({ bolaoId }: OrganizerMessagesProps) => {
   const [competitionId, setCompetitionId] = useState<string | null>(null);
   const [newMsg, setNewMsg] = useState('');
   const [sending, setSending] = useState(false);
+  const [isFinished, setIsFinished] = useState(false);
+  const [winners, setWinners] = useState<{ name: string; score: number; prize: number }[]>([]);
   const { t, language } = useLanguage();
   const { user } = useAuth();
 
