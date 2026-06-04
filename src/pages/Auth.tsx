@@ -149,7 +149,14 @@ const Auth = () => {
               </div>
             )}
 
-            <Button type="submit" className="w-full font-display tracking-wider" disabled={loading}>
+            {mode === 'signup' && (
+              <label className="flex items-start gap-2 text-sm text-muted-foreground cursor-pointer">
+                <Checkbox checked={acceptTerms} onCheckedChange={(v) => setAcceptTerms(v === true)} className="mt-0.5" />
+                <span>{t('auth.acceptTerms')}</span>
+              </label>
+            )}
+
+            <Button type="submit" className="w-full font-display tracking-wider" disabled={loading || (mode === 'signup' && !acceptTerms)}>
               {loading ? t('auth.loading') : mode === 'forgot' ? t('auth.sendLink') : mode === 'login' ? t('auth.login') : t('auth.signup')}
             </Button>
           </form>
