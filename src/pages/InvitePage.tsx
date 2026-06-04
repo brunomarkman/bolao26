@@ -43,16 +43,18 @@ const InvitePage = () => {
   useEffect(() => {
     const fetchBolaoInfo = async () => {
       if (!code) { setNotFound(true); setLoadingInfo(false); return; }
-      const { data: bolao } = await (supabase as any).from('boloes').select('*').eq('invite_code', code.toUpperCase()).single();
-      if (!bolao) { setNotFound(true); setLoadingInfo(false); return; }
-      let competition;
-      if (bolao.competition_id) {
-        const { data: comp } = await (supabase as any).from('competitions').select('*').eq('id', bolao.competition_id).single();
-        competition = comp;
-      }
-      const { data: managerProfile } = await supabase.from('profiles').select('name').eq('user_id', bolao.created_by).single();
-      const { count } = await (supabase as any).from('bolao_participants').select('*', { count: 'exact', head: true }).eq('bolao_id', bolao.id);
-      setBolaoInfo({ id: bolao.id, nickname: bolao.nickname, bet_value: Number(bolao.bet_value), status: bolao.status, invite_code: bolao.invite_code, competition, managerName: managerProfile?.name || t('home.unknown'), participantCount: count || 0 });
+      const { data, error } = await supabase.functions.invoke('invite-info', { body: { code } });
+      if (error || !data || data.notFound) { setNotFound(true); setLoadingInfo(false); return; }
+      setBolaoInfo({
+        id: data.id,
+        nickname: data.nickname,
+        bet_value: Number(data.bet_value),
+        status: data.status,
+        invite_code: data.invite_code,
+        competition: data.competition,
+        managerName: data.managerName || t('home.unknown'),
+        participantCount: data.participantCount || 0,
+      });
       setLoadingInfo(false);
     };
     fetchBolaoInfo();
