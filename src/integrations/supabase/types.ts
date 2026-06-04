@@ -65,6 +65,9 @@ export type Database = {
           invite_code: string
           nickname: string
           number: number
+          prize_1st_pct: number
+          prize_2nd_pct: number
+          prize_3rd_pct: number
           status: Database["public"]["Enums"]["bolao_status"]
           updated_at: string
         }
@@ -83,6 +86,9 @@ export type Database = {
           invite_code: string
           nickname: string
           number?: number
+          prize_1st_pct?: number
+          prize_2nd_pct?: number
+          prize_3rd_pct?: number
           status?: Database["public"]["Enums"]["bolao_status"]
           updated_at?: string
         }
@@ -101,6 +107,9 @@ export type Database = {
           invite_code?: string
           nickname?: string
           number?: number
+          prize_1st_pct?: number
+          prize_2nd_pct?: number
+          prize_3rd_pct?: number
           status?: Database["public"]["Enums"]["bolao_status"]
           updated_at?: string
         }
