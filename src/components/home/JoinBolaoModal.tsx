@@ -23,8 +23,8 @@ const JoinBolaoModal = ({ open, onOpenChange, onJoined }: Props) => {
   const handleJoin = async () => {
     if (!user || !code.trim()) { toast.error(t('join.enterCode')); return; }
     setLoading(true);
-    const { data: bolao } = await (supabase as any).from('boloes').select('*').eq('invite_code', code.trim().toUpperCase()).single();
-    if (!bolao) { toast.error(t('join.notFound')); setLoading(false); return; }
+    const { data: bolao } = await supabase.functions.invoke('invite-info', { body: { code: code.trim().toUpperCase() } });
+    if (!bolao || bolao.notFound) { toast.error(t('join.notFound')); setLoading(false); return; }
     if (bolao.status === 'cancelled') { toast.error(t('join.cancelled')); setLoading(false); return; }
 
     // Block join once first group-stage match has started

@@ -117,8 +117,8 @@ const Home = () => {
   }, [user]);
 
   const handleJoinByCode = async (code: string) => {
-    const { data: bolao } = await (supabase as any).from('boloes').select('*').eq('invite_code', code.toUpperCase()).single();
-    if (!bolao) { toast.error(t('home.poolNotFound')); return; }
+    const { data: bolao } = await supabase.functions.invoke('invite-info', { body: { code: code.toUpperCase() } });
+    if (!bolao || bolao.notFound) { toast.error(t('home.poolNotFound')); return; }
     if (bolao.status === 'cancelled') { toast.error(t('home.poolCancelled')); return; }
     const { error } = await (supabase as any).from('bolao_participants').insert({ bolao_id: bolao.id, user_id: user!.id });
     if (error) {
