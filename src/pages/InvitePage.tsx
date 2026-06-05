@@ -94,6 +94,12 @@ const InvitePage = () => {
     }
     setSigningUp(true);
     try {
+      const { data: taken } = await (supabase as any).rpc('is_name_taken', { _name: name });
+      if (taken) {
+        toast.error(t('auth.nameTaken'));
+        setSigningUp(false);
+        return;
+      }
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
