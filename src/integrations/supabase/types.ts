@@ -524,6 +524,7 @@ export type Database = {
         }
         Returns: number
       }
+      is_name_taken: { Args: { _name: string }; Returns: boolean }
       process_extra_question: {
         Args: { p_competition_id: string; p_field: string }
         Returns: undefined
