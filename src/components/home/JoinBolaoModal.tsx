@@ -24,7 +24,7 @@ const JoinBolaoModal = ({ open, onOpenChange, onJoined }: Props) => {
     if (!user || !code.trim()) { toast.error(t('join.enterCode')); return; }
     setLoading(true);
     const { data: bolao } = await supabase.functions.invoke('invite-info', { body: { code: code.trim().toUpperCase() } });
-    if (!bolao) { toast.error(t('join.notFound')); setLoading(false); return; }
+    if (!bolao || bolao.notFound) { toast.error(t('join.notFound')); setLoading(false); return; }
     if (bolao.status === 'cancelled') { toast.error(t('join.cancelled')); setLoading(false); return; }
 
     // Block join once first group-stage match has started
