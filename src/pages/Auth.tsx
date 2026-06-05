@@ -45,6 +45,12 @@ const Auth = () => {
           setLoading(false);
           return;
         }
+        const { data: taken } = await (supabase as any).rpc('is_name_taken', { _name: name });
+        if (taken) {
+          toast.error(t('auth.nameTaken'));
+          setLoading(false);
+          return;
+        }
         const { error } = await supabase.auth.signUp({
           email,
           password,

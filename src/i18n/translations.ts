@@ -24,6 +24,7 @@ export const translations = {
   'auth.accountCreated': { pt: 'Conta criada! Verifique seu e-mail para confirmar.', en: 'Account created! Check your email to confirm.' },
   'auth.acceptTerms': { pt: 'Aceito os termos de uso e confidencialidade, como também as Regras da plataforma e do Bolão.', en: 'I accept the terms of use and confidentiality, as well as the Platform and Pool Rules.' },
   'auth.mustAcceptTerms': { pt: 'Você deve aceitar os termos para criar a conta.', en: 'You must accept the terms to create the account.' },
+  'auth.nameTaken': { pt: 'Este nome já está em uso. Escolha outro nome.', en: 'This name is already taken. Please choose another name.' },
 
   // Reset Password
   'reset.title': { pt: 'NOVA SENHA', en: 'NEW PASSWORD' },
