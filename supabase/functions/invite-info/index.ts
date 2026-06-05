@@ -56,7 +56,6 @@ Deno.serve(async (req) => {
       bet_value: Number(bolao.bet_value),
       status: bolao.status,
       invite_code: bolao.invite_code,
-      competition_id: bolao.competition_id,
       competition,
       managerName: managerProfile?.name ?? null,
       participantCount: count ?? 0,
