@@ -42,6 +42,10 @@ const Home = () => {
     if (!user) return;
     setLoading(true);
 
+    // Ensure the auth token is fully restored from storage before issuing RLS-gated queries.
+    await supabase.auth.getSession();
+
+
     const { data: participations } = await (supabase as any)
       .from('bolao_participants').select('bolao_id').eq('user_id', user.id);
     const { data: createdBoloes } = await (supabase as any)
