@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Trophy, Target, DollarSign, Award } from 'lucide-react';
+import { Trophy, Target, DollarSign, Award, Info } from 'lucide-react';
 import type { Bolao } from '@/types/bolao';
 import { useLanguage } from '@/i18n/LanguageContext';
 
@@ -39,6 +39,15 @@ const RulesModal = ({ open, onOpenChange, bolao }: RulesModalProps) => {
                 <li><span className="text-foreground font-medium">{t('rules.thirdPlace')}</span> — {t('rules.thirdPlaceDesc')}</li>
                 <li><span className="text-foreground font-medium">{t('rules.final')}</span> — {t('rules.finalDesc')}</li>
               </ul>
+            </section>
+
+            <section className="space-y-2">
+              <h3 className="font-display text-xs tracking-wider text-primary flex items-center gap-2">
+                <Info className="w-4 h-4" /> Como Funciona
+              </h3>
+              <p className="text-muted-foreground">
+                Este Bolão funciona no sistema de acumulação de pontos do início da competição até o jogo final. O Bolão é dividido em fases, que serão abertas para possibilitar o lançamento de palpites pelos participantes. É importante destacar que todos os jogos de cada fase quando estiver aberta devem ser informados, até no máximo 10 minutos antes do início do primeiro jogo da fase corrente. Após esse momento a fase será fechada e ninguém poderá mais inserir ou alterar seus palpites. Este procedimento ocorrerá durante todas as fases da competição. Mensagens e emails serão enviados para relembrar a todos o momento de lançar palpites para as fases subsequentes. Fiquem atentos...
+              </p>
             </section>
 
             <section className="space-y-2">
