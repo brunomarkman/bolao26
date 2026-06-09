@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Trophy, Target, DollarSign, Award } from 'lucide-react';
+import { Trophy, Target, DollarSign, Award, Info } from 'lucide-react';
 import type { Bolao } from '@/types/bolao';
 import { useLanguage } from '@/i18n/LanguageContext';
 
